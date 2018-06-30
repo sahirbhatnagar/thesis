@@ -136,25 +136,25 @@
 % Dedication
 %-------------------------------------------------------------------------------
 
-\newcommand*{\SetAcknowledgeName}[1]{\renewcommand*{\ETDAcknowledgeName}{#1}}
-\newcommand*{\ETDAcknowledgeName}{Acknowledgements}
+\newcommand*{\SetDedicationName}[1]{\renewcommand*{\ETDDedicationName}{#1}}
+\newcommand*{\ETDDedicationName}{Dedication}
 
-\newcommand*{\SetAcknowledgeText}[1]{\renewcommand*{\ETDAcknowledgeText}{#1}}
-\newcommand*{\ETDAcknowledgeText}{Acknowledgements text goes here!}
+\newcommand*{\SetDedicationText}[1]{\renewcommand*{\ETDDedicationText}{#1}}
+\newcommand*{\ETDDedicationText}{Dedication text goes here!}
 
 \newenvironment{simpleenv}[4]{\clearpage}{\clearpage}
 
-\newcommand{\Acknowledge}{
+\newcommand{\Dedication}{
 	\begin{simpleenv}{}{}{}{}
 		\pagestyle{plain}
 		\GoSingle
 		\begin{cent}
-			\bfseries{\ETDAcknowledgeName}
+			\bfseries{\ETDDedicationName}
 		\end{cent}
 		\vspace*{0.5in}
 		\par
 		\GoDouble
-		\ETDAcknowledgeText
+		\ETDDedicationText
 	\end{simpleenv}
 }
 
@@ -169,7 +169,7 @@
 \newcommand*{\SetAcknowledgeText}[1]{\renewcommand*{\ETDAcknowledgeText}{#1}}
 \newcommand*{\ETDAcknowledgeText}{Acknowledgements text goes here!}
 
-\newenvironment{simpleenv}[4]{\clearpage}{\clearpage}
+%\newenvironment{simpleenv}[4]{\clearpage}{\clearpage}
 
 \newcommand{\Acknowledge}{
 	\begin{simpleenv}{}{}{}{}
