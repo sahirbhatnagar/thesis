@@ -1,0 +1,80 @@
+\documentclass[]{article}
+\usepackage{setspace}
+\doublespacing
+%\onehalfspacing
+\usepackage[margin=1.1in]{geometry}
+
+%opening
+\title{Penalized Regression Methods for Interaction and Mixed-Effects Models with Applications to Genomic and Brain Imaging Data}
+\author{Sahir Rai Bhatnagar}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{center}
+	\textbf{\large Abstract}
+\end{center}
+
+In high-dimensional (HD) data, where the number of covariates ($p$) greatly exceeds the number of observations ($n$), estimation can benefit from the bet-on-sparsity principle, i.e., only a small number of predictors are relevant in the response. This assumption can lead to more interpretable models, improved predictive accuracy, and algorithms that are computationally efficient. In genomic and brain imaging studies, where the sample sizes are particularly small due to high data collection costs, we must often assume a sparse model because there isn't enough information to estimate $p$ parameters. For these reasons, penalized regression methods such as the lasso and group-lasso have generated substantial interest since they can set model coefficients exactly to zero. 
+
+In the penalized regression framework, many approaches have been developed for main effects. However, there is a need for developing interaction and mixed-effects models. Indeed,  
+accurate capture of interactions may hold the potential to better understand biological phenomena and improve prediction accuracy since they may reflect important modulation of a biological system by an external factor. Furthermore, penalized mixed-effects models that account for correlations due to groupings of observations can improve sensitivity and specificity. 
+
+This thesis is composed primarily of three manuscripts. The first manuscript describes a novel strategy called \texttt{eclust} for dimension reduction that leverages the effects of an exposure variable with broad impact on HD measures. With \texttt{eclust}, we found improved prediction and variable selection performance compared to methods that do not consider the exposure in the clustering step, or to methods that use the original data as features. We further illustrate this modeling framework through the analysis of three data sets from very different fields, each with HD data, a binary exposure, and a phenotype of interest.
+
+In the second manuscript, we propose a method called \texttt{sail} for detecting non-linear interactions that automatically enforces the strong heredity property using both the $\ell_1$ and $\ell_2$ penalty functions. We describe a blockwise coordinate descent procedure for solving the objective function and provide performance metrics on both simulated and real data. 
+
+%Finally, we develop a general penalized mixed model framework to account for correlations in the genetic data due to relatedness. 
+
+The third manuscript develops a general penalized mixed model framework to account for correlations in genetic data due to relatedness called \texttt{ggmix}. Our method can accommodate several sparsity-inducing penalties such as the lasso, elastic net and group lasso and also readily handles prior annotation information in the form of weights. Our algorithm has theoretical guarantees of convergence and we again assess its performance in both simulated and real data. We provide efficient implementations of all our algorithms in open source software.
+
+
+%This method can be applied in a variety of contexts where there is a need to account for the correlations between observations. 
+
+%Predicting a phenotype and understanding which variables improve that prediction are two very challenging and overlapping problems in high-dimensional (HD) data such as those arising from genomic and brain imaging studies. When analyzing these data using regression models, it is often useful to follow the bet-on-sparsity principle, i.e., assume that only a small number of predictors ($p$) are relevant in predicting the response ($Y$). This assumption leads to computationally efficient algorithms
+%When the sample size ($n$) is much smaller than the total number of variables ($p$), this a 
+%making computational approaches to variable selection and dimension reduction extremely important. This sparsity assumption is particularly suited to penalized regression methods have gained popularity over the past decade due to their sparsity assumption 
+
+%Although many approaches have been developed for main effects, there is a consistent interest in powerful methods for estimating interactions and random effects since they may reflect important modulation of a biological system by an external factor. Accurate capture of interactions may hold the potential to better understand biological phenomena and improve prediction accuracy, while accounting for correlations due to groupings of observations can improve sensitivity and specificity. 
+
+
+
+
+\end{document}
+
+Computational approaches to variable selection have become increasingly important with the advent of high-throughput technologies in genomics and brain imaging studies, where the data has become massive, yet where it is believed that the number of truly important variables is small relative to the total number. Although many approaches have been developed for main effects, there is a consistent interest in powerful methods for estimating interactions, since they may reflect important modulation of a biological system by an external factor. Accurate capture of interactions may hold the potential to better understand biological phenomena and improve prediction accuracy. This thesis 
+
+ Classical statistical models are often not
+applicable to the datasets we have today. A common solution this problem would be to apply these
+models to a lower-dimensional representation of the data e.g. principal components regression. We
+proposed a strategy for dimension reduction that leverages the effects of an exposure variable with
+broad impact on high-dimensional measures [1, 2]. These dimension-reduced variables, constructed
+without using the response, can then be used in predictive models of any type (implemented in the
+eclust R package on CRAN). Our method showed improved prediction performance in a variety of data
+types including brain imaging, gene expression and DNA methylation.
+
+Mixed effect models can account for correlations
+due to relatedness but are not applicable in high-dimensional settings where the number of predictors
+greatly exceeds the number of samples. False negatives can result from two-stage approaches, where
+the residuals estimated from a null model adjusted for the subjects’ relationship structure are
+subsequently used as the response in a standard penalized regression model. To overcome these
+challenges, we develop a general penalized mixed model framework for variable selection and
+estimation in one step [3]. Our method can accommodate several sparsity-inducing penalties such as
+the lasso, elastic net and group lasso and also readily handles prior annotation information in the form
+of weights (implemented in the ggmix R package on GitHub). Our algorithm is highly scalable,
+computationally efficient and has theoretical guarantees of convergence. This method can be applied in
+a variety of contexts where there is a need to account for the correlations between observations. 
+
+ In general, power to estimate interactions is low, the
+number of possible interactions could be enormous, and their effects may be non-linear. Existing
+approaches such as the lasso might keep an interaction but remove a main effect, which is problematic
+for interpretation. We develop a model for linear and non-linear interactions in penalized regression
+models that automatically enforces the strong heredity property using the group lasso penalty [4]. A
+computationally efficient fitting algorithm combined with a non-parametric screening approach scales
+to high-dimensional datasets and has been implemented in the sail R package on GitHub. We apply our
+method to identify gene-prenatal maternal depression interactions on negative emotionality in mother–
+infant dyads from the Maternal Adversity, Vulnerability, and Neurodevelopment (MAVAN) cohort.
+
+\end{document}
