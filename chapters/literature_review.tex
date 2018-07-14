@@ -1,0 +1,127 @@
+\documentclass[12pt,letterpaper]{article}
+%\documentclass[12pt,Bold,letterpaper]{mcgilletdclass}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{natbib}
+%\usepackage{apacite}
+\usepackage{caption}
+\usepackage{color}
+%\usepackage{enumitem}
+\usepackage{epsfig}
+\usepackage{framed}
+\usepackage[letterpaper, margin=1in]{geometry}		% Margins should be 1 inch according to McGill requirements (https://www.mcgill.ca/gps/thesis/guidelines/preparation)
+\usepackage{graphicx}
+%\usepackage{listings}
+\usepackage{placeins}
+\usepackage{setspace}
+\usepackage{subcaption}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+%########################################################################################
+%            						SPACING
+%########################################################################################
+
+\usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
+%\usepackage[left=.1in,right=.1in,top=.1in,bottom=.1in]{geometry}
+%\usepackage[margin=1in]{geometry}
+%\usepackage{setspace}
+%\doublespacing
+
+
+\title{Literature Review}
+\author{Sahir Rai Bhatnagar}
+
+\begin{document}
+\maketitle
+	
+It is easy to write more than you truly need, so try to keep it as limited as possible.  
+(1) The problems of high dimension regressions such as overfitting and redundancy of variables.  
+(2) then  penalization generally as a solution to (1).  
+You might I suppose mention very briefly the alternative solutions like apriori dimension reduction or forward selection, but I would spend as little time as possible on other methods (acknowledging their existence merely and saying your thesis focuses on penalization).  
+(3) then L1 methods including lasso \& group lasso (do you discuss elastic net? if so then you might need to include this too). Here I think you should be quite detailed in terms of the theory, how the penalization parameters are chosen, convergence, etc. 
+(4) Then something about other structured L1 penalizations that have been proposed.  There are quite a few examples of penalties built for specific applications, and maybe you could find a few such examples and cite them. Not comprehensively.  Then you can point to the sail chapter as a new structured penalty.  
+(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.    I'd stop there
+
+
+\section{The problems of high dimension regressions such as overfitting and redundancy of variables.}
+Computational approaches to variable selection have become increasingly important with the advent of high-throughput technologies in genomics and brain imaging studies, where the data has become massive, yet where it is believed that the number of truly important variables is small relative to the total number of variables. 
+
+\subsection{Current methods overview and their limitations} \label{subsec:methods-overview}
+
+\subsubsection{Single-marker or single-variable tests} \label{sec:single}
+Many of the methods used in the studies mentioned in Sections~\ref{sec:missing},~\ref{sec:epi} and~\ref{sec:net} are limited to marginal regression models, i.e., looking at one locus at a time and then subsequently applying a multiple testing adjustment. 
+Although this approach is simple and easy to implement, the single-marker test approach has several limitations. First, the system level changes which are believed to be initiated by the environment, will induce very strong correlations between the genes (e.g. Figure~\ref{fig:COPD}). 
+However, most statistical methods for performing multiple testing adjustments assume weak dependence among the variables being tested~\citep{leek2008general}. 
+Dependence among multiple tests can lead to incorrect Type 1 error rates~\citep{lin2013test} and highly variable significance measures~\citep{leek2008general}. 
+It is even more difficult to declare significant true-positive interaction terms, i.e., interaction with the environmental factor, because the environmental variable is common to all models being tested. 
+Second, the single marker gene environment interaction model does not allow for modeling the joint effect of many genes which is biologically more plausible given that whole networks are more likely to be associated with disease than just a single gene. 
+Third, even in the presence of weakly dependent variables, adjusting for multiple tests in whole genome studies can result in low power.
+
+%\subsubsection{Filtering based approaches}
+
+
+\subsubsection{Multivariate regression approaches including penalization methods} \label{sec:pen}
+%\subsubsection{Variable selection and variable screening}
+For $n$ observations and $p$ covariates, consider the multiple linear regression model \mbox{$\by = \bx \bbeta + \bs{\varepsilon}$}, where $\by$ is a $n \times 1$ phenotype vector,  $\bx$ is an $n \times p$ design matrix, $\bbeta$ is the $p \times 1$ coefficient vector and $\bs{\varepsilon}$ is the $n \times 1$ error vector. 
+The least squares estimate is given by $ \widehat{\bbeta} = \left( \bx^T \bx  \right)^{-1} \bx^T \by $. In genomics data, the problem is that $\bx^T \bx$ is singular because the number of covariates greatly exceeds the number of subjects. 
+For example DNA microarrays measure the expression of approximately 20,000 genes. 
+However, due to funding constraints, the sample size is often less than a few hundred. 
+A common solution to this problem is through penalized regression, i.e., apply a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
+\begin{equation}
+\underbrace{\sum\limits_{i=1}^{n} \left( y_i - \beta_0 - \sum\limits_{j=1}^{p}x_{ij}\beta_j \right)^2}_{\textrm{goodness of fit}} +  \underbrace{\sum\limits_{j=1}^{p} p(\beta_j;\lambda, \gamma)}_{\textrm{penalty}} \label{eq:penalisedlikelihood}
+\end{equation}
+The first term of~\eqref{eq:penalisedlikelihood} is the squared loss of the data and can be generalized to any loss function while the second term is a penalty which depends on non-negative tuning parameters $\gamma$ and $\lambda$ that control the amount of shrinkage to be applied to $\bbeta$ and the degree of concavity of the penalty function, respectively. 
+Several penalty terms have been developed in the literature. Ridge regression places a bound on the square of the coefficients ($\ell_2$ penalty)~\citep{hoerl1970ridge} which has the effect of shrinking the magnitude of the coefficients. 
+This however does not produce parsimonious models as none of the coefficients can be shrunk to exactly 0. The Lasso~\citep{tibshirani1996regression} overcomes this problem by placing a bound on the sum of the absolute values of the coefficients ($\ell_1$ penalty) which sets some of them to 0, thereby simultaneously performing model selection. The Lasso, along with other forms of penalization (e.g. SCAD~\cite{fan2001variable}, Fused Lasso~\citep{tibshirani2005sparsity}, Adaptive Lasso~\citep{zou2006adaptive}, Relaxed Lasso~\citep{meinshausen2007relaxed}, MCP~\citep{zhang2010nearly}) have proven successful in many practical problems.
+Despite these encouraging results, such methods have low sensitivity in the presence of high empirical correlations between covariates because only one variable tends to be selected from the group of correlated or nearly linearly dependent variables~\citep{buhlmann2013correlated}. 
+As a consequence, there is rarely consistency on which variable is chosen from one dataset to another (e.g. in cross-validation folds). This behavior is not well suited to genomic data in which large sets of predictors are highly correlated (e.g. a regulatory module) and are also associated with the response. 
+The elastic net was proposed to benefit from the strengths of ridge regression's treatment of correlated variables and lasso's sparsity~\citep{zou2005regularization}. By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables. 
+These methods however do not take advantage of the grouping structure of the data. For example, cortical thickness measurements from magnetic resonance imaging (MRI) scans are often grouped into cortical regions of the Automated Anatomical Labelling (AAL) atlas~\citep{tzourio2002automated}. 
+Genes involved in the same cellular process (e.g. KEGG pathway~\citep{kanehisa2008kegg}) can also be placed into biologically meaningful groups. When regularizing with the $\ell_1$ penalty, each variable is selected individually regardless of its position in the design matrix. 
+Existing structures between the variables (e.g. spatial, networks, pathways) are ignored even though in many real-life applications the estimation can benefit from this prior knowledge in terms of both prediction accuracy and interpretability~\citep{bach2012structured}. 
+The group lasso~\citep{yuan2006model} (and generalizations thereof) overcomes this problem by producing a structured sparsity~\citep{bach2012structured}, i.e., given a predetermined grouping of non-overlapping variables, all members of the group are either zero or non-zero. 
+The main drawback when applying these methods to genomic data is that these groups may not be known \textit{a priori}. Known pathways may not be relevant to the response of interest and the study of inferring gene networks is still in its infancy. 
+
+\subsubsection{Clustering together with regression}
+Due to the unknown grouping problem, several authors have suggested a two-step procedure where they first cluster or group variables in the design matrix and then subsequently proceed to model fitting where the feature space is some summary measure of each group. 
+This idea dates back to 1957 when Kendall~\citep{kendall1975multivariate} first proposed using principal components in regression. Hierarchical clustering based on the correlation of the design matrix has also been used to create groups of genes in microarray studies and for each level of hierarchy, the cluster average was used as the new set of potential predictors in forward-backward selection~\citep{hastie2001supervised} or the lasso~\citep{park2007averaged}. B{\"u}hlmann \textit{et al.}~\citep{buhlmann2013correlated} proposed a bottom-up agglomerative clustering algorithm based on canonical correlations and used the group lasso on the derived clusters. 
+There are several advantages to these methods over the ones previously mentioned in Sections~\ref{sec:single} and~\ref{sec:pen}. 
+First, the results are more interpretable than the traditional lasso (and related methods) because the non-zero components of the prediction model represent sets of genes as opposed to individual ones. Second, by using genes which cluster well, we bias the inputs towards correlated sets of genes     
+which are more likely to have similar function. 
+Third, taking a summary measure of the resulting clusters can reduce the variance in prediction (overfitting) due to the compressed dimension of the feature space. Lastly, from a practical point of view this approach is flexible and easy to implement because efficient algorithms exist for both clustering~\citep{fastclust} and model fitting~\citep{friedman2010regularization,gglasso}. 
+A limitation of these approaches is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. This has the effect of assigning similar coefficient values to correlated features. Witten \textit{et al.}~\citep{witten2014cluster} recently proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
+This is useful in situations where only a fraction of the features in a cluster are associated with the response. 
+
+In the context of studying gene environment interactions, all previously mentioned methods can yield results where the main effects are 0 but the cross terms are not. While there may exist situations where this can occur, such behavior is generally not biologically plausible in genomics~\citep{bakermans2015hidden}. 
+Two other arguments against such behavior have to do with statistical power and practical importance; 1) large main effects are more likely to lead to detectable interactions than small ones~\citep{cox1984interaction} and 2) a data collector cares about the number of variables they need to \textit{measure} to make predictions at a future time~\citep{bien2013lasso}. 
+Moreover, the proposed clustering methods are based on features from all observations. Any correlation patterns specific to a subgroup of patients (e.g. Figures~\ref{fig:COPDnevercorr} and~\ref{fig:COPDcurrentcorr}) may become diluted when looking at the overall correlation matrix. 
+Therefore the focus of my doctoral research will be on developing a method that can identify previously unknown sets of highly correlated genes that interact with the environment to explain phenotypic variation, with a focus on prediction accuracy and model interpretability. 
+
+
+
+
+\section{penalization generally as a solution to (1)}
+You might I suppose mention very briefly the alternative solutions like apriori dimension reduction or forward selection, but I would spend as little time as possible on other methods (acknowledging their existence merely and saying your thesis focuses on penalization).
+
+
+
+\section{then L1 methods including lasso \& group lasso (do you discuss elastic net? if so then you might need to include this too)}
+Here I think you should be quite detailed in terms of the theory, how the penalization parameters are chosen, convergence, etc.
+
+
+\section{Then something about other structured L1 penalizations that have been proposed}
+
+There are quite a few examples of penalties built for specific applications, and maybe you could find a few such examples and cite them. Not comprehensively.  Then you can point to the sail chapter as a new structured penalty.
+
+
+\section{(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.}
+
+
+
+\section{you will need a section on things like gradient descent and other algorithms for finding solutions efficiently}
+
+
+
+\end{document}
