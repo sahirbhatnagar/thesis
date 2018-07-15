@@ -1,4 +1,4 @@
-\documentclass[12pt,letterpaper]{article}
+\documentclass[12pt,letter]{article}
 %\documentclass[12pt,Bold,letterpaper]{mcgilletdclass}
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -18,6 +18,26 @@
 \usepackage{subcaption}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[pagebackref=true,bookmarks]{hyperref}
+\hypersetup{
+	unicode=false,
+	pdftoolbar=true,
+	pdfmenubar=true,
+	pdffitwindow=false,     % window fit to page when opened
+	pdfstartview={FitH},    % fits the width of the page to the window
+	pdftitle={Penalized LMM in Families},    % title
+	pdfauthor={Sahir Rai Bhatnagar},     % author
+	pdfsubject={Subject},   % subject of the document
+	pdfcreator={Sahir Rai Bhatnagar},   % creator of the document
+	pdfproducer={Sahir Rai Bhatnagar}, % producer of the document
+	pdfkeywords={}, % list of keywords
+	pdfnewwindow=true,      % links in new window
+	colorlinks=true,       % false: boxed links; true: colored links
+	linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+	citecolor=blue,        % color of links to bibliography
+	filecolor=black,      % color of file links
+	urlcolor=cyan           % color of external links
+}
 
 %########################################################################################
 %            						SPACING
@@ -28,6 +48,22 @@
 %\usepackage[margin=1in]{geometry}
 %\usepackage{setspace}
 %\doublespacing
+
+%########################################################################################
+%            						CUSTOM COMMANDS
+%########################################################################################
+
+\newcommand{\bh}{\hat{\beta}}
+\newcommand{\xtx}{\mathbf{X}^T\mathbf{X}}
+\newcommand{\xtxinv}{\left(\mathbf{X}^T\mathbf{X}\right)^{-1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\dnorm}[3]{\frac{1}{\sqrt{2\pi #3}} \expp{- \frac{\left( #1-#2\right) ^2}{2 #3}}  }
+\newcommand{\dpois}[3]{\frac{\exp\left(-#2\right) #3 }{#1 !}}
+\newcommand{\bx}{\mathbf{X}}
+\newcommand{\by}{\mathbf{Y}}
+\newcommand{\bs}{\boldsymbol} 
+\newcommand{\bbeta}{\bs{\beta}}
+
 
 
 \title{Literature Review}
@@ -47,6 +83,15 @@ You might I suppose mention very briefly the alternative solutions like apriori 
 
 \section{The problems of high dimension regressions such as overfitting and redundancy of variables.}
 Computational approaches to variable selection have become increasingly important with the advent of high-throughput technologies in genomics and brain imaging studies, where the data has become massive, yet where it is believed that the number of truly important variables is small relative to the total number of variables. 
+
+Predicting a phenotype and understanding which variables improve that prediction are two very challenging and overlapping problems in analysis of high-dimensional data such as those
+arising from genomic and brain imaging studies. It is often believed that the number of truly important predictors is small relative to the total number of variables, making computational approaches to variable selection and dimension reduction extremely important.
+
+Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}).
+Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance known as the missing heritability problem~\citep{manolio2009finding}.
+One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}.
+Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, are likely to miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
+
 
 \subsection{Current methods overview and their limitations} \label{subsec:methods-overview}
 
