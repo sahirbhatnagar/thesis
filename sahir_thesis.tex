@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{apacite}
+%\usepackage[sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
 \usepackage{caption}
 \usepackage{color}
 \usepackage{enumitem}
@@ -152,14 +153,10 @@ Il est aujourd'hui possible
 
 \ifthesis
 	% Show all chapters on 'thesis' mode
-	\include{chapters/intro}
-	\include{chapters/bds}
-	\include{chapters/snpeff}
-	\include{chapters/gwas}
-	\include{chapters/conclusions}
+	\include{chapters/litreview}
 \else
 	% Only show the chapter we are currently working on (faster LaTex build)
-	\include{chapters/gwas}
+	\include{chapters/litreview}
 \fi
 
 %-----------------------------------------------------------------------------
@@ -178,8 +175,8 @@ Il est aujourd'hui possible
 %       bibtex thesis_mcgill
 %-----------------------------------------------------------------------------
 \bibHeading{References}
-%\bibliographystyle{plain}
 \bibliographystyle{apacite}
-\bibliography{mcgilletd}		% File: mcgilletd.bib
+%\bibliographystyle{acm}
+\bibliography{GEbib}		% File: mcgilletd.bib
 
 \end{document}
