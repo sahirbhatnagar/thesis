@@ -1,24 +1,8 @@
 \documentclass[12pt,letterpaper]{report}
-%\documentclass[12pt,Bold,letterpaper]{mcgilletdclass}
-\usepackage{amsfonts}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{apacite}
-%\usepackage[sort, numbers]{natbib}   % bibliography omit 'round' option if you prefer square brackets
-\usepackage{caption}
-\usepackage{color}
-\usepackage{enumitem}
-\usepackage{epsfig}
-\usepackage{framed}
-\usepackage[letterpaper, margin=1in]{geometry}		% Margins should be 1 inch according to McGill requirements (https://www.mcgill.ca/gps/thesis/guidelines/preparation)
-\usepackage{graphicx}
-\usepackage{listings}
-\usepackage{placeins}
-\usepackage{setspace}
-\usepackage{subcaption}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 
+
+\input{latex_packages}
+\input{latex_commands}
 \input{def_mcgill}
 
 %-----------------------------------------------------------------------------
@@ -50,8 +34,8 @@
 
 % Conditional expression for faster build during "development cycle"
 \newif\ifthesis
-\thesistrue       % Final thesis version: Uncomment this line and comment the next one
-%\thesisfalse    % Development cycle: Uncomment this line and comment the previous one (faster LaTeX compile)
+%\thesistrue       % Final thesis version: Uncomment this line and comment the next one
+\thesisfalse    % Development cycle: Uncomment this line and comment the previous one (faster LaTeX compile)
 
 % Final version? 
 % This is used to add items only for final submission
@@ -177,6 +161,6 @@ Il est aujourd'hui possible
 \bibHeading{References}
 \bibliographystyle{apacite}
 %\bibliographystyle{acm}
-\bibliography{GEbib}		% File: mcgilletd.bib
+\bibliography{chapters/litreview}		% File: mcgilletd.bib
 
 \end{document}
