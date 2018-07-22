@@ -2,23 +2,10 @@
 \chapter{Literature Review\label{ch:litreview}}
 %-----------------------------------------------------------------------------
 
-%---
-\section{Introduction}
-%---
-Taken verbatim from Stephen Reid Tibs, Friedman~\cite{reid2016study}
-Consider the linear model
-$Y = X\beta + \varepsilon$,
-where Y is an n-vector of independently distributed responses, $X$ an $n \times p$ matrix
-with individual specific covariate vectors as its rows and $\varepsilon$ an $n$-vector of
-i.i.d. random variables (usually assumed Gaussian) each with mean 0 and variance $\sigma^2$
-.
-When $p > n$, one cannot estimate the unknown coefficient vector $\beta$ uniquely
-via standard least squares methodology. In fact, it is probably ill-advised to use
-least squares to estimate the vector even when $p \leq n$ with p close to n, since
-standard errors are likely to be high and parameter estimates unstable. In this
-instance, if one can assume that $\beta$ is reasonably sparse with many zero entries,
 
 
+
+\begin{comment}
 It is easy to write more than you truly need, so try to keep it as limited as possible.  
 (1) The problems of high dimension regressions such as overfitting and redundancy of variables.  
 (2) then  penalization generally as a solution to (1).  
@@ -26,6 +13,9 @@ You might I suppose mention very briefly the alternative solutions like apriori 
 (3) then L1 methods including lasso \& group lasso (do you discuss elastic net? if so then you might need to include this too). Here I think you should be quite detailed in terms of the theory, how the penalization parameters are chosen, convergence, etc. 
 (4) Then something about other structured L1 penalizations that have been proposed.  There are quite a few examples of penalties built for specific applications, and maybe you could find a few such examples and cite them. Not comprehensively.  Then you can point to the sail chapter as a new structured penalty.  
 (5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.    I'd stop there
+\end{comment}
+
+The Literature Review is comprised of three sections. The first is a description of three general analytic strategies for high-dimensional data.  The second section involves ... In the third section, ... This is followed by an introduction...
 
 
 \section{High-dimensional regression methods}
@@ -67,7 +57,7 @@ The first term of~\eqref{eq:penalisedlikelihood} is the squared loss of the data
 Several penalty terms have been developed in the literature. Ridge regression places a bound on the square of the coefficients ($\ell_2$ penalty)~\citep{hoerl1970ridge} which has the effect of shrinking the magnitude of the coefficients. 
 This however does not produce parsimonious models as none of the coefficients can be shrunk to exactly 0. The Lasso~\citep{tibshirani1996regression} overcomes this problem by placing a bound on the sum of the absolute values of the coefficients ($\ell_1$ penalty) which sets some of them to 0, thereby simultaneously performing model selection. The Lasso, along with other forms of penalization (e.g. SCAD~\cite{fan2001variable}, Fused Lasso~\citep{tibshirani2005sparsity}, Adaptive Lasso~\citep{zou2006adaptive}, Relaxed Lasso~\citep{meinshausen2007relaxed}, MCP~\citep{zhang2010nearly}) have proven successful in many practical problems.
 Despite these encouraging results, such methods have low sensitivity in the presence of high empirical correlations between covariates because only one variable tends to be selected from the group of correlated or nearly linearly dependent variables~\citep{buhlmann2013correlated}. 
-As a consequence, there is rarely consistency on which variable is chosen from one dataset to another (e.g. in cross-validation folds). This behavior is not well suited to genomic data in which large sets of predictors are highly correlated (e.g. a regulatory module) and are also associated with the response. 
+As a consequence, there is rarely consistency on which variable is chosen from one dataset to another (e.g. in cross-validation folds). This behavior may not be well suited to certain genomic datasets in which large sets of predictors are highly correlated (e.g. a regulatory module) and are also associated with the response. 
 The elastic net was proposed to benefit from the strengths of ridge regression's treatment of correlated variables and lasso's sparsity~\citep{zou2005regularization}. By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables. 
 These methods however do not take advantage of the grouping structure of the data. For example, cortical thickness measurements from magnetic resonance imaging (MRI) scans are often grouped into cortical regions of the Automated Anatomical Labelling (AAL) atlas~\citep{tzourio2002automated}. 
 Genes involved in the same cellular process (e.g. KEGG pathway~\citep{kanehisa2008kegg}) can also be placed into biologically meaningful groups. When regularizing with the $\ell_1$ penalty, each variable is selected individually regardless of its position in the design matrix. 
@@ -98,12 +88,17 @@ The main drawback when applying these methods to genomic data is that these grou
 
 \subsection{Dimension reduction together with regression}
 Due to the unknown grouping problem, several authors have suggested a two-step procedure where they first cluster or group variables in the design matrix and then subsequently proceed to model fitting where the feature space is some summary measure of each group. 
-This idea dates back to 1957 when Kendall~\citep{kendall1975multivariate} first proposed using principal components in regression. Hierarchical clustering based on the correlation of the design matrix has also been used to create groups of genes in microarray studies and for each level of hierarchy, the cluster average was used as the new set of potential predictors in forward-backward selection~\citep{hastie2001supervised} or the lasso~\citep{park2007averaged}. B{\"u}hlmann \textit{et al.}~\citep{buhlmann2013correlated} proposed a bottom-up agglomerative clustering algorithm based on canonical correlations and used the group lasso on the derived clusters. 
+This idea dates back to 1957 when Kendall~\citep{kendall1975multivariate} first proposed using principal components in regression. 
+Hierarchical clustering based on the correlation of the design matrix has also been used to create groups of genes in microarray studies and for each level of hierarchy, the cluster average was used as the new set of potential predictors in forward-backward selection~\citep{hastie2001supervised} or the lasso~\citep{park2007averaged}.
+\cite{buhlmann2013correlated} proposed a bottom-up agglomerative clustering algorithm based on canonical correlations and used the group lasso on the derived clusters. 
 There are some advantages to these methods over the ones previously mentioned in Sections~\ref{sec:single} and~\ref{sec:pen}. 
-First, the results can be more interpretable than the traditional lasso (and related methods) because the non-zero components of the prediction model represent sets of genes as opposed to individual ones. Second, by using genes which cluster well, we bias the inputs towards correlated sets of genes     
-which are more likely to have similar function. 
-Third, taking a summary measure of the resulting clusters can reduce the variance in prediction (overfitting) due to the compressed dimension of the feature space. Lastly, from a practical point of view this approach is flexible and easy to implement because efficient algorithms exist for both clustering~\citep{fastclust} and model fitting~\citep{friedman2010regularization,gglasso}. 
-A limitation of these approaches is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. This has the effect of assigning similar coefficient values to correlated features. Witten \textit{et al.}~\citep{witten2014cluster} recently proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
+First, the results may be more interpretable than the traditional lasso (and related methods) because the non-zero components of the prediction model represent sets of genes as opposed to individual ones. 
+Second, by using genes which cluster well, we bias the inputs towards correlated sets of genes which are more likely to have similar function. 
+Third, taking a summary measure of the resulting clusters can reduce the variance in prediction (overfitting) due to the compressed dimension of the feature space. 
+Lastly, from a practical point of view this approach is flexible and easy to implement because efficient algorithms exist for both clustering~\citep{fastclust} and model fitting~\citep{friedman2010regularization,gglasso}. 
+A limitation of these approaches is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. 
+This has the effect of assigning similar coefficient values to correlated features. 
+\cite{witten2014cluster} proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
 This is useful in situations where only a fraction of the features in a cluster are associated with the response. 
 
 
@@ -558,4 +553,4 @@ To our knowledge, strong hierarchies have never previously been used in HD inter
 
 
 
-\section{you will need a section on things like gradient descent and other algorithms for finding solutions efficiently}
+%\section{you will need a section on things like gradient descent and other algorithms for finding solutions efficiently}

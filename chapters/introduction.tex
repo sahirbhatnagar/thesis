@@ -1,0 +1,19 @@
+%-----------------------------------------------------------------------------
+\chapter{Introduction\label{ch:introduction}}
+%-----------------------------------------------------------------------------
+
+%---
+\section{Introduction}
+%---
+Taken verbatim from Stephen Reid Tibs, Friedman~\cite{reid2016study}
+Consider the linear model
+$Y = X\beta + \varepsilon$,
+where Y is an n-vector of independently distributed responses, $X$ an $n \times p$ matrix
+with individual specific covariate vectors as its rows and $\varepsilon$ an $n$-vector of
+i.i.d. random variables (usually assumed Gaussian) each with mean 0 and variance $\sigma^2$
+.
+When $p > n$, one cannot estimate the unknown coefficient vector $\beta$ uniquely
+via standard least squares methodology. In fact, it is probably ill-advised to use
+least squares to estimate the vector even when $p \leq n$ with p close to n, since
+standard errors are likely to be high and parameter estimates unstable. In this
+instance, if one can assume that $\beta$ is reasonably sparse with many zero entries,
