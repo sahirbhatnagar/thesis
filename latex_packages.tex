@@ -8,7 +8,8 @@
 \usepackage[ruled,vlined,noresetcount]{algorithm2e}
 \usepackage{caption}
 \usepackage{tcolorbox} % for box around text
-\usepackage{color}
+%\usepackage{color}
+\usepackage{color,colortbl,xcolor}
 \usepackage{float} % for H in figures and tables
 %\usepackage{enumitem}
 \usepackage{epsfig}
@@ -18,10 +19,9 @@
 \usepackage{listings}
 \usepackage{placeins}
 \usepackage{setspace}
-\usepackage{subcaption}
+%\usepackage{subcaption}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{ctable} % load after tikz. used for tables
 \usepackage{pifont}% http://ctan.org/pkg/pifont
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
@@ -59,3 +59,17 @@
 \usepackage{setspace}
 \doublespacing
 
+%\usepackage[figurename=Fig.]{caption}
+\usepackage{subfig}
+\usepackage{tikz, pgfplots}
+\usetikzlibrary{arrows,shapes.geometric}
+\usetikzlibrary{calc}
+\usetikzlibrary{backgrounds,intersections,fit}
+\tikzset{isometricYXZ/.style={x={(1cm,0cm)}, y={(-1.299cm,-0.75cm)}, z={(0cm,1cm)}}}
+\newcommand*\ab{.4}
+
+\usepackage{ctable} % load after tikz. used for tables
+
+
+
+\definecolor{whitesmoke}{RGB}{245, 245, 245}

@@ -15,7 +15,9 @@ You might I suppose mention very briefly the alternative solutions like apriori 
 (5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.    I'd stop there
 \end{comment}
 
-The Literature Review is comprised of three sections. The first is a description of three general analytic strategies for high-dimensional data.  The second section involves ... In the third section, ... This is followed by an introduction...
+The Literature Review is comprised of five sections. The first is a description of three general analytic strategies for high-dimensional data. The second and third sections describe two penalization methods that this thesis builds upon, namely the lasso and the group lasso. 
+For each method we detail the algorithms used to fit these models and their convergence properties. In the fourth section we introduce penalized interaction models. This is followed by an introduction to penalized linear mixed models.
+
 
 
 \section{High-dimensional regression methods}
@@ -45,13 +47,13 @@ In the next section, we introduce multivariable penalized regression approaches 
 
 \subsection{Multivariable penalized regression} \label{sec:pen}
 %\subsubsection{Variable selection and variable screening}
-For $n$ observations and $p$ covariates, consider the multiple linear regression model \mbox{$\bY = \bX \bbeta + \bs{\varepsilon}$}, where $\bY$ is a length $n$ phenotype vector,  $\bX$ is an $n \times p$ design matrix, $\bbeta$ is a $p$ length coefficient vector and $\bs{\varepsilon}$ is an $n$ length error vector. 
-The least squares estimate is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \bY $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
+For $n$ observations and $p$ covariates, consider the multiple linear regression model \mbox{$\by = \bX \bbeta + \bs{\varepsilon}$}, where $\by$ is a $n$-length response vector, $\bX$ is an $n \times p$ design matrix, $\bbeta$ is a $p$-length coefficient vector and $\bs{\varepsilon}$ is a $n$-length error vector. 
+The least squares estimate is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
 For example DNA microarrays measure the expression of approximately 20,000 genes. 
 However, due to funding constraints, the sample size is often less than a few hundred. 
 A common solution to this problem is through penalized regression, i.e., apply a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
 \begin{equation}
-\underbrace{\sum\limits_{i=1}^{n} \left( y_i - \beta_0 - \sum\limits_{j=1}^{p}x_{ij}\beta_j \right)^2}_{\textrm{goodness of fit}} +  \underbrace{\sum\limits_{j=1}^{p} p(\beta_j;\lambda, \gamma)}_{\textrm{penalty}} \label{eq:penalisedlikelihood}
+\underbrace{\sum\limits_{i=1}^{n} \left( y_i - \beta_0 - \sum\limits_{j=1}^{p}X_{ij}\beta_j \right)^2}_{\textrm{goodness of fit}} +  \underbrace{\sum\limits_{j=1}^{p} p(\beta_j;\lambda, \gamma)}_{\textrm{penalty}} \label{eq:penalisedlikelihood}
 \end{equation}
 The first term of~\eqref{eq:penalisedlikelihood} is the squared loss of the data and can be generalized to any loss function while the second term is a penalty which depends on non-negative tuning parameters $\lambda$ and $\gamma$ that control the amount of shrinkage to be applied to $\bbeta$ and the degree of concavity of the penalty function, respectively. 
 Several penalty terms have been developed in the literature. Ridge regression places a bound on the square of the coefficients ($\ell_2$ penalty)~\citep{hoerl1970ridge} which has the effect of shrinking the magnitude of the coefficients. 
@@ -109,15 +111,30 @@ This is useful in situations where only a fraction of the features in a cluster 
 
 
 
-\section{then L1 methods including lasso \& group lasso (do you discuss elastic net? if so then you might need to include this too)}
-Here I think you should be quite detailed in terms of the theory, how the penalization parameters are chosen, convergence, etc.
+%\section{The lasso and group lasso}
+%Here I think you should be quite detailed in terms of the theory, how the penalization parameters are chosen, convergence, etc.
+
 
 
 %%%%%%%%%%% Lasso gradient descent
 
-\section{Block Coordinate Descent Algorithm} \label{ap:cgd}
+\section{Lasso}
+Consider the multiple linear regression model \mbox{$\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}$}, where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept and $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$. 
+For least-squares loss, the lasso estimator~\citep{tibshirani1996regression} is defined as
+\begin{equation}
+\widehat{\bbeta}(\lambda) = \argmin_{\bbeta} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:lasso_estimator}
+\end{equation}
+where $(\bX \bbeta)_i$ is the $i$th element of the $n$-length vector $\bX\bbeta$, $\;\lambda \geq 0$ is a tuning parameter which controls the amount of regularization, $w_i$ is a weight for the $i$th observation, and $v_j$ is the penalty factor for the $j$th covariate. 
+These penalty factors allow parameters to be penalized differently. 
+In particular, when $v_j = 1$ for $j = 1, \ldots,p$ then all parameters are regularized equally by $\lambda$, and when $v_j=0$ the $j$th covariate is not penalized, i.e., it will always be included in the model. 
+Note also that the intercept is not penalized. 
+The estimator~\eqref{eq:lasso_estimator} simultaneously does variable selection and shrinks the regression coefficients towards 0. 
+Depending on the choice of $\lambda$, $\widehat{\beta}_j(\lambda)=0$ for some $j$'s, and $\widehat{\beta}_j(\lambda)$ can be thought of as a shrunken least squares estimator~\citep{buhlmann2011statistics}. 
+It is worth noting that~\eqref{eq:lasso_estimator} is a convex optimization problem and thus can be solved very efficiently using a block coordinate descent algorithm~\citep{friedman2010regularization,tseng2009coordinate} for which we provide further details below.
 
-We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate} to solve~\eqref{eq:estimator}. At each iteration, the algorithm approximates the negative log-likelihood $f(\cdot)$ in $Q_{\lambda}(\cdot)$ by a strictly convex quadratic function and then applies block coordinate decent to generate a decent direction followed by an inexact line search along this direction~\citep{tseng2009coordinate}. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)},~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm can thus be run in parallel and therefore suited for large $p$ settings. It has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and~\cite{schelldorfer2011estimation} for mixed models with an $\ell_1$ penalty. Following Tseng and Yun~\cite{tseng2009coordinate}, the CGD algorithm is given by Algorithm~\ref{alg:cgd}.
+\subsection{Block Coordinate Descent Algorithm} \label{ap:cgd}
+
+We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate} to solve~\eqref{eq:lasso_estimator}. At each iteration, the algorithm approximates the negative log-likelihood $f(\cdot)$ in $Q_{\lambda}(\cdot)$ by a strictly convex quadratic function and then applies block coordinate decent to generate a decent direction followed by an inexact line search along this direction~\citep{tseng2009coordinate}. For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(i.e. $P(\bbeta) = \sum_i P_i (\beta_i)$)},~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of $Q_{\lambda}(\cdot)$ if the coordinates are updated in a Gauss-Seidel manner i.e. $Q_{\lambda}(\cdot)$ is minimized with respect to one parameter while holding all others fixed. The CGD algorithm can thus be run in parallel and therefore suited for large $p$ settings. It has been successfully applied in fixed effects models (e.g.~\cite{meier2008group},~\cite{friedman2010regularization}) and~\cite{schelldorfer2011estimation} for mixed models with an $\ell_1$ penalty. Following Tseng and Yun~\cite{tseng2009coordinate}, the CGD algorithm is given by Algorithm~\ref{alg:cgd}. 
 
 \begin{algorithm}[htbp]
 	\SetAlgoLined
@@ -154,27 +171,12 @@ We use a general purpose block coordinate descent algorithm (CGD)~\citep{tseng20
 	\widehat{\Theta}_j^{(k+1)} \leftarrow \widehat{\Theta}_j^{(k)} + \alpha_j^{(k)}d^{(k)}
 	\end{equation*}
 }
-Update\;
-\begin{equation}
-\widehat\eta^{(k+1)} \leftarrow \argmin_{\eta}  \frac{1}{2} \sum_{i=1}^{N_T} \log(1 + \eta (\Lambda_i-1)) + \frac{1}{2{\sigma^2}^{\,(k)}} \sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta (\Lambda_i-1)}
-\end{equation}
-Update\;
-\begin{equation}
-%\widehat{\sigma^2}^{\,\,(k+1)} \leftarrow \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \widehat{\bbeta}^{(k+1)}]_i )^2}{1 + \widehat{\eta}^{(k+1)} (\Lambda_i-1)}
-\widehat{\sigma^2}^{\,\,(k+1)} \gets \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{\left(  \Ytilde_i - \sum_{j=0}^{p}\Xtilde_{ij+1}\beta_j^{(k+1)} \right) ^2}{1 + \eta^{(k+1)} (\Lambda_i-1)}
-\end{equation}
 $k \leftarrow k +1$
 }
-\caption{Coordinate Gradient Descent Algorithm to solve~\eqref{eq:estimator}} \label{alg:cgd}
+\caption{Coordinate Gradient Descent Algorithm to solve~\eqref{eq:lasso_estimator}} \label{alg:cgd}
 \end{algorithm}
 
-\begin{comment}
-We note that conditional on $\widehat{\bbeta}$ and $\widehat{\eta}$, there exists an analytic solution for $\widehat{\sigma^2}$:
-\begin{align}
-\frac{\partial}{\partial \sigma^2} f(\bTheta) &= \frac{N_T}{2\sigma^2}- \frac{1}{2\sigma^4} \sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \bbeta]_i )^2}{1 + \eta (\Lambda_i-1)} = 0 \nonumber \\
-\widehat{\sigma^2} & = \frac{1}{N_T}\sum_{i=1}^{N_T}\frac{([ \bYtilde - \bXtilde \widehat{\bbeta}]_i )^2}{1 + \widehat{\eta} (\Lambda_i-1)} \label{eq:sigmahat}
-\end{align}
-\end{comment}
+\FloatBarrier
 
 The Armijo rule is defined as follows~\citep{tseng2009coordinate}:
 \begin{tcolorbox}
@@ -191,9 +193,9 @@ Common choices for the constants are $\delta=0.1$, $\varrho=0.001$, $\gamma = 0$
 
 Below we detail the specifics of Algorithm~\ref{alg:cgd} for the $\ell_1$ penalty.
 
-\subsection{$\ell_1$ penalty}\label{subsec:l1penalty}
+%\subsubsection{$\ell_1$ penalty}\label{subsec:l1penalty}
 
-The objective function is given by
+$\ell_1$ penalty: The objective function is given by
 \begin{equation}
 Q_{\lambda}(\bTheta) = f(\bTheta) + \lambda |\bbeta|
 \end{equation}
@@ -327,10 +329,74 @@ and $(x)_+ = \max(x, 0)$.
 
 We note that the parameter update for $\beta_j$ given by~\eqref{eq:betaUpdateSoft} takes the same form as the weighted updates of the \texttt{glmnet} algorithm~\citep{friedman2010regularization} (Section 2.4, equation (10)) with $\alpha=1$.
 
+\subsection{Lambda sequence}
+\begin{equation}
+\lambda_{max} = \max_j \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{N_T}\hat{w_i} \Xtilde_{ij}\left(  \Ytilde_i - \Xtilde_{i1}\hat{\beta}_0 \right)}\right\rbrace , \quad j=1, \ldots, p
+\end{equation}
+Following Friedman et al.~\cite{friedman2010regularization}, we choose $\tau\lambda_{max}$ to be the smallest value of tuning parameters $\lambda_{min}$, and construct a
+sequence of $K$ values decreasing from $\lambda_{max}$ to $\lambda_{min}$ on the log scale. The defaults are set to $K = 100$, $\tau = 0.01$ if $n < p $ and $\tau = 0.001$ if $n \geq p $.
 
 
-\section{Group Lasso with Low-rank Similarity Matrix}
+\subsection{Warm Starts}
+The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to implement warm starts. That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$. This strategy leads to computational speedups and has been implemented in the \texttt{ggmix} R package. 
+
+\subsection{Adaptive Lasso}
+
+The weights for the environment variable, main effects and interactions are given by $w_E, w_j$ and $w_{jE}$ respectively. These weights serve as a way of allowing a different penalty to be applied to each variable. In particular, any variable with a weight of zero is not penalized at all. This feature can be applied mainly for two reasons:  
+
+\begin{enumerate}
+	\item Prior knowledge about the importance of certain variables is known. Larger weights will penalize the variable more, while smaller weights will penalize the variable less  
+	\item Allows users to apply the adaptive lasso, similar to the adaptive lasso~\citep{zou2006adaptive}
+\end{enumerate}  
+
+We describe the adaptive lasso ~in Algorithm~\ref{alg:adaptivesail}. This is a general procedure that can be applied to the weak and strong heredity settings, as well as both least squares and logistic loss functions. We provide this capability in the lasso ~package using the \texttt{penalty.factor} argument and provide an example in Section~\ref{ap:pfac} of the Appendix.
+
+\begin{algorithm}
+	\begin{enumerate}
+		\item For a decreasing sequence $\lambda = \lambda_{max}, \ldots,\lambda_{min}$ and fixed $\alpha$ run the lasso ~algorithm
+		\item Use cross-validation or a data splitting procedure to determine the optimal value for the tuning parameter: $\lambda^{[opt]} \in \left\lbrace \lambda_{max},\ldots, \lambda_{min} \right\rbrace$
+		\item Let $\widehat{\beta_E}^{[opt]}, \widehat{\theta}_{j}^{[opt]}$ and $\widehat{\tau}_j^{[opt]}$ for $j=1, \ldots,p$ be the coefficient estimates corresponding to the model at $\lambda^{[opt]}$
+		\item Set the weights to be
+		\begin{enumerate}
+			\item[] $w_E = \left(\abs{\widehat{\beta_E}^{[opt]}}\right)^{-1}$, $w_j = \left(\Vert \widehat{\theta}_{j}^{[opt]} \Vert_2\right)^{-1}$, 
+			$w_{jE} = \left(\Vert\widehat{\tau_j}^{[opt]}\Vert_2\right)^{-1}$ for $j=1, \ldots, p$
+		\end{enumerate}
+		\item Run the  ~algorithm with the weights defined in step 4), and use cross-validation or a data splitting procedure to choose the optimal value of $\lambda$
+	\end{enumerate}
+	\caption{Adaptive   ~algorithm \label{alg:adaptivesail}}
+\end{algorithm}
+
+\section{Group Lasso}
+
 This section focuses on the part of the log-likelihood~\eqref{eq:loglikrowrank} that depends on $\bbeta$.
+
+
+\begin{itemize}
+	\item \textbf{\small{}Categorical predictors (factors):}{\small{}
+		dummy variables}{\small \par}
+	\item \textbf{\small{}Additive Model: }{\footnotesize{}$\sum_{k=1}^{K}f_{k}(X^{(k)})\approx\sum_{k=1}^{K}\sum_{m=1}^{M}\beta_{km}h_{m}(X^{(k)})$}
+	
+	\begin{itemize}
+		\item {\small{}ex. }\textbf{\small{}birth weight}{\small{} predicted by
+			the mother's }\textbf{\small{}age}{\small{} and }\textbf{\small{}weight}{\small{},
+		}\\
+		{\small{}$Age,$ $Age^{2}$, $Age^{3}$ and $Weight$, $Weight^{2}$,
+			$Weight^{3}$}{\small \par}
+	\end{itemize}
+\end{itemize}
+\small Group lasso partitions the variable coefficients into $K$ groups 
+\[
+\boldsymbol{\beta}=([\boldsymbol{\beta}^{(1)}]^{\intercal},[\boldsymbol{\beta}^{(2)}]^{\intercal},\cdots,[\boldsymbol{\beta}^{(K)}]^{\intercal})^{\intercal}
+\]
+
+Extended from the lasso penalty, the group lasso estimator is: \[
+\underset{(\beta_{0},\boldsymbol{\beta})}{\min}\frac{1}{2}\left\Vert \mathbf{y}-\beta_{0}-\mathbf{X}\boldsymbol{\beta}\right\Vert _{2}^{2}+\lambda\sum_{k=1}^{K}\sqrt{p_{k}}\Vert\boldsymbol{\beta}^{(k)}\Vert_{2}\qquad p_{k}-\text{group size}
+\]
+Consider the model:
+\[\text{Credit card balance} \sim \text{age} + \text{age}^2 + \text{height} + \text{height}^2 \]
+
+\input{figures/lasso_grouplasso_comparison}
+
 
 This description follows mainly Yang and Zou (2015). We add the weight matrix.
 
@@ -482,7 +548,7 @@ answer.
 
 
 
-\section{Then something about other structured L1 penalizations that have been proposed}
+\section{Penalized interaction models}
 
 
 %In the context of studying gene environment interactions, all previously mentioned methods can yield results where the main effects are 0 but the cross terms are not. While there may exist situations where this can occur, such behavior is generally not biologically plausible in genomics~\citep{bakermans2015hidden}. 
@@ -490,7 +556,7 @@ answer.
 %Moreover, the proposed clustering methods are based on features from all observations. Any correlation patterns specific to a subgroup of patients (e.g. Figures~\ref{fig:COPDnevercorr} and~\ref{fig:COPDcurrentcorr}) may become diluted when looking at the overall correlation matrix. 
 %Therefore the focus of my doctoral research will be on developing a method that can identify previously unknown sets of highly correlated genes that interact with the environment to explain phenotypic variation, with a focus on prediction accuracy and model interpretability. 
 
-There are quite a few examples of penalties built for specific applications, and maybe you could find a few such examples and cite them. Not comprehensively.  Then you can point to the sail chapter as a new structured penalty.
+Then something about other structured L1 penalizations that have been proposed. There are quite a few examples of penalties built for specific applications, and maybe you could find a few such examples and cite them. Not comprehensively.  Then you can point to the sail chapter as a new structured penalty.
 
 \ctable[pos=H,doinside=\footnotesize]{lcc}{
 }{
@@ -549,8 +615,8 @@ There have been several more recent proposals for modeling interactions with the
 To our knowledge, strong hierarchies have never previously been used in HD interaction analysis in genomics or brain imaging studies. Furthermore, the specific choices of weights proposed here, i.e., based on the transformed variables from phase 2, have not been previously used. Choi \textit{et al.}~\citep{choi2010variable} estimated their weights simultaneously, but this would not be feasible in HD data. Finally, the adaptation to interactions with one key $E$ variable is specific to our situation and this leads to computational efficiencies. These three points constitute novel aspects of this thesis. I have a working implementation of this, and am in the process of conducting simulation studies.
 
 
-\section{(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.}
-
+\section{Penalized linear mixed models}
+(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.
 
 
 %\section{you will need a section on things like gradient descent and other algorithms for finding solutions efficiently}

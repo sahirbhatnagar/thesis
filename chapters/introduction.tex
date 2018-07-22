@@ -17,3 +17,45 @@ via standard least squares methodology. In fact, it is probably ill-advised to u
 least squares to estimate the vector even when $p \leq n$ with p close to n, since
 standard errors are likely to be high and parameter estimates unstable. In this
 instance, if one can assume that $\beta$ is reasonably sparse with many zero entries,
+
+
+\section{Overview of Our Software Packages}
+	
+\begin{itemize}
+	\item \textbf{\footnotesize{}\texttt{eclust}}{\footnotesize{} \textendash{} Bhatnagar et al. (2017, Genetic Epidemiology)}\\
+		{\footnotesize{}\url{https://cran.r-project.org/package=eclust}}{\footnotesize \par}
+		\item \textbf{\footnotesize{}\texttt{sail}}{\footnotesize{} \textendash{} Bhatnagar, Yang and Greenwood
+			(2018+, preprint)}\\
+		{\footnotesize{}\url{https://github.com/sahirbhatnagar/sail}}{\footnotesize \par}
+		\item \textbf{\footnotesize{}\texttt{ggmix}}{\footnotesize{} \textendash{} Bhatnagar, Oualkacha, Yang, Greenwood (2018+, preprint)}\\
+		{\footnotesize{}\url{https://github.com/sahirbhatnagar/ggmix}}{\footnotesize \par}
+		\item \textbf{\footnotesize{}\texttt{casebase}}{\footnotesize{} \textendash{} Bhatnagar$^1$, Turgeon$^1$, Yang, Hanley and Saarela (2018+, preprint)}\\
+		{\footnotesize{}\url{https://cran.r-project.org/package=casebase}}{\footnotesize \par}
+\end{itemize}
+	
+%\footnotetext[1]{\scriptsize{joint co-authors}}
+
+\ctable[pos=h!,doinside=\footnotesize]{lcccc}{
+	}{
+	\FL
+	& \textbf{\texttt{eclust}}   & \textbf{\texttt{sail}} & \textbf{\texttt{ggmix}} & \textbf{\texttt{casebase}} \ML
+	\multicolumn{1}{m{2cm}}{\textbf{Model}}     \\
+	\rowcolor{whitesmoke}
+	\hspace*{0.4cm}Least-Squares & \cmark & \cmark & \cmark &  \\
+	\hspace*{0.4cm}Binary Classification & \cmark &     &    &  \\ 
+	\hspace*{0.4cm}Survival Analysis &    &     &    & \cmark \ML
+	\multicolumn{1}{m{2cm}}{\textbf{Penalty}}     \\
+	\rowcolor{whitesmoke}
+	\hspace*{0.4cm}Ridge        & \cmark &          & \cmark & \cmark \\
+	\hspace*{0.4cm}Lasso        & \cmark & \cmark   & \cmark   & \cmark \\
+	\rowcolor{whitesmoke}
+	\hspace*{0.4cm}Elastic Net & \cmark &           & \cmark   & \cmark \\
+	\hspace*{0.4cm}Group Lasso &  &  \cmark  & \cmark   &  \ML
+	\multicolumn{1}{m{2cm}}{\textbf{Feature}} & \\
+	\rowcolor{whitesmoke}
+	\hspace*{0.4cm}Interactions & \cmark & \cmark       &    & \cmark \\
+	\hspace*{0.4cm}Flexible Modeling & \cmark &  \cmark         &    & \cmark \\
+	\rowcolor{whitesmoke}
+	\hspace*{0.4cm}Random Effects &          &          & \cmark   &  \ML
+	\multicolumn{1}{m{2cm}}{\textbf{Data}} & $(x,y,e)$ & $(x,y,e)$ & $(x,y,\boldsymbol{\Psi})$ & $(x,t,\delta)$ \LL
+}

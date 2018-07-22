@@ -1,0 +1,74 @@
+\begin{figure}
+		\centering
+		\hspace*{-0.50cm}
+		\subfloat[Lasso \label{fig:1}]{
+			\resizebox{200pt}{!}{
+				\begin{tikzpicture}[inner sep=0.2cm]
+				\def \radi{4}
+				\def \x{3}
+				\def \y{3}
+				\def \z{3}
+				
+				\begin{scope}[isometricYXZ]
+				% the grid
+				\begin{scope}[color=gray!50, thin]
+				\foreach \xi in {0,...,\radi}{ \draw (\xi,\radi,0) -- (\xi,0,0) -- (\xi,0,\radi); }%
+				\foreach \yi in {1,...,\radi}{ \draw (0,\yi,\radi) -- (0,\yi,0) -- (\radi,\yi,0); }%
+				\foreach \zi in {0,...,\radi}{ \draw (0,\radi,\zi) -- (0,0,\zi) -- (\radi,0,\zi); }%
+				\end{scope}
+				
+				\draw[-latex, ultra thick, color=blue] (0,0,0) -- (5,0,0) node[anchor=west] {\Large $linear$};%
+				\draw[-latex, ultra thick, color=red] (0,0,0) -- (0,5,0) node[anchor=north] {\Large $quadratic$};%
+				\draw[-latex, ultra thick, color=black] (0,0,0) -- (0,0,5) node[anchor=east] {\Large credit card balance};%
+				
+				\fill[color=magenta, opacity=0.2] (0,0,0) -- (\x,0,0) -- (\x,\y,0) -- (0,\y,0) -- cycle; %
+				\fill[color=yellow, opacity=0.2] (0,0,0) -- (0,0,\z) -- (0,\y,\z) -- (0,\y,0) -- cycle; %
+				\fill[color=cyan, opacity=0.2] (0,0,0) -- (\x,0,0) -- (\x,0,\z) -- (0,0,\z) -- cycle;
+				
+				\draw[color=gray, thick]%
+				(0,\y,\z) -- (\x,\y,\z) -- (\x,\y,0) (\x,\y,\z) -- (\x,0,\z);%
+				\end{scope}
+				
+				%\shade[ball color=yellow] ($\y*(-1.299cm,-0.75cm)+(\x,\z)$) circle (0.1);%
+				\node[circle, minimum width=1cm, inner sep=0pt, outer sep=0pt, ball color=blue!20!white,opacity=0.90] (H-1) at ($\y*(-1.299cm,-0.75cm)+(0,\z)$) {\large \bfseries age};
+				\node[circle, minimum width=2*\ab cm, inner sep=0pt, outer sep=0pt, ball color=blue!50!green!20!white,opacity=.9] (H-1) at (0,0,0) {\bfseries height};
+				\end{tikzpicture}
+			}
+		}
+		\subfloat[Group Lasso \label{fig:2}]{
+			\resizebox{200pt}{!}{
+				\begin{tikzpicture}[inner sep=0.2cm]
+				\def \radi{4}
+				\def \x{3}
+				\def \y{3}
+				\def \z{3}
+				
+				\begin{scope}[isometricYXZ]
+				% the grid
+				\begin{scope}[color=gray!50, thin]
+				\foreach \xi in {0,...,\radi}{ \draw (\xi,\radi,0) -- (\xi,0,0) -- (\xi,0,\radi); }%
+				\foreach \yi in {1,...,\radi}{ \draw (0,\yi,\radi) -- (0,\yi,0) -- (\radi,\yi,0); }%
+				\foreach \zi in {0,...,\radi}{ \draw (0,\radi,\zi) -- (0,0,\zi) -- (\radi,0,\zi); }%
+				\end{scope}
+				
+				\draw[-latex, ultra thick, color=blue] (0,0,0) -- (5,0,0) node[anchor=west] {\Large $linear$};%
+				\draw[-latex, ultra thick, color=red] (0,0,0) -- (0,5,0) node[anchor=north] {\Large $quadratic$};%
+				\draw[-latex, ultra thick, color=black] (0,0,0) -- (0,0,5) node[anchor=east] {\Large credit card balance};%
+				
+				\fill[color=magenta, opacity=0.2] (0,0,0) -- (\x,0,0) -- (\x,\y,0) -- (0,\y,0) -- cycle; %
+				\fill[color=yellow, opacity=0.2] (0,0,0) -- (0,0,\z) -- (0,\y,\z) -- (0,\y,0) -- cycle; %
+				\fill[color=cyan, opacity=0.2] (0,0,0) -- (\x,0,0) -- (\x,0,\z) -- (0,0,\z) -- cycle;
+				
+				\draw[color=gray, thick]%
+				(0,\y,\z) -- (\x,\y,\z) -- (\x,\y,0) (\x,\y,\z) -- (\x,0,\z);%
+				\end{scope}
+				
+				%\shade[ball color=yellow] ($\y*(-1.299cm,-0.75cm)+(\x,\z)$) circle (0.1);%
+				\node[circle, minimum width=1cm, inner sep=0pt, outer sep=0pt, ball color=blue!20!white,opacity=0.90] (H-1) at ($\y*(-1.299cm,-0.75cm)+(\x,\z)$) {\large \bfseries age};
+				\node[circle, minimum width=2*\ab cm, inner sep=0pt, outer sep=0pt, ball color=blue!50!green!20!white,opacity=.9] (H-1) at (0,0,0) {\bfseries height};
+				\end{tikzpicture}
+			}
+			
+		}
+		\caption{Visualizing the key difference between the lasso and group lasso penalties}\label{fig:lasso_grouplasso_comparison}
+\end{figure}
