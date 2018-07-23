@@ -122,7 +122,7 @@ This is useful in situations where only a fraction of the features in a cluster 
 Consider the multiple linear regression model \mbox{$\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}$}, where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors. 
 For least-squares loss, the lasso estimator~\citep{tibshirani1996regression,zou2006adaptive} is defined as
 \begin{equation}
-\widehat{\bbeta}(\lambda) = \argmin_{\bbeta} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:lasso_estimator}
+\widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:lasso_estimator}
 \end{equation}
 where $(\bX \bbeta)_i$ is the $i$th element of the $n$-length vector $\bX\bbeta$, $\;\lambda > 0$ is a tuning parameter which controls the amount of regularization, $w_i$ is a known weight for the $i$th observation, and $v_j$ is the penalty factor for the $j$th covariate. 
 These penalty factors are known and allow parameters to be penalized differently. 
@@ -132,7 +132,7 @@ The estimator~\eqref{eq:lasso_estimator} simultaneously does variable selection 
 Depending on the choice of $\lambda$, $\widehat{\beta}_j(\lambda)=0$ for some $j$'s, and $\widehat{\beta}_j(\lambda)$ can be thought of as a shrunken least squares estimator~\citep{buhlmann2011statistics}. 
 It is worth noting that~\eqref{eq:lasso_estimator} is a convex optimization problem and thus can be solved very efficiently using a block coordinate descent algorithm~\citep{tseng2009coordinate,friedman2007pathwise} for which we provide further details below. Other algorithms for solving this problem exist including LARS~\citep{efron2004least} and the homotopy algorithm~\citep{osborne2000new}, but these have been largely preceded by the coordinate descent algorithm due to its speed and computational efficiency.
 
-\subsection{Block Coordinate Descent Algorithm} \label{ap:cgd}
+\subsection{Block coordinate descent algorithm} \label{ap:cgd}
 
 In a series of seminal papers, Tseng lays the groundwork for a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate,tseng1988coordinate,tseng2001convergence} to minimize the sum of a smooth function $f$ (i.e. continuously differentiable) and a separable convex function $P$ of the form
 \begin{equation}
@@ -322,7 +322,7 @@ In general, the solution to~\eqref{eq:lasso_estimator} is computed over a decrea
 \end{cases}, \qquad \tm{for }j=1, \ldots, p  
 \end{aligned}\label{eq:kktsolved}
 \end{equation}
-where $\gamma \in \mathbb{R}^p$ is the subgradient of the function $f(x) = \abs{x}$ evaluated at $x = \hat{\beta}$. From~\eqref{eq:kktsolved}, we can solve for the smallest value of $\lambda$ such that the entire vector ($\hat{\beta}_1, \ldots, \hat{\beta}_p$) is 0. This is given by
+where $\gamma_j$ is the subgradient of the function $f(x) = \abs{x}$ evaluated at $x = \hat{\beta}_j$. From~\eqref{eq:kktsolved}, we can solve for the smallest value of $\lambda$ such that the entire vector ($\hat{\beta}_1, \ldots, \hat{\beta}_p$) is 0. This is given by
 \begin{equation}
 \lambda_{max} = \max_j \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{n}w_i X_{ij}y_i }\right\rbrace , \quad j=1, \ldots, p
 \end{equation}
@@ -330,11 +330,11 @@ Following~\cite{friedman2010regularization}, we can choose $\tau\lambda_{max}$ t
 sequence of $K$ values decreasing from $\lambda_{max}$ to $\lambda_{min}$ on the log scale. The defaults are set to $K = 100$, $\tau = 0.01$ if $n < p $ and $\tau = 0.001$ if $n \geq p $. The optimal value of $\lambda$ can be chosen using 5-fold or 10-fold cross-validation. For least-squares loss, this corresponds to choosing the $\lambda$ which minimizes the mean squared error. 
 
 
-\subsection{Warm Starts}
+\subsection{Warm starts}
 The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to exploit warm starts which has been shown to lead to computational speedups~\citep{friedman2010regularization}. 
 That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$. 
 
-\subsection{Adaptive Lasso}
+\subsection{Adaptive lasso}
 It has been shown that the lasso estimator can be produce biased estimates for large coefficients and give inconsistent variable selection results at the optimal $\lambda$ for prediction, i.e., many noise features are included in the prediction model~\citep{zou2006adaptive}.
 To overcome the bias problems of the lasso,~\cite{zou2006adaptive} proposed the adaptive lasso which allows a different amount of shrinkage for each regression coefficient using adaptive weights. 
 Adaptive weighting has been shown to construct oracle procedures~\citep{fan2001variable}, i.e., asymptotically, it performs as well as if the true model were given in advance. 
@@ -359,60 +359,35 @@ We detail the adaptive lasso procedure in Algorithm~\ref{alg:adaptivelasso}.
 
 \section{Group Lasso}
 
-This section focuses on the part of the log-likelihood~\eqref{eq:loglikrowrank} that depends on $\bbeta$.
-
-
-\begin{itemize}
-	\item \textbf{\small{}Categorical predictors (factors):}{\small{}
-		dummy variables}{\small \par}
-	\item \textbf{\small{}Additive Model: }{\footnotesize{}$\sum_{k=1}^{K}f_{k}(X^{(k)})\approx\sum_{k=1}^{K}\sum_{m=1}^{M}\beta_{km}h_{m}(X^{(k)})$}
-	
-	\begin{itemize}
-		\item {\small{}ex. }\textbf{\small{}birth weight}{\small{} predicted by
-			the mother's }\textbf{\small{}age}{\small{} and }\textbf{\small{}weight}{\small{},
-		}\\
-		{\small{}$Age,$ $Age^{2}$, $Age^{3}$ and $Weight$, $Weight^{2}$,
-			$Weight^{3}$}{\small \par}
-	\end{itemize}
-\end{itemize}
-\small Group lasso partitions the variable coefficients into $K$ groups 
-\[
-\boldsymbol{\beta}=([\boldsymbol{\beta}^{(1)}]^{\intercal},[\boldsymbol{\beta}^{(2)}]^{\intercal},\cdots,[\boldsymbol{\beta}^{(K)}]^{\intercal})^{\intercal}
-\]
-
-Extended from the lasso penalty, the group lasso estimator is: \[
-\underset{(\beta_{0},\boldsymbol{\beta})}{\min}\frac{1}{2}\left\Vert \mathbf{y}-\beta_{0}-\mathbf{X}\boldsymbol{\beta}\right\Vert _{2}^{2}+\lambda\sum_{k=1}^{K}\sqrt{p_{k}}\Vert\boldsymbol{\beta}^{(k)}\Vert_{2}\qquad p_{k}-\text{group size}
-\]
-Consider the model:
-\[\text{Credit card balance} \sim \text{age} + \text{age}^2 + \text{height} + \text{height}^2 \]
-
-\input{figures/lasso_grouplasso_comparison}
-
-
-This description follows mainly Yang and Zou (2015). We add the weight matrix.
-
-\subsection{Model}
-Only the third term of the log-likelihood~\eqref{eq:loglikrowrank} depends on $\bbeta$:
+One main drawback of the lasso is that it ignores the grouping structure of the design matrix. When given a predetermined grouping of non-overlapping variables, we would want all members of the group to be either zero or non-zero. For example, when dealing with categorical predictors where each factor is expressed through a set of indicator variables, removing an irrelevant factor is equivalent to setting the coefficients of the indicator variables to 0. In an additive model, where each variable is projected on to a set of basis function, e.g. $f_j(X_j) = \sum_{\ell = 1}^{m_j} \psi_{j\ell}(X_j) \beta_{j\ell}$, we would want all $\left\lbrace \beta_{j\ell}\right\rbrace_{\ell=1}^{m_j}$ to be either zero or non-zero. This key difference between the lasso and group lasso penalty is shown in Figure~\ref{fig:lasso_grouplasso_comparison}. 
+Suppose we want to predict an individual's credit card balance from their age and height using the following additive model:
 \begin{equation}
-\frac{1}{2} \left\lbrace \left(\bY - \bX\bbeta \right)^T  \left[\frac{1}{\sigma^2(1-\eta)}\left(  \bI_{N_T} - \bU_1 \left(\frac{1-\eta}{\eta}\bSigma_1^{-1} + \bI_{k}\right) ^{-1}\bU_1^T \right)  \right] \left(\bY - \bX\bbeta \right)  \right\rbrace \label{eq:likeW}
+\tm{credit card balance} = \beta_0 + \beta_{11}\tm{age} + \beta_{12}\tm{age}^2 + \beta_{21}\tm{height} + \beta_{22}\tm{height}^2 + \varepsilon \label{eq:credit_card}
+\end{equation}  
+In Figures~\ref{fig:1} and~\ref{fig:2} we see that both the lasso and group lasso set the linear and quadratic terms for height ($\hat\beta_{21},\hat\beta_{22}$) to 0. However, the lasso estimates only a nonzero quadratic term for age while the group lasso estimates both linear and quadratic terms to be nonzero. 
+
+%\input{figs/lasso_grouplasso_comparison}
+
+We now provide details on the group lasso estimator. Assume that the predictors in the design matrix $\bX \in \mathbb{R}^{n \times p}$ belong to $K$ groups and define the cardinality of index set $I_{k}$ to be $p_{k}$. These groups are known \textit{a priori} such that $(1,2,\ldots,p)=\bigcup_{k=1}^{K}I_{k}$, and are also non-overlapping, i.e., $I_{k}\bigcap I_{k^{\prime}}=\emptyset$ for $k\neq k^{\prime}$.
+Therefore, group $k$ contains $p_{k}$ predictors corresponding to the columns of the design matrix $X_{j}$ for $j\in I_{k}$, and $1\le k\le K.$ The intercept belongs to its own group, i.e., $I_{1}=\{1\}$. The group lasso partitions the variable coefficients into $K$ groups $\boldsymbol{\beta}=([\boldsymbol{\beta}^{(1)}]^{\intercal},[\boldsymbol{\beta}^{(2)}]^{\intercal},\cdots,[\boldsymbol{\beta}^{(K)}]^{\intercal})^{\intercal}$, where $\bbeta^{(k)}$ denotes the segment of $\bbeta$ corresponding to group $k$. 
+For least-squares loss, the group lasso estimator~\citep{yuan2006model} is given by:
+\begin{equation}
+\widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda\sum_{k=1}^{K}v_k\Vert\boldsymbol{\beta}^{(k)}\Vert_{2} \label{eq:glasso_estimator}
 \end{equation}
-Equation~\eqref{eq:likeW} can be written more generally as
-\[
-L(\bbeta\mid\bD)=\frac{1}{2}\left[\bY-\widehat{\bY}\right]^{\top}\mathbf{W}\left[\bY-\widehat{\bY}\right]
-\]
-where $\widehat{\bY}=\sum_{j=1}^{p}\beta_{j}X_{j}$, $\bD$ is the working data $\lbrace \bY, \bX \rbrace$, and $\bW$ is an $N_T \times N_T$ weight matrix given by
+where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$ and penalty factors $v_k$ where the latter is often set to $\sqrt{p_k}$~\citep{yuan2006model}. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a majorization-minimization (MM) type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
+
+
+\subsection{Groupwise majorization descent algorithm}
+
+This description of the groupwise majorization descent (GMD) algorithm used to solve~\eqref{eq:glasso_estimator} follows mainly from~\cite{yang2015fast}. The main difference here is that we consider a more general loss function of the form
+
 \begin{equation}
-\bW = \frac{1}{\sigma^2(1-\eta)}\left(  \bI_{N_T} - \bU_1 \left(\frac{1-\eta}{\eta}\bSigma_1^{-1} + \bI_{k}\right) ^{-1}\bU_1^T \right)   \label{eq:weight}
+L(\bbeta\mid\bD)=\frac{1}{2}\left[\by-\widehat{\by}\right]^{\top}\mathbf{W}\left[\by-\widehat{\by}\right] \label{eq:general_form}
 \end{equation}
 
-%Consider the linear regression problem where we have a continuous response $\by\in\mathbb{R}^{n}$
-%and let $\bX$ be the design matrix with $n$ rows and $p$ columns where $n$ is the sample size of the raw data. If an intercept is used in the model, we let the first column of $\bX$ be a vector of 1.
-Assume that we the predictors in the design matrix $\bX \in \mathbb{R}^{N_T \times p}$ belong to $K$ groups and that the group membership is already defined such that $(1,2,\ldots,p)=\bigcup_{k=1}^{K}I_{k}$ and the cardinality of index set $I_{k}$ is $p_{k}$, $I_{k}\bigcap I_{k^{\prime}}=\emptyset$ for $k\neq k^{\prime},1\le k,k^{\prime}\le K$. Thus group $k$ contains $p_{k}$ predictors, which are $x_{j}$'s for $j\in I_{k}$, and $1\le k\le K.$ If an intercept is included, then $I_{1}=\{1\}$. Given the group partition, we use $\bbeta_{(k)}$ to denote the segment of $\bbeta$ corresponding to group $k$. This notation is used for any $p$-dimensional vector.
-%In a more compact form, and introducing observation weights
-%\[
-%L(\bbeta\mid\bD)=\frac{1}{2}\left[Y-\hat{Y}\right]^{\top}\mathbf{W}\left[Y-\hat{Y}\right]
-%\]
-%where $\hat{Y}=\sum_{j=1}^{p}\beta_{j}X_{j}$, $\bD$ is the working data $\lbrace \by, \bX \rbrace$, $\bW$ is an $N_T \times N_T$ weight matrix. Then the problem we consider can be expressed as
+where $\widehat{\by}=\hat{\beta_0}+\bX\widehat\bbeta$, $\bD$ is the working data $\lbrace \by, \bX \rbrace$, and $\bW$ is an $n \times n$ nonsingular and known weight matrix. This weight matrix can be used when the elements of $\by$ are correlated as is done in generalized least squares. The original proposal in~\cite{yang2015fast} is a special case of~\eqref{eq:general_form} where $\bW$ is a diagonal matrix with entries equal to $w_i$. 
+
+
 We consider the group lasso penalized estimator
 \begin{equation}
 \min_{\bbeta}L(\bbeta \mid \bD)+\lambda\sum_{k=1}^{K}w_{k}\|\bbk\|_{2},\label{eq:wlslasso}
@@ -423,6 +398,10 @@ a $p\times p$ matrix $\bH=\bX^{\trans}\mathbf{W}\bX$, and $\nabla L(\bbeta|\bD)=
 \begin{equation}
 L(\bbeta\mid\bD)\le L(\bbeta^{*}\mid\bD)+(\bbeta-\bbeta^{*})^{\trans}\nabla L(\bbeta^{*}|\bD)+\frac{1}{2}(\bbeta-\bbeta^{*})^{\trans}\bH(\bbeta-\bbeta^{*}).\label{QM1}
 \end{equation}
+
+%In Figure~\ref{fig:gglasso_maj}
+%\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
+
 
 \subsection{Algorithm}
 
