@@ -385,26 +385,16 @@ This description of the groupwise majorization descent (GMD) algorithm used to s
 L(\bbeta\mid\bD)=\frac{1}{2}\left[\by-\widehat{\by}\right]^{\top}\mathbf{W}\left[\by-\widehat{\by}\right] \label{eq:general_form}
 \end{equation}
 
-where $\widehat{\by}=\hat{\beta_0}+\bX\widehat\bbeta$, $\bD$ is the working data $\lbrace \by, \bX \rbrace$, and $\bW$ is an $n \times n$ nonsingular and known weight matrix. This weight matrix can be used when the elements of $\by$ are correlated as is done in generalized least squares. The original proposal in~\cite{yang2015fast} is a special case of~\eqref{eq:general_form} where $\bW$ is a diagonal matrix with entries equal to $w_i$. 
-
-
-We consider the group lasso penalized estimator
-\begin{equation}
-\min_{\bbeta}L(\bbeta \mid \bD)+\lambda\sum_{k=1}^{K}w_{k}\|\bbk\|_{2},\label{eq:wlslasso}
-\end{equation}
-
-The loss function $L$ satisfies the quadratic majorization (QM) condition, since there exists
-a $p\times p$ matrix $\bH=\bX^{\trans}\mathbf{W}\bX$, and $\nabla L(\bbeta|\bD)=-\left(Y-\hat{Y}\right)^{\top}\mathbf{W}\bX$, which may only depend on the data $\bD$, such that for all $\bbeta,\bbeta^{*}$,
+where $\widehat{\by}=\hat{\beta_0}+\bX\widehat\bbeta$, $\bD$ is the working data $\lbrace \by, \bX \rbrace$, and $\bW$ is an $n \times n$ nonsingular and known weight matrix. This weight matrix can be used when the elements of $\by$ are correlated as is done in generalized least squares. The original proposal in~\cite{yang2015fast} is a special case of~\eqref{eq:general_form} where $\bW$ is a diagonal matrix with entries equal to $w_i$. The loss function~\eqref{eq:general_form} satisfies the quadratic majorization (QM) condition, since $L(\bbeta\mid\bD)$ is differentiable as a function of $\bbeta$, i.e., $\nabla L(\bbeta|\bD)=-\left(\by-\hat{\by}\right)^{\top}\mathbf{W}\bX$, and there exists
+a $p\times p$ matrix $\bH=\bX^{\trans}\mathbf{W}\bX$ which only depends on the data $\bD$, such that for all $\bbeta,\bbeta^{*}$,
 \begin{equation}
 L(\bbeta\mid\bD)\le L(\bbeta^{*}\mid\bD)+(\bbeta-\bbeta^{*})^{\trans}\nabla L(\bbeta^{*}|\bD)+\frac{1}{2}(\bbeta-\bbeta^{*})^{\trans}\bH(\bbeta-\bbeta^{*}).\label{QM1}
 \end{equation}
+We can exploit the fact that
+
 
 %In Figure~\ref{fig:gglasso_maj}
 %\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
-
-
-\subsection{Algorithm}
-
 Noticing that the penalty term $\sum_{k=1}^{K}w_{k}||\bbeta_{(k)}||_{2}$ is separable with respect to the indices of the features $k=1, \ldots, K$, we can derive the \textit{groupwise-majorization-descent} (GMD) algorithm for computing the solution of~\eqref{eq:wlslasso} when the loss function satisfies the QM condition. Let $\widetilde{\bbeta}$ denote the current solution of $\bbeta$. Without loss of generality, let us derive the GMD update of $\bbkt$, the coefficients of group $k$. Define $\bH_{k}$ as the sub-matrix of $\bH$ corresponding to group $k$. For example, if group 2 is $\{2,4\}$ then $\bH_{(2)}$ is a $2\times2$ matrix with
 \[
 \bH_{(2)}=\left[\begin{array}{cc}
