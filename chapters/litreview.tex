@@ -311,7 +311,7 @@ $\textrm{sign}(x)$ is the signum function
 and $(x)_+ = \max(x, 0)$. Since there is a closed form solution, which can be computed very quickly for each parameter update (given by~\eqref{eq:betaUpdateSoft}), the CGD algorithm is an attractive approach for solving the lasso estimator.  
 
 
-\subsection{Lambda sequence}
+\subsection{Lambda sequence} \label{subsec:lasso_lambda_seq}
 In general, the solution to~\eqref{eq:lasso_estimator} is computed over a decreasing sequence of values for the tuning parameter $\lambda$, beginning with the smallest value $\lambda_{max}$ for which the entire coefficient vector $\widehat{\bbeta}=\mb{0}_p$ ~\citep{friedman2010regularization}. To determine $\lambda_{max}$, we turn to the Karush-Kuhn-Tucker (KKT) optimality conditions for~\eqref{eq:lasso_estimator}. These conditions can be written as
 \begin{equation}
 \begin{aligned}
@@ -364,12 +364,12 @@ Suppose we want to predict an individual's credit card balance from their age an
 \begin{equation}
 \tm{credit card balance} = \beta_0 + \beta_{11}\tm{age} + \beta_{12}\tm{age}^2 + \beta_{21}\tm{height} + \beta_{22}\tm{height}^2 + \varepsilon \label{eq:credit_card}
 \end{equation}  
-In Figures~\ref{fig:1} and~\ref{fig:2} we see that both the lasso and group lasso set the linear and quadratic terms for height ($\hat\beta_{21},\hat\beta_{22}$) to 0. However, the lasso estimates only a nonzero quadratic term for age while the group lasso estimates both linear and quadratic terms to be nonzero. 
+In Figures~\ref{fig:1} and~\ref{fig:2} we see that both the lasso and group lasso set the linear and quadratic terms for height ($\hat\beta_{21},\hat\beta_{22}$) to 0. However, the lasso estimates only a nonzero quadratic term for age ($\hat\beta_{11}=0, \hat\beta_{12}\neq 0$) while the group lasso estimates both linear and quadratic terms to be nonzero ($\hat\beta_{11}\neq 0, \hat\beta_{12}\neq 0$). We now provide details on the group lasso estimator.
 
-%\input{figs/lasso_grouplasso_comparison}
+\input{figs/lasso_grouplasso_comparison}
 
-We now provide details on the group lasso estimator. Assume that the predictors in the design matrix $\bX \in \mathbb{R}^{n \times p}$ belong to $K$ groups and define the cardinality of index set $I_{k}$ to be $p_{k}$. These groups are known \textit{a priori} such that $(1,2,\ldots,p)=\bigcup_{k=1}^{K}I_{k}$, and are also non-overlapping, i.e., $I_{k}\bigcap I_{k^{\prime}}=\emptyset$ for $k\neq k^{\prime}$.
-Therefore, group $k$ contains $p_{k}$ predictors corresponding to the columns of the design matrix $X_{j}$ for $j\in I_{k}$, and $1\le k\le K.$ The intercept belongs to its own group, i.e., $I_{1}=\{1\}$. The group lasso partitions the variable coefficients into $K$ groups $\boldsymbol{\beta}=([\boldsymbol{\beta}^{(1)}]^{\intercal},[\boldsymbol{\beta}^{(2)}]^{\intercal},\cdots,[\boldsymbol{\beta}^{(K)}]^{\intercal})^{\intercal}$, where $\bbeta^{(k)}$ denotes the segment of $\bbeta$ corresponding to group $k$. 
+Assume that the predictors in the design matrix $\bX \in \mathbb{R}^{n \times p}$ belong to $K$ groups and define the cardinality of index set $I_{k}$ to be $p_{k}$. These groups are known \textit{a priori} such that $(1,2,\ldots,p)=\bigcup_{k=1}^{K}I_{k}$, and are also non-overlapping, i.e., $I_{k}\bigcap I_{k^{\prime}}=\emptyset$ for $k\neq k^{\prime}$.
+Therefore, group $k$ contains $p_{k}$ predictors corresponding to $\bX^{(k)}$, i.e., the columns of the design matrix $X_{j}$ for $j\in I_{k}$, and $1\le k\le K.$ The intercept belongs to its own group, i.e., $I_{1}=\{1\}$. The group lasso partitions the variable coefficients into $K$ groups $\boldsymbol{\beta}=([\boldsymbol{\beta}^{(1)}]^{\intercal},[\boldsymbol{\beta}^{(2)}]^{\intercal},\cdots,[\boldsymbol{\beta}^{(K)}]^{\intercal})^{\intercal}$, where $\bbeta^{(k)}$ denotes the segment of $\bbeta$ corresponding to group $k$. 
 For least-squares loss, the group lasso estimator~\citep{yuan2006model} is given by:
 \begin{equation}
 \widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda\sum_{k=1}^{K}v_k\Vert\boldsymbol{\beta}^{(k)}\Vert_{2} \label{eq:glasso_estimator}
@@ -390,82 +390,97 @@ a $p\times p$ matrix $\bH=\bX^{\trans}\mathbf{W}\bX$ which only depends on the d
 \begin{equation}
 L(\bbeta\mid\bD)\le L(\bbeta^{*}\mid\bD)+(\bbeta-\bbeta^{*})^{\trans}\nabla L(\bbeta^{*}|\bD)+\frac{1}{2}(\bbeta-\bbeta^{*})^{\trans}\bH(\bbeta-\bbeta^{*}).\label{QM1}
 \end{equation}
-We can exploit the fact that
+We can exploit the fact that the loss function~\eqref{eq:general_form} satisfies the QM condition to majorize the loss function in~\eqref{eq:glasso_estimator} by~\eqref{QM1}, and that the penalty term $\sum_{k=1}^{K}v_k\Vert\boldsymbol{\beta}^{(k)}\Vert_{2}$ in~\eqref{eq:glasso_estimator} is separable with respect to the indices of the variables $k=1, \ldots, K$ to performs groupwise updates for each $\bbeta^{(k)}$. 
 
-
-%In Figure~\ref{fig:gglasso_maj}
-%\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
-Noticing that the penalty term $\sum_{k=1}^{K}w_{k}||\bbeta_{(k)}||_{2}$ is separable with respect to the indices of the features $k=1, \ldots, K$, we can derive the \textit{groupwise-majorization-descent} (GMD) algorithm for computing the solution of~\eqref{eq:wlslasso} when the loss function satisfies the QM condition. Let $\widetilde{\bbeta}$ denote the current solution of $\bbeta$. Without loss of generality, let us derive the GMD update of $\bbkt$, the coefficients of group $k$. Define $\bH_{k}$ as the sub-matrix of $\bH$ corresponding to group $k$. For example, if group 2 is $\{2,4\}$ then $\bH_{(2)}$ is a $2\times2$ matrix with
+Let $\widetilde{\bbeta}$ denote the current solution of $\bbeta$ and define $\bH^{(k)}$ as the sub-matrix of $\bH$ corresponding to group $k$. For example, if group 2 is $\{2,4\}$ then $\bH^{(2)}$ is a $2\times2$ matrix with
 \[
-\bH_{(2)}=\left[\begin{array}{cc}
+\bH^{(2)}=\left[\begin{array}{cc}
 h_{2,2} & h_{2,4}\\
 h_{4,2} & h_{4,4}
 \end{array}\right],
 \]
-
-where $h_{i,j}$ is the $i,j$th entry of the $\bH$ matrix. Write $\bbeta$ such that $\bbeta_{(k^{\prime})}=\widetilde{\bbeta}_{(k^{\prime})}$ for $k^{\prime}\ne k$. Given $\bbeta_{(k^{\prime})}=\widetilde{\bbeta}_{(k^{\prime})}$ for $k^{\prime}\ne k$, the optimal $\bbk$ is defined as
+where $h_{i,j}$ is the $i,j$th entry of the $\bH$ matrix. Write $\bbeta$ such that $\bbeta^{(k^{\prime})}=\widetilde{\bbeta}^{(k^{\prime})}$ for $k^{\prime}\ne k$. Given $\bbeta^{(k^{\prime})}=\widetilde{\bbeta}^{(k^{\prime})}$ for $k^{\prime}\ne k$, the estimator for $\bbeta^{(k)}$ is given by
 \begin{equation}
-\arg\min_{\boldsymbol{\beta}^{(k)}}L(\bbeta\mid\bD)+\lambda w_{k}\Vert\bbk\Vert_{2}.\label{GMDeq1}
+\widehat{\bbeta}^{(k)}(\lambda) = \arg\min_{\boldsymbol{\beta}^{(k)}}L(\bbeta\mid\bD)+\lambda v_{k}\Vert \bbeta^{(k)}\Vert_{2}.\label{GMDeq1}
 \end{equation}
-Unfortunately, there is no closed form solution to~\eqref{GMDeq1} for a general loss function with general design matrix. We overcome the computational obstacle by taking advantage of the QM condition. From~\eqref{QM1} we have
-\[
-L(\bbeta\mid\bD)\le L(\widetilde{\bbeta}\mid\bD)+(\bbeta-\widetilde{\bbeta})^{\trans}\nabla L(\widetilde{\bbeta}|\bD)+\frac{1}{2}(\bbeta-\widetilde{\bbeta})^{\trans}\bH(\bbeta-\widetilde{\bbeta}).
-\]
-
-Write $U(\widetilde{\bbeta})=-\nabla L(\widetilde{\bbeta}|\bD)$. Using
-\[
-\bbeta-\widetilde{\bbeta}=(\underbrace{0,\ldots,0}_{k-1},\bbk-\bbkt,\underbrace{0,\ldots,0}_{K-k}),
-\]
-we can write
+Using $\bbeta-\widetilde{\bbeta}=(\underbrace{0,\ldots,0}_{k-1},\bbk-\bbkt,\underbrace{0,\ldots,0}_{K-k})$ and the majorization defined in~\eqref{QM1} we can write
 \begin{equation}
-L(\bbeta\mid\bD)\le L(\widetilde{\bbeta}\mid\bD)-(\bbk-\bbkt)^{\trans}U_{(k)}+\frac{1}{2}(\bbk-\bbkt)^{\trans}\bH_{(k)}(\bbk-\bbkt).\label{GMDeq2}
+L(\bbeta\mid\bD)\le L(\widetilde{\bbeta}\mid\bD)-(\bbk-\bbkt)^{\trans}U^{(k)}+\frac{1}{2}(\bbk-\bbkt)^{\trans}\bH^{(k)}(\bbk-\bbkt).\label{GMDeq2}
 \end{equation}
 where
 \begin{align}
-U_{(k)} & =\frac{\partial}{\partial\bbk}L_{Q}(\bbeta\mid\bD)=-\left(Y-\hat{Y}\right)^{\top}\mathbf{W}\mathbf{X}_{(k)},\label{eq:gradientj-1}\\
-\mathbf{H}_{(k)} & =\frac{\partial^{2}}{\partial\bbk\partial\bbk^{\top}}L_{Q}(\bbeta\mid\bD)=\mathbf{X}_{(k)}^{\top}\mathbf{W}\mathbf{X}_{(k)}.\label{eq:hessianj-1}
+U^{(k)} & =\frac{\partial}{\partial\bbk}L(\bbeta\mid\bD)=-\left(\by-\hat{\by}\right)^{\top}\mathbf{W}\mathbf{X}^{(k)},\label{eq:gradientj-1}\\
+\mathbf{H}^{(k)} & =\frac{\partial^{2}}{\partial\bbk\partial \bbeta^{(k)\top}}L(\bbeta\mid\bD)=(\mathbf{X}^{(k)})^{\top}\mathbf{W}\mathbf{X}^{(k)}.\label{eq:hessianj-1}
 \end{align}
 
-Let $\eta_{k}$ be the largest eigenvalue of $\bH_{(k)}$. We set $\gamma_{k}=(1+\varepsilon^{*})\eta_{k}$, where $\varepsilon^{*}=10^{-6}$. Then we can further relax the upper bound in~\eqref{GMDeq2} as
+The upper bound in~\eqref{GMDeq2} can be majorized even further to avoid expensive matrix multiplications and storing $\bH^{(k)}$ in memory. Let $\eta_{k}$ be the largest eigenvalue of $\bH^{(k)}$. We set $\gamma_{k}=(1+\varepsilon^{*})\eta_{k}$, where $\varepsilon^{*}=10^{-6}$ and substitute $\gamma_{k}$ for $\bH^{(k)}$ in~\eqref{GMDeq2}:
 \begin{equation}
 L(\bbeta\mid\bD)\leq L(\widetilde{\bbeta}\mid\bD)-(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})^{\trans}U_{(k)}+\frac{1}{2}\gamma_{k}(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})^{\trans}(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)}).\label{GMDeq3-1}
 \end{equation}
-It is important to note that the inequality strictly holds unless for $\bbeta^{(k)}=\widetilde{\bbeta}^{(k)}$. Instead of minimizing~\eqref{GMDeq1} we solve
+It is important to note that the inequality strictly holds unless when $\bbeta^{(k)}=\widetilde{\bbeta}^{(k)}$. Substituting the upper bound in~\eqref{GMDeq3-1} for $L(\bbeta\mid\bD)$ in~\eqref{GMDeq1} we get the following estimator for $\bbeta^{(k)}$
 \begin{equation}
-\arg\min_{\bbeta^{(k)}}L(\widetilde{\bbeta}\mid\bD)-(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})^{\trans}U_{(k)}+\frac{1}{2}\gamma_{k}(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})^{\trans}(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})+\lambda w_{k}\Vert\bbeta^{(k)}\Vert_{2}.\label{GMDeq4-1}
+\arg\min_{\bbeta^{(k)}}L(\widetilde{\bbeta}\mid\bD)-(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})^{\trans}U^{(k)}+\frac{1}{2}\gamma_{k}(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})^{\trans}(\bbeta^{(k)}-\widetilde{\bbeta}^{(k)})+\lambda v_{k}\Vert\bbeta^{(k)}\Vert_{2}.\label{GMDeq4-1}
 \end{equation}
 
-Denote by $\widetilde{\bbeta}^{(k)}(\textrm{new})$ the solution to~\eqref{GMDeq4-1}. It is straightforward to see that $\widetilde{\bbeta}^{(k)}(\textrm{new})$ has a simple closed-from expression
+Let $\widetilde{\bbeta}^{(k)}(\textrm{new})$ be the solution to~\eqref{GMDeq4-1} which has a simple closed-from expression:
 \begin{equation}
-\widetilde{\bbeta}^{(k)}(\textrm{new})=\frac{1}{\gamma_{k}}\left(U^{(k)}+\gamma_{k}\widetilde{\bbeta}^{(k)}\right)\left(1-\frac{\lambda w_{k}}{\Vert U^{(k)}+\gamma_{k}\widetilde{\bbeta}^{(k)}\Vert_{2}}\right)_{+}.\label{GMDeq5-1}
+\widetilde{\bbeta}^{(k)}(\textrm{new})=\frac{1}{\gamma_{k}}\left(U^{(k)}+\gamma_{k}\widetilde{\bbeta}^{(k)}\right)\left(1-\frac{\lambda v_{k}}{\Vert U^{(k)}+\gamma_{k}\widetilde{\bbeta}^{(k)}\Vert_{2}}\right)_{+}.\label{GMDeq5-1}
 \end{equation}
 
-Algorithm~\ref{alg1} summarizes the details of GMD.
+Algorithm~\ref{alg1} summarizes the details of GMD for the group lasso with least-squares loss function given by~\eqref{eq:general_form}. The GMD algorithm has the strict descent property and converges to the right answer. The proof follows directly from Section 3.1 of~\cite{yang2015fast}. 
 
 \begin{algorithm}
 	\begin{enumerate}
-		\item For $k=1,\ldots,K$, compute $\gamma_k$, the largest eigenvalue of $\bH^{(k)}$.
+		\item For $k=1,\ldots,K$, compute $\gamma_k$, the largest eigenvalue of $\bH^{(k)} = (\mathbf{X}^{(k)})^{\top}\mathbf{W}\mathbf{X}^{(k)}$
 		\item Initialize $\widetilde \bbeta$.
 		\item Repeat the following cyclic groupwise updates until convergence:
 		\begin{enumerate}
 			\item[---] for $k=1,\ldots,K$, do step (3.1)--(3.3)
 			\begin{enumerate}
 				\item[3.1]
-				Compute $U(\widetilde \bbeta )=-\nabla L(\widetilde \bbeta | \bD)$.
+				Compute $U(\widetilde \bbeta )=-\nabla L(\widetilde \bbeta | \bD)= -\left(\by-\hat{\by}\right)^{\top}\mathbf{W}\mathbf{X}^{(k)}$
 				\item[3.2]
 				Compute
 				$
-				\widetilde \bbeta^{(k)}(\textrm{new}) = \frac{1}{\gamma_k}\left( U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \right)\left(1-\frac{\lambda w_k}{\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2}\right)_{+} .
+				\widetilde \bbeta^{(k)}(\textrm{new}) = \frac{1}{\gamma_k}\left( U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \right)\left(1-\frac{\lambda v_k}{\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2}\right)_{+} .
 				$
 				\item[3.3]
 				Set $\widetilde \bbeta^{(k)}=\widetilde \bbeta^{(k)}(\textrm{new})$.
 			\end{enumerate}
 		\end{enumerate}
 	\end{enumerate}
-	\caption{The GMD algorithm for general group-lasso learning. \label{alg1}}
+	\caption{The GMD algorithm for group lasso with least-squares loss function given by~\eqref{eq:general_form}. \label{alg1}}
 \end{algorithm}
 
 
+\subsection{Lambda sequence}
+Similar to Section~\ref{subsec:lasso_lambda_seq}, we compute the solution to~\eqref{eq:glasso_estimator} over a decreasing sequence of values for the tuning parameter $\lambda$ starting with $\lambda_{max}$. From the update formula~\eqref{GMDeq5-1} we have that for all $k$
+$$
+\begin{cases}\label{KKTcond1}
+\widetilde \bbeta^{(k)} = \frac{1}{\gamma_k}\left( U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \right)\left(1-\frac{\lambda v_k}{\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2}\right) & \qquad\textrm{if}\;\;\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2 > \lambda v_{k}\\\label{KKTcond2}
+\widetilde \bbeta^{(k)} = \boldsymbol{0} & \qquad\textrm{if}\;\;\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2 \leq \lambda v_{k}
+\end{cases}
+$$
+We can then directly obtain the KKT conditions for $k=1, \ldots, K$:
+\begin{equation}
+\begin{aligned}
+-U^{(k)}+\lambda v_{k}\cdot\frac {\widetilde\bbeta^{(k)} }{\Vert\widetilde\bbeta^{(k)}\Vert_2}=\boldsymbol{0}\qquad\textrm{if }\widetilde\bbeta^{(k)}\neq \boldsymbol{0},\\
+\left\Vert
+U^{(k)}
+\right\Vert_2 \le\lambda w_{k}\qquad\textrm{if }\widetilde\bbeta^{(k)}=\boldsymbol{0},
+\end{aligned} \label{eq:kkt_glasso}
+\end{equation}
+
+Using~\eqref{eq:kkt_glasso} we can solve for the smallest value of $\lambda$ such that the entire vector $\left\lbrace \hat{\bbeta}^{(k)}\right\rbrace_{k=1}^{K}$ is 0. This is given by
+ \begin{equation}
+ \lambda_{max} = \max_k \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{n}w_i X_{ij}y_i }\right\rbrace , \quad j=1, \ldots, p
+ \end{equation}
+
+
+In Figure~\ref{fig:gglasso_maj}
+\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
+
+\begin{comment}
 \subsection{Convergence}
 
 We can prove the strict descent property of GMD by using the MM principle \citep{MM1,hunter2004tutorial,MM08}. Define
@@ -504,7 +519,7 @@ U^{(k)}
 \end{align*}
 where $k=1,2,\ldots,K$. Therefore, if the objective function stays unchanged after a cycle, the algorithm necessarily converges to the right
 answer.
-
+\end{comment}
 
 
 
