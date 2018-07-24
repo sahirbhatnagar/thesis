@@ -330,11 +330,11 @@ Following~\cite{friedman2010regularization}, we can choose $\tau\lambda_{max}$ t
 sequence of $K$ values decreasing from $\lambda_{max}$ to $\lambda_{min}$ on the log scale. The defaults are set to $K = 100$, $\tau = 0.01$ if $n < p $ and $\tau = 0.001$ if $n \geq p $. The optimal value of $\lambda$ can be chosen using 5-fold or 10-fold cross-validation. For least-squares loss, this corresponds to choosing the $\lambda$ which minimizes the mean squared error. 
 
 
-\subsection{Warm starts}
+\subsection{Warm starts} \label{subsec:lasso_warmstarts}
 The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to exploit warm starts which has been shown to lead to computational speedups~\citep{friedman2010regularization}. 
 That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$. 
 
-\subsection{Adaptive lasso}
+\subsection{Adaptive lasso} \label{subsec:adaptive_lasso}
 It has been shown that the lasso estimator can be produce biased estimates for large coefficients and give inconsistent variable selection results at the optimal $\lambda$ for prediction, i.e., many noise features are included in the prediction model~\citep{zou2006adaptive}.
 To overcome the bias problems of the lasso,~\cite{zou2006adaptive} proposed the adaptive lasso which allows a different amount of shrinkage for each regression coefficient using adaptive weights. 
 Adaptive weighting has been shown to construct oracle procedures~\citep{fan2001variable}, i.e., asymptotically, it performs as well as if the true model were given in advance. 
@@ -374,7 +374,7 @@ For least-squares loss, the group lasso estimator~\citep{yuan2006model} is given
 \begin{equation}
 \widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda\sum_{k=1}^{K}v_k\Vert\boldsymbol{\beta}^{(k)}\Vert_{2} \label{eq:glasso_estimator}
 \end{equation}
-where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$ and penalty factors $v_k$ where the latter is often set to $\sqrt{p_k}$~\citep{yuan2006model}. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a majorization-minimization (MM) type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
+where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$ and penalty factors $v_k$ where the latter is often set to $\sqrt{p_k}$~\citep{yuan2006model}. Note that the same penalty factor is applied to all the coefficients in a group. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a majorization-minimization (MM) type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
 
 
 \subsection{Groupwise majorization descent algorithm}
@@ -429,6 +429,12 @@ Let $\widetilde{\bbeta}^{(k)}(\textrm{new})$ be the solution to~\eqref{GMDeq4-1}
 
 Algorithm~\ref{alg1} summarizes the details of GMD for the group lasso with least-squares loss function given by~\eqref{eq:general_form}. The GMD algorithm has the strict descent property and converges to the right answer. The proof follows directly from Section 3.1 of~\cite{yang2015fast}. 
 
+In Figure~\ref{fig:gglasso_maj} we provide an illustration of the quadratic majorization technique for updating a parameter $\beta_j$. The solution lies at the minimum of the $F$ curve but we cannot solve for this directly since there is no closed form solution. Instead we majorize $F$ using $Q_1$ which is a function consisting of the quadratic approximation of $F$ plus the penalty term evaluated at $\beta_j^{(m)}$. The minimum of $Q_1$, for which there is a closed form solution, corresponds to the next iteration $\beta_j^{(m+1)}$. We then majorize again using $Q_2$ and solve for the minimum. This process is repeated until convergence.  
+
+ 
+\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
+
+
 \begin{algorithm}
 	\begin{enumerate}
 		\item For $k=1,\ldots,K$, compute $\gamma_k$, the largest eigenvalue of $\bH^{(k)} = (\mathbf{X}^{(k)})^{\top}\mathbf{W}\mathbf{X}^{(k)}$
@@ -458,7 +464,7 @@ Similar to Section~\ref{subsec:lasso_lambda_seq}, we compute the solution to~\eq
 $$
 \begin{cases}\label{KKTcond1}
 \widetilde \bbeta^{(k)} = \frac{1}{\gamma_k}\left( U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \right)\left(1-\frac{\lambda v_k}{\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2}\right) & \qquad\textrm{if}\;\;\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2 > \lambda v_{k}\\\label{KKTcond2}
-\widetilde \bbeta^{(k)} = \boldsymbol{0} & \qquad\textrm{if}\;\;\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2 \leq \lambda v_{k}
+\widetilde \bbeta^{(k)} = \boldsymbol{0} & \qquad\textrm{if}\;\;\Vert U^{(k)}+\gamma_k \widetilde \bbeta^{(k)} \Vert_2 \leq \lambda v_{k}\;.
 \end{cases}
 $$
 We can then directly obtain the KKT conditions for $k=1, \ldots, K$:
@@ -467,18 +473,22 @@ We can then directly obtain the KKT conditions for $k=1, \ldots, K$:
 -U^{(k)}+\lambda v_{k}\cdot\frac {\widetilde\bbeta^{(k)} }{\Vert\widetilde\bbeta^{(k)}\Vert_2}=\boldsymbol{0}\qquad\textrm{if }\widetilde\bbeta^{(k)}\neq \boldsymbol{0},\\
 \left\Vert
 U^{(k)}
-\right\Vert_2 \le\lambda w_{k}\qquad\textrm{if }\widetilde\bbeta^{(k)}=\boldsymbol{0},
+\right\Vert_2 \le\lambda w_{k}\qquad\textrm{if }\widetilde\bbeta^{(k)}=\boldsymbol{0}\; .
 \end{aligned} \label{eq:kkt_glasso}
 \end{equation}
 
-Using~\eqref{eq:kkt_glasso} we can solve for the smallest value of $\lambda$ such that the entire vector $\left\lbrace \hat{\bbeta}^{(k)}\right\rbrace_{k=1}^{K}$ is 0. This is given by
- \begin{equation}
- \lambda_{max} = \max_k \left\lbrace \abs{ \frac{1}{v_j} \sum_{i=1}^{n}w_i X_{ij}y_i }\right\rbrace , \quad j=1, \ldots, p
- \end{equation}
+Using~\eqref{eq:kkt_glasso} we can solve for the smallest value of $\lambda$ such that the entire vector $\left\lbrace \widehat{\bbeta}^{(k)}\right\rbrace_{k=1}^{K}$ is 0. This is given by
+ \begin{align}
+ \lambda_{max} & = \max_k  \frac{1}{v_k} \norm{  U^{(k)}}_2 , \quad k=1, \ldots, K, \; v_k \neq 0
+ \end{align}
+
+\subsection{Warm starts and adaptive group lasso}
+
+Warm starts can also be implemented for the group lasso as described in Section~\ref{subsec:lasso_warmstarts} for the lasso. Furthermore, the adaptive group lasso can be computed using Algorithm~\ref{alg:adaptivelasso}; the main difference is that the coefficient estimates in Step 1 are obtained from a group lasso fit and the weights for group $k$ are given by $v_k = \left(\norm{\widehat{\bbeta}^{(k)}}_2\right)^{-1}$. 
 
 
-In Figure~\ref{fig:gglasso_maj}
-\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
+
+
 
 \begin{comment}
 \subsection{Convergence}
