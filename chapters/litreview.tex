@@ -574,12 +574,25 @@ where $\norm{Y - g(\bmu)}_2^2 = \sum_i (y_i - g(\mu_i))^2$, $\norm{\bbeta}_1 = \
 \end{equation}
 In words, the interaction term will only have a non-zero estimate if its corresponding main effects are estimated to be non-zero. One benefit brought by hierarchy is that the number of measured variables can be reduced, referred to as practical sparsity~\citep{she2014group,bien2013lasso}. For example, a model involving $X_1, E, X_1 \cdot E$ is more parsimonious than a model involving $X_1, E, X_2 \cdot E$, because in the first model a researcher would only have to measure two variables compared to three in the second model.
 
-In the variable selection via penalization literature, this is known as structured sparsity. There have been several proposals for modeling interactions with the strong heredity constraint including Composite Absolute Penalties (CAP)~\citep{zhao2009composite}, Variable selection using Adaptive Nonlinear Interaction Structures in High dimensions (VANISH)~\citep{radchenko2010variable}, Strong Hierarchical Lasso (hierNet)~\citep{bien2013lasso}, Group-Lasso Interaction Network (glinternet)~\citep{lim2015learning}, Group Regularized Estimation under Structural Hierarchy (GRESH)~\citep{she2014group} and a Framework for Modeling Interactions with a Convex Penalty (FAMILY)~\citep{haris2014convex}. The majority of these methods achieve this structured sparsity via the group lasso penalty where each group contains both main effects and their corresponding interactions. For example, consider a two-way interaction model of the form
-\begin{equation}
-y = \beta_0 + \beta_1 X_1
-\end{equation}
+There have been several proposals for modeling interactions with the strong heredity constraint in the penalization literature including Composite Absolute Penalties (CAP)~\citep{zhao2009composite}, Variable selection using Adaptive Nonlinear Interaction Structures in High dimensions (VANISH)~\citep{radchenko2010variable}, Strong Hierarchical Lasso (hierNet)~\citep{bien2013lasso}, Group-Lasso Interaction Network (glinternet)~\citep{lim2015learning}, Group Regularized Estimation under Structural Hierarchy (GRESH)~\citep{she2014group} and a Framework for Modeling Interactions with a Convex Penalty (FAMILY)~\citep{haris2014convex}. A popular approach to achieve this structured sparsity is via the group lasso penalty where each group contains both main effects and their corresponding interactions. For example, consider a two-way interaction model of the form
+\begin{align*}
+y = &\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 \\
+&+ \beta_{12} X_1 X_2 + \beta_{13} X_1X_3 + \beta_{23} X_2X_3 + \varepsilon
+\end{align*}
+A grouping structure that would satisfy the strong heredity property is:
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|c|c|c|c|ccc|ccc|ccc|}
+		\hline
+		group     & 1         & 2         & 3         & \multicolumn{3}{c|}{4}            & \multicolumn{3}{c|}{5}            & \multicolumn{3}{c|}{6}            \\
+		parameter & $\beta_1$ & $\beta_2$ & $\beta_3$ & $\beta_1$ & $\beta_2$ & $\beta_{12}$ & $\beta_1$ & $\beta_3$ & $\beta_{13}$ & $\beta_2$ & $\beta_3$ & $\beta_{23}$ \\ \hline
+	\end{tabular}
+\end{table}
+A limitation of this approach is that its impossible to select one variable without selecting all the groups containing it~\citep{jacob2009group}. This implies that if a main effect has been selected, all the interaction terms with that main effect will necessarily be selected as well which can be an issue when the truth contains no interactions. 
 
-\ctable[pos=H,doinside=\footnotesize]{llc}{
+In Chapter 3 of the thesis, we introduce a new structured sparsity called \texttt{sail} which satisfies the strong heredity property while overcoming this issue, i.e., a selected main effect does not automatically imply that the corresponding interactions will also be selected. Furthermore, our method can accommodate non-linear interaction effects on the response. The context of Chapter 3 is summarized in Table~\ref{tab:sailcomparison}.
+
+\ctable[caption={Overview of methods with structured sparsity for penalized regression models},label=tab:sailcomparison,pos=H,doinside=\footnotesize]{llc}{
 }{
 \FL
 Type      & Method   & Software \ML
@@ -598,9 +611,8 @@ Type      & Method   & Software \ML
 
 
 
+\begin{comment}
 However this method and related ones are restricted to all pairwise interactions between $p$ measured variables. Therefore I will explore methods that impose a strong hierarchy in the context of gene environment interactions. 
-
-
 In order to address these issues, we propose to extend the model of Choi \textit{et al.}~\citep{choi2010variable} to simultaneously perform variable selection, estimation and impose the strong heredity principle in the context of high dimensional interactions with the environment (HD$\times E$). To do so, we follow Choi and reparametrize the coefficients for the interaction terms as $\alpha_{jE} = \gamma_{jE} \beta_j \beta_E$. Plugging this into~\eqref{eq:linpred1}:
 \begin{align}
 g(\bmu)  = & \beta_0  + \beta_1 \widetilde{X}_{1} + \cdots + \beta_q \widetilde{X}_q + \beta_{E} E + \gamma_{1E}\beta_1 \beta_E (\widetilde{X}_1 E) + \cdots + \gamma_{qE}\beta_q \beta_E (\widetilde{X}_q E)    \label{eq:linpred2}
@@ -622,6 +634,7 @@ where $\hat{\beta}_j$ and $\hat{\alpha}_{j}$ are the MLEs, \textit{using the tra
 %We argue here that in our applications, we are more concerned with identifying the truly associated parameters (as given by an oracle procedure) than finding a global minimum which would be guaranteed in a convex formulation. 
 
 To our knowledge, strong hierarchies have never previously been used in HD interaction analysis in genomics or brain imaging studies. Furthermore, the specific choices of weights proposed here, i.e., based on the transformed variables from phase 2, have not been previously used. Choi \textit{et al.}~\citep{choi2010variable} estimated their weights simultaneously, but this would not be feasible in HD data. Finally, the adaptation to interactions with one key $E$ variable is specific to our situation and this leads to computational efficiencies. These three points constitute novel aspects of this thesis. I have a working implementation of this, and am in the process of conducting simulation studies.
+\end{comment}
 
 
 \section{Penalized linear mixed models}
