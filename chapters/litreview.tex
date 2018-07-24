@@ -98,13 +98,32 @@ First, the results may be more interpretable than the traditional lasso (and rel
 Second, by using genes which cluster well, we bias the inputs towards correlated sets of genes which are more likely to have similar function. 
 Third, taking a summary measure of the resulting clusters can reduce the variance in prediction (overfitting) due to the compressed dimension of the feature space. 
 Lastly, from a practical point of view this approach is flexible and easy to implement because efficient algorithms exist for both clustering~\citep{fastclust} and model fitting~\citep{friedman2010regularization,gglasso}. 
-A limitation of these approaches is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. 
+
+In this context, we introduce a new two-step procedure called \texttt{eclust}~\citep{bhatnagar2018analytic} in Chapter 5 of the thesis. Our method is motivated by the fact that exposure variables (e.g. smoking) can alter correlation patterns between clusters of high-dimensional variables, i.e., alter network properties of the variables. However, it is not well understood whether such altered clustering is informative in prediction. In this paper, we explore whether use of exposure-dependent clustering relationships in dimension reduction can improve predictive modelling in a two-step framework. 
+
+A limitation of two-step methods is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. 
 This has the effect of assigning similar coefficient values to correlated features. 
 \cite{witten2014cluster} proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
 This is useful in situations where only a fraction of the features in a cluster are associated with the response. 
 
 
-
+\begin{comment}
+\ctable[caption={Summary of methods used in simulation study},label=tab:methods,pos=h!,doinside=\footnotesize]{LLLLL}{
+}{
+\FL
+General Approach              & Summary Measure of Feature Clusters & Regression Model & Description \ML
+Univariate (uni) & NA  & linear model & \multicolumn{1}{m{5cm}}{Fit a joint model on top 5\% most marginally associated predictors}\\
+\addlinespace[5pt] 
+Penalization (pen)  & NA & ridge, lasso, scad, elasticnet, mcp & \multicolumn{1}{m{5cm}}{no grouping information is used} \\
+\addlinespace[5pt] 
+Group Penalization (group)  & NA & group lasso & \multicolumn{1}{m{5cm}}{groups are pre-determined via hierarchical clustering on gene expression correlation matrix}\\
+\addlinespace[5pt] 
+Cluster (clust) & principal component, average, sparse principal component & linear model, lasso, elasticnet & \multicolumn{1}{m{5cm}}{fit model using summary measure of hierarchical clusters as predictors. clusters are automatically chosen using the \texttt{dynamicTreeCut}~\cite{langfelder2008defining} algorithm} \\
+\addlinespace[5pt] 
+Environment Cluster (Eclust) & principal component, average, sparse principal component & linear model, lasso, elasticnet & \multicolumn{1}{m{5cm}}{use environment to inform the clustering, then fit model on summary measures of the derived clusters. clusters are chosen using \texttt{kmeans} with $K=2$} \\
+\LL
+}
+\end{comment}
 
 %\section{penalization generally as a solution to (1)}
 %You might I suppose mention very briefly the alternative solutions like apriori dimension reduction or forward selection, but I would spend as little time as possible on other methods (acknowledging their existence merely and saying your thesis focuses on penalization).
@@ -118,7 +137,7 @@ This is useful in situations where only a fraction of the features in a cluster 
 
 %%%%%%%%%%% Lasso gradient descent
 
-\section{Lasso}
+\section{Lasso}\label{sec:lasso}
 Consider the multiple linear regression model \mbox{$\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}$}, where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors. 
 For least-squares loss, the lasso estimator~\citep{tibshirani1996regression,zou2006adaptive} is defined as
 \begin{equation}
@@ -374,7 +393,7 @@ For least-squares loss, the group lasso estimator~\citep{yuan2006model} is given
 \begin{equation}
 \widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda\sum_{k=1}^{K}v_k\Vert\boldsymbol{\beta}^{(k)}\Vert_{2} \label{eq:glasso_estimator}
 \end{equation}
-where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$ and penalty factors $v_k$ where the latter is often set to $\sqrt{p_k}$~\citep{yuan2006model}. Note that the same penalty factor is applied to all the coefficients in a group. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a majorization-minimization (MM) type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
+where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$, and penalty factors $v_k \geq 0$ which control the relative strength of the terms within the group lasso penalty. These penalty factors are often set to $\sqrt{p_k}$~\citep{yuan2006model}. Note that the same penalty factor is applied to all the coefficients in a group. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a majorization-minimization (MM) type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
 
 
 \subsection{Groupwise majorization descent algorithm}
@@ -540,46 +559,49 @@ answer.
 %Two other arguments against such behavior have to do with statistical power and practical importance; 1) large main effects are more likely to lead to detectable interactions than small ones~\citep{cox1984interaction} and 2) a data collector cares about the number of variables they need to \textit{measure} to make predictions at a future time~\citep{bien2013lasso}. 
 %Moreover, the proposed clustering methods are based on features from all observations. Any correlation patterns specific to a subgroup of patients (e.g. Figures~\ref{fig:COPDnevercorr} and~\ref{fig:COPDcurrentcorr}) may become diluted when looking at the overall correlation matrix. 
 %Therefore the focus of my doctoral research will be on developing a method that can identify previously unknown sets of highly correlated genes that interact with the environment to explain phenotypic variation, with a focus on prediction accuracy and model interpretability. 
+In this section, we introduce penalized regression methods in the context of interaction models. We consider a regression model for an $n$-length outcome variable $\by$ which follows an exponential family. Let $E=(e_1, \ldots, e_n)$ be the binary environment or exposure vector and $\bX$ the $n \times p $ matrix of high-dimensional data. Consider the regression model with main effects and their interactions with $E$:
+\begin{align}
+g(\bmu)  = & \beta_0  + \underbrace{\beta_1 X_{1} + \cdots + \beta_p X_p + \beta_{E} E}_{\tm{main effects}} + \underbrace{\alpha_{1E} (X_1 E) + \cdots + \alpha_{pE} (X_p E)}_{\tm{interactions}} \label{eq:linpred}
+\end{align}
+where $g(\cdot)$ is a known link function and $\bmu = \e\left[\by|\bX, E, \bbeta,\balpha\right]$.
+Due to the large number of parameters to estimate with respect to the number of observations, we might consider adding the lasso penalty introduced in Section~\ref{sec:lasso}. A natural extension of the lasso penalty applied to the interaction model~\eqref{eq:linpred} is
+\begin{equation}
+\argmin_{\beta_0, \bbeta, \boldsymbol{\alpha} }  \frac{1}{2} \norm{Y - g(\bmu)}_2^2 + \lambda \left( \norm{\bbeta}_1 + \norm{\balpha}_1    \right)\; , \label{eq:lassolikelihood}
+\end{equation}
+where $\norm{Y - g(\bmu)}_2^2 = \sum_i (y_i - g(\mu_i))^2$, $\norm{\bbeta}_1 = \sum_j | \beta_j  |$, $\norm{\balpha}_1 = \sum_j | \alpha_j  |$ and $\lambda \geq 0$ is the tuning parameter that can set some of the coefficients to zero when sufficiently large. A limitation of~\eqref{eq:lassolikelihood} is that the selected model may have main effects that are 0 but the corresponding interaction terms are not. This is due to the penalty which treats both main effects and interactions equally. While there may exist situations where this can occur, statisticians have long argued that large main effects are more likely to lead to detectable interactions than small ones~\citep{cox1984interaction} and therefore, main effects should enter the model before interactions. This is known as the strong heredity principle~\citep{chipman1996bayesian}:
+\begin{equation}
+\hat{\alpha}_{jE} \neq 0 \qquad \Rightarrow \qquad \hat{\beta}_j \neq 0 \qquad \tm{and} \qquad \hat{\beta}_E \neq 0   \label{eq:heredity}
+\end{equation}
+In words, the interaction term will only have a non-zero estimate if its corresponding main effects are estimated to be non-zero. One benefit brought by hierarchy is that the number of measured variables can be reduced, referred to as practical sparsity~\citep{she2014group,bien2013lasso}. For example, a model involving $X_1, E, X_1 \cdot E$ is more parsimonious than a model involving $X_1, E, X_2 \cdot E$, because in the first model a researcher would only have to measure two variables compared to three in the second model.
 
-Then something about other structured L1 penalizations that have been proposed. There are quite a few examples of penalties built for specific applications, and maybe you could find a few such examples and cite them. Not comprehensively.  Then you can point to the sail chapter as a new structured penalty.
+In the variable selection via penalization literature, this is known as structured sparsity. There have been several proposals for modeling interactions with the strong heredity constraint including Composite Absolute Penalties (CAP)~\citep{zhao2009composite}, Variable selection using Adaptive Nonlinear Interaction Structures in High dimensions (VANISH)~\citep{radchenko2010variable}, Strong Hierarchical Lasso (hierNet)~\citep{bien2013lasso}, Group-Lasso Interaction Network (glinternet)~\citep{lim2015learning}, Group Regularized Estimation under Structural Hierarchy (GRESH)~\citep{she2014group} and a Framework for Modeling Interactions with a Convex Penalty (FAMILY)~\citep{haris2014convex}. The majority of these methods achieve this structured sparsity via the group lasso penalty where each group contains both main effects and their corresponding interactions. For example, consider a two-way interaction model of the form
+\begin{equation}
+y = \beta_0 + \beta_1 X_1
+\end{equation}
 
-\ctable[pos=H,doinside=\footnotesize]{lcc}{
+\ctable[pos=H,doinside=\footnotesize]{llc}{
 }{
 \FL
 Type      & Method   & Software \ML
 \multicolumn{1}{m{1cm}}{Linear}    & \multicolumn{1}{m{6cm}}{\texttt{CAP}~\citep{zhao2009composite} }        &   \xmark    \\
-& \multicolumn{1}{m{4cm}}{\texttt{SHIM}~\citep{choi2010variable}}        &   \xmark    \\
-& \multicolumn{1}{m{4cm}}{\texttt{hiernet}~\citep{bien2013lasso}}        &   \texttt{hierNet(x, y)}    \\
-& \multicolumn{1}{m{4cm}}{\texttt{GRESH}~\citep{she2014group} }        &  \xmark     \\
-& \multicolumn{1}{m{4cm}}{\texttt{FAMILY}~\citep{haris2016convex}}    &  \texttt{FAMILY(x, z, y)}   \\
-& \multicolumn{1}{m{4cm}}{\texttt{glinternet}~\citep{lim2015learning} }    & \texttt{glinternet(x, y)}  \\			   	 	
-& \multicolumn{1}{m{4cm}}{\texttt{RAMP}~\citep{hao2018model}}        & \texttt{RAMP(x, y)}  \\ 
-& \multicolumn{1}{m{4cm}}{\texttt{LassoBacktracking}~\citep{shah2016modelling}   }        & \texttt{LassoBT(x, y)}  \ML
-\multicolumn{1}{m{4cm}}{Non-linear} 	& \multicolumn{1}{m{8cm}}{\texttt{VANISH}~\citep{radchenko2010variable} }        & \xmark  \\
-& \multicolumn{1}{m{4cm}}{\texttt{sail}}        & \texttt{sail(x, y, e)}  \LL
+& \multicolumn{1}{m{6cm}}{\texttt{SHIM}~\citep{choi2010variable}}        &   \xmark    \\
+& \multicolumn{1}{m{6cm}}{\texttt{hiernet}~\citep{bien2013lasso}}        &   \texttt{hierNet(x, y)}    \\
+& \multicolumn{1}{m{6cm}}{\texttt{GRESH}~\citep{she2014group} }        &  \xmark     \\
+& \multicolumn{1}{m{6cm}}{\texttt{FAMILY}~\citep{haris2016convex}}    &  \texttt{FAMILY(x, z, y)}   \\
+& \multicolumn{1}{m{6cm}}{\texttt{glinternet}~\citep{lim2015learning} }    & \texttt{glinternet(x, y)}  \\			   	 	
+& \multicolumn{1}{m{6cm}}{\texttt{RAMP}~\citep{hao2018model}}        & \texttt{RAMP(x, y)}  \\ 
+& \multicolumn{1}{m{6cm}}{\texttt{LassoBacktracking}~\citep{shah2016modelling}   }        & \texttt{LassoBT(x, y)}  \ML
+\multicolumn{1}{m{2cm}}{Non-linear} 	& \multicolumn{1}{m{8cm}}{\texttt{VANISH}~\citep{radchenko2010variable} }        & \xmark  \\
+& \multicolumn{1}{m{6cm}}{\texttt{sail} (\textcolor{red}{Chapter 3 of the thesis})}        & \texttt{\textcolor{blue}{sail(x, y, e)}}  \LL
 }
 
-\subsection{Current methods overview and their limitations} \label{subsec:methods-overview2}
-
-We consider a regression model for an outcome variable $Y=(y_1, \ldots, y_n)$ which follows an exponential family. Let $E=(e_1, \ldots, e_n)$ be the binary environment vector and $\bx = (X_{1}, \ldots, X_{p})$ be the matrix of high-dimensional data. Consider the regression model with main effects and their interactions with $E$:
-\begin{align}
-g(\bmu)  = & \beta_0  + \underbrace{\beta_1 X_{1} + \cdots + \beta_p X_p + \beta_{E} E}_{\tm{main effects}} + \underbrace{\alpha_{1E} (X_1 E) + \cdots + \alpha_{pE} (X_p E)}_{\tm{interactions}} \label{eq:linpred1}
-\end{align}
-where $g(\cdot)$ is a known link function and $\bmu = \e\left[Y|\bx, E, \bbeta,\balpha\right]$. Our goal is to estimate the parameters \mbox{$\bbeta = \left(\beta_1, \beta_2, \ldots, \beta_p, \beta_E\right) \in \mathbb{R}^{p+1}$} and $\boldsymbol{\alpha} = \left(\alpha_{1E}, \ldots, \alpha_{pE}\right) \in \mathbb{R}^p$ and to improve prediction of $Y$. In fact, in the light of our goals to improve prediction and interpretability, we also consider the related model
-\begin{equation}  g(\bmu) = \beta^*_0 + \sum_{k=1}^q \beta^*_k \widetilde{X}_k + \beta^*_E E + 
-\sum_{k=1}^q \alpha^*_k E \widetilde{X}_k 
-\label{eq:linpred1.1}
-\end{equation}
-where $\widetilde{X}_k, k=1, \ldots, q$ are linear combinations of $X$ designed to reduce the dimension, such that $q<<p$, and the superscript asterisk on the parameters is just to emphasize that these are different from those in~\eqref{eq:linpred1}. In what follows, we omit the asterisk on the parameters for clarity.
 
 
-\subsection{Phase 3: Variable Selection} \label{sec:varselect}
-%Because the clustering in phase 1 is unsupervised, it is possible that the derived latent representations from phase 2 will not be associated with the response. Therefore we propose to regress the response on the summary measures via penalized likelihood of the form given by \ref{eq:penalisedlikelihood}. These methods are able to simultaneous estimate and select regression parameters. We argue that the selected non-zero predictors in this model will represent clusters of genes that interact with the environment and are associated with the phenotype. Such an additive model might be insufficient for predicting the outcome. In this case we may directly include the environment variable, the summary measures and their interaction. However, since no constraint is placed on the structure of the model in~\ref{eq:penalisedlikelihood}, it is possible that the estimated main effects are zero while the interaction term is not. This has motivated methods that produce structured sparsity~\cite{bach2012structured}. For example, Bien \textit{et al.}~\cite{bien2013lasso} propose a strong hierarchical lasso which forces the main effects to be included if the interaction term is non-zero. However this method and related ones are restricted to all pairwise interactions between $p$ measured variables. Therefore I will explore methods that impose a strong hierarchy in the context of gene environment interactions. 
-We are interested in imposing the strong heredity principle~\citep{chipman1996bayesian}: 
-\begin{equation}
-\hat{\alpha}_{jE} \neq 0 \qquad \Rightarrow \qquad \hat{\beta}_j \neq 0 \qquad \tm{and} \qquad \hat{\beta}_E \neq 0   \label{eq:heredity}
-\end{equation}
-In words, the interaction term will only have a non-zero estimate if its corresponding main effects are estimated to be non-zero. One benefit brought by hierarchy is that the number of measured variables can be reduced, referred to as practical sparsity~\cite{she2014group,bien2013lasso}. For example, a model involving $X_1, E, X_1 \cdot E$ is more parsimonious than a model involving $X_1, E, X_2 \cdot E$, because in the first model a researcher would only have to measure two variables compared to three in the second model. In order to address these issues, we propose to extend the model of Choi \textit{et al.}~\citep{choi2010variable} to simultaneously perform variable selection, estimation and impose the strong heredity principle in the context of high dimensional interactions with the environment (HD$\times E$). To do so, we follow Choi and reparametrize the coefficients for the interaction terms as $\alpha_{jE} = \gamma_{jE} \beta_j \beta_E$. Plugging this into~\eqref{eq:linpred1}:
+
+However this method and related ones are restricted to all pairwise interactions between $p$ measured variables. Therefore I will explore methods that impose a strong hierarchy in the context of gene environment interactions. 
+
+
+In order to address these issues, we propose to extend the model of Choi \textit{et al.}~\citep{choi2010variable} to simultaneously perform variable selection, estimation and impose the strong heredity principle in the context of high dimensional interactions with the environment (HD$\times E$). To do so, we follow Choi and reparametrize the coefficients for the interaction terms as $\alpha_{jE} = \gamma_{jE} \beta_j \beta_E$. Plugging this into~\eqref{eq:linpred1}:
 \begin{align}
 g(\bmu)  = & \beta_0  + \beta_1 \widetilde{X}_{1} + \cdots + \beta_q \widetilde{X}_q + \beta_{E} E + \gamma_{1E}\beta_1 \beta_E (\widetilde{X}_1 E) + \cdots + \gamma_{qE}\beta_q \beta_E (\widetilde{X}_q E)    \label{eq:linpred2}
 \end{align}
@@ -595,7 +617,7 @@ w_j = \left | \frac{1}{\hat{\beta}_j} \right|, \quad w_{jE} = \left | \frac{\hat
 \end{equation}
 where $\hat{\beta}_j$ and $\hat{\alpha}_{j}$ are the MLEs, \textit{using the transformed variables}, from~\eqref{eq:linpred1} or the ridge regression estimates when $q > n$. The rationale behind the data-dependent $\hat{\bs{w}}$ is that as the sample size grows, the weights for the truly zero predictors go to $\infty$ (which translates to a large penalty), whereas the weights for the truly non-zero predictors converge to a finite constant~\citep{zou2006adaptive}. 
 
-There have been several more recent proposals for modeling interactions with the strong heredity constraint in the variable selection via penalization literature including Composite Absolute Penalties (CAP)~\citep{zhao2009composite}, Variable selection using Adaptive Nonlinear Interaction Structures in High dimensions (VANISH)~\citep{radchenko2010variable}, Strong Hierarchical Lasso (hierNet)~\citep{bien2013lasso}, Group-Lasso Interaction Network (glinternet)~\citep{lim2015learning}, Group Regularized Estimation under Structural Hierarchy (GRESH)~\citep{she2014group} and a Framework for Modeling Interactions with a Convex Penalty (FAMILY)~\citep{haris2014convex}. While each method has their own merit, including that they are all convex optimization problems, they all contain complex penalty functions which are hard to interpret and lead to computationally expensive fitting algorithms. On the other hand, the objective function in~\eqref{eq:lassolikelihood2} can be solved using an iterative approach (by first fixing $\bbeta$ and then $\balpha$) which simplifies to a LASSO type problem; one that has been extensively studied, is well understood and can be solved efficiently using existing software (e.g. \texttt{glmnet}~\citep{friedman2010regularization}). A limitation of this approach is that the optimization problem is non-convex, arising from the reparametrization of $\balpha$ as a product of optimization variables $(\bbeta, \bs{\gamma})$, and hence convergence to the global minimum is not guaranteed~\citep{choi2010variable}. We argue that since there is only one $E$, and that $\widetilde{X}$ is much smaller in dimension, finding a solution is much more likely. 
+ While each method has their own merit, including that they are all convex optimization problems, they all contain complex penalty functions which are hard to interpret and lead to computationally expensive fitting algorithms. On the other hand, the objective function in~\eqref{eq:lassolikelihood2} can be solved using an iterative approach (by first fixing $\bbeta$ and then $\balpha$) which simplifies to a LASSO type problem; one that has been extensively studied, is well understood and can be solved efficiently using existing software (e.g. \texttt{glmnet}~\citep{friedman2010regularization}). A limitation of this approach is that the optimization problem is non-convex, arising from the reparametrization of $\balpha$ as a product of optimization variables $(\bbeta, \bs{\gamma})$, and hence convergence to the global minimum is not guaranteed~\citep{choi2010variable}. We argue that since there is only one $E$, and that $\widetilde{X}$ is much smaller in dimension, finding a solution is much more likely. 
 
 %We argue here that in our applications, we are more concerned with identifying the truly associated parameters (as given by an oracle procedure) than finding a global minimum which would be guaranteed in a convex formulation. 
 
