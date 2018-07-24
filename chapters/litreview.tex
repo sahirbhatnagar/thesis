@@ -22,12 +22,7 @@ For each method we detail the algorithms used to fit these models and their conv
 
 \section{High-dimensional regression methods}
 
-In this thesis, we consider the prediction of an outcome variable $y$ observed on $n$ individuals from $p$ variables, where $p$ is much larger than $n$. 
-Challenges in this high-dimensional context include not only building a good predictor which will perform well in an independent dataset, but also being able to interpret the factors that contribute to the predictions. 
-This latter issue can be very challenging in ultra-high dimensional predictor sets. 
-For example, multiple different sets of covariates may provide equivalent measures of goodness of fit~\citep{fan2014challenges}, and therefore how does one decide which are important? 
-With the advent of high-throughput technologies in genomics and brain imaging studies, computational approaches to variable selection have become increasingly important. 
-Broadly speaking, there are three main approaches to analyze high-dimensional data: 1) univariate regression followed by a multiple testing correction 2) multivariable penalized regression and 3) dimension reduction followed by a multivariable regression. We briefly introduce each of these analytic strategies below.
+We briefly introduce three of the main analytic strategies used to analyze HD data below.
 
 
 \subsection{Univariate regression} \label{sec:single}
@@ -640,7 +635,7 @@ To our knowledge, strong hierarchies have never previously been used in HD inter
 \section{Linear mixed-effects models}
 %(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.
 
-Linear mixed-effects models (LMMs)~\citep{laird1982random} are a class of statistical models used to account for correlations induced by a natural grouping of the observations such as students in schools or repeated measurements on the same individual. Ignoring this grouping structure can lead to incorrect inference due to biased standard errors of parameters, and can also violate the normality of residuals assumption. By introducing a subject specific random effect, LMMs can simultaneously model the mean and covariance structure. In this section we briefly introduce LMMs as a preface to Chapter 4 of the thesis which is about penalized LMMs.
+Linear mixed-effects models (LMMs)~\citep{laird1982random} are a class of statistical models used to account for correlations induced by a natural grouping of the observations such as students in schools or repeated measurements on the same individual. By introducing a subject specific random effect, LMMs can simultaneously model the mean and covariance structure to produce valid standard errors. In this section we briefly introduce LMMs as a preface to Chapter 4 of the thesis which is about penalized LMMs.
 
 Let $i = 1, \ldots, N$ be the grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors \mbox{$\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$}, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \\\mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following LMM with a single random effect:
 \begin{equation}
@@ -654,7 +649,7 @@ Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric c
 \begin{equation}
 \bY | (\bbeta, \eta, \sigma^2) \sim \mathcal{N}(\bX \bbeta, \eta \sigma^2 \bPhi + (1-\eta)\sigma^2 \bI) \label{eq:prinen}
 \end{equation}
-
+In high-dimensional contexts, the classic LMM is no longer applicable for the same reasons why the linear model does not apply, i.e., singularity of $\bX^T \bX$. However, naively applying a penalized method such as the lasso to clustered data is also invalid. Indeed, ignoring the grouping structure can lead to incorrect inference due to biased standard errors of parameters, and can also violate the normality of residuals assumption. In Chapter 4 of this thesis, we develop a general framework for penalized mixed models that simultaneously performs variable selection while accounting for the correlations induced by the natural clustering of the observations. 
 
 
 %\section{you will need a section on things like gradient descent and other algorithms for finding solutions efficiently}
