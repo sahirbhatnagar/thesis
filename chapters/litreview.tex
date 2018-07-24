@@ -16,7 +16,7 @@ You might I suppose mention very briefly the alternative solutions like apriori 
 \end{comment}
 
 The Literature Review is comprised of five sections. The first is a description of three general analytic strategies for high-dimensional data. The second and third sections describe two penalization methods that this thesis builds upon, namely the lasso and the group lasso. 
-For each method we detail the algorithms used to fit these models and their convergence properties. In the fourth section we introduce penalized interaction models. This is followed by an introduction to penalized linear mixed models.
+For each method we detail the algorithms used to fit these models and their convergence properties. In the fourth section we introduce penalized interaction models. This is followed by a brief introduction to linear mixed-effects models.
 
 
 
@@ -637,8 +637,24 @@ To our knowledge, strong hierarchies have never previously been used in HD inter
 \end{comment}
 
 
-\section{Penalized linear mixed models}
-(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.
+\section{Linear mixed-effects models}
+%(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.
+
+Linear mixed-effects models (LMMs)~\citep{laird1982random} are a class of statistical models used to account for correlations induced by a natural grouping of the observations such as students in schools or repeated measurements on the same individual. Ignoring this grouping structure can lead to incorrect inference due to biased standard errors of parameters, and can also violate the normality of residuals assumption. By introducing a subject specific random effect, LMMs can simultaneously model the mean and covariance structure. In this section we briefly introduce LMMs as a preface to Chapter 4 of the thesis which is about penalized LMMs.
+
+Let $i = 1, \ldots, N$ be the grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors \mbox{$\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$}, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \\\mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following LMM with a single random effect:
+\begin{equation}
+\bY = \bX \bbeta + \bb + \be
+\end{equation}
+where the random effect $\bb$ and the error variance $\be$ are assigned the distributions
+\begin{equation}
+\bb \sim \mathcal{N}(0, \eta \sigma^2 \bPhi) \qquad \be \sim \mathcal{N}(0, (1-\eta)\sigma^2 \bI)
+\end{equation}
+Here, $\bPhi_{N_T \times N_T}$ is a known positive semi-definite and symmetric covariance matrix, $\bI_{N_T \times N_T}$ is the identity matrix and parameters $\sigma^2$ and $\eta \in [0,1]$ determine how the variance is divided between $\bb$ and $\be$. The joint density of $\bY$ is multivariate normal:
+\begin{equation}
+\bY | (\bbeta, \eta, \sigma^2) \sim \mathcal{N}(\bX \bbeta, \eta \sigma^2 \bPhi + (1-\eta)\sigma^2 \bI) \label{eq:prinen}
+\end{equation}
+
 
 
 %\section{you will need a section on things like gradient descent and other algorithms for finding solutions efficiently}
