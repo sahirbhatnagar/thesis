@@ -12,12 +12,28 @@
 \usepackage{color,colortbl,xcolor}
 \usepackage{float} % for H in figures and tables
 %\usepackage{enumitem}
-\usepackage{epsfig}
+%\usepackage{epsfig}
+\usepackage{epstopdf}
 \usepackage{framed}
 \usepackage[letterpaper, margin=1in]{geometry}		% Margins should be 1 inch according to McGill requirements (https://www.mcgill.ca/gps/thesis/guidelines/preparation)
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{placeins}
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{tabulary}
+
+% used for tables
+\def\@tab@fn#1{\ensuremath{^{\mbox{{\scriptsize #1}}}}}
+\def\tabfnm#1{\rlap{\@tab@fn{#1}}}
+\def\tabfnt#1#2{\raggedright\@tab@fn{#1}#2}
+
+\def\@tab@fn#1{\ensuremath{^{\mbox{{\scriptsize #1}}}}}
+\def\tabfnm#1{\rlap{\@tab@fn{#1}}}
+\def\tabfnt#1#2{\raggedright\@tab@fn{#1}#2}
+
+
+\let\tnote\relax% "Free up" \tnote for use in ctable
 %\usepackage{setspace}
 %\usepackage{subcaption}
 \usepackage[utf8]{inputenc}
@@ -26,8 +42,12 @@
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
 \def\widebar#1{\overline{#1}}
+
+\usepackage{siunitx}
+\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
+
 \usepackage{array}
-\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}} % used for text wrapping in ctable
+%\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}} % used for text wrapping in ctable
 \usepackage[pagebackref=true,bookmarks]{hyperref}
 \hypersetup{
 	unicode=false,
@@ -46,7 +66,7 @@
 	linkcolor=red,          % color of internal links (change box color with linkbordercolor)
 	citecolor=blue,        % color of links to bibliography
 	filecolor=black,      % color of file links
-	urlcolor=cyan           % color of external links
+	urlcolor=blue           % color of external links
 }
 
 %########################################################################################

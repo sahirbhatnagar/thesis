@@ -1,0 +1,24 @@
+\begin{table}[h]	
+	\begin{threeparttable}
+		\caption{Summary of methods used in simulation study}
+		\label{tab:methodssim}
+		\begin{tabulary}{\linewidth}{lLL}
+			\toprule
+			General Approach              & Summary Measure of Feature Clusters &  Description\tabfnm{a,b} \\ \midrule
+%		General Approach              & Summary Measure &  Description\tabfnm{a,b} \\ 
+%			 & of Feature Clusters & \\ \midrule
+			SEPARATE       & NA& Regression of the original predictors $\left\lbrace X_1, \ldots, X_p\right\rbrace$ on the response i.e. no transformation of the predictors is being done here \\
+			CLUST & 1st PC, average & Create clusters of predictors without using the environment variable $\left\lbrace C_1, \ldots, C_k\right\rbrace$. Use the summary measure of each cluster as inputs of the regression model.\\
+			ECLUST & 1st PC, average & Create clusters of predictors using the environment variable $\left\lbrace C_{k+1}, \ldots, C_{\ell} \right\rbrace$ where $k < \ell < p$, as well as clusters without the environment variable $\left\lbrace C_1, \ldots, C_k\right\rbrace$. Use summary measures of $\left\lbrace C_{1}, \ldots, C_{\ell} \right\rbrace$ as inputs of the regression model. \\ \bottomrule
+		\end{tabulary}
+		\begin{tablenotes}[para,flushleft]
+			{\footnotesize
+				%\textit{Note.} sfs
+			\tabfnt{a}Simulations 1 and 2  used lasso and elasticnet for the linear models, and simulation 3 used MARS for estimating non-linear effects
+			\tabfnt{b}Simulations 4, 5 and 6 convert the continuous response generated in simulations 1, 2 and 3, respectively, into a binary response
+			\tabfnt{c}PC: principal component
+				
+			}
+		\end{tablenotes} 		
+	\end{threeparttable}
+\end{table}	

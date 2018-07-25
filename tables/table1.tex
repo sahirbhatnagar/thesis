@@ -1,0 +1,26 @@
+	\begin{table}[h]	
+		\begin{threeparttable}
+			%\caption{Details of ECLUST algorithm}
+			\TableCaptionOpt{Details of ECLUST algorithm}{Details of ECLUST algorithm}
+			\label{tab:eclust}
+			\begin{tabulary}{\linewidth}{lL}
+				\toprule
+				Step  &Description, Software\tabfnm{a}~~and Reference       \\ \midrule
+				1a)       & {\small i) Calculate $TOM$ separately for observations with $E=0$ and $E=1$ using \texttt{WGCNA::TOMsimilarityFromExpr}~\citep{langfelder2008wgcna} } \\
+							&{\small  ii) Euclidean distance matrix of \mbox{$|TOM_{E=1} - TOM_{E=0}|$} using \texttt{stats::dist} }\\
+				&{\small iii) Run the \texttt{dynamicTreeCut} algorithm~\citep{langfelder2008defining,dynamictreecut} on the distance matrix to determine the number of clusters and cluster membership using \texttt{dynamicTreeCut::cutreeDynamic} with \texttt{minClusterSize = 50} } \\ \midrule
+				1b) &{\small i) 1st PC or average for each cluster using \texttt{stat::prcomp} or  \texttt{base::mean}} \\ 
+				&{\small ii) Penalized regression model: create a design matrix of the derived cluster representatives and their interactions with $E$ using \texttt{stats::model.matrix}} \\ 
+				&{\small iii) MARS model: create a design matrix of the derived cluster representatives and $E$} \\ \midrule
+				2) &{\small i) For linear models, run penalized regression on design matrix from step 1b) using \texttt{glmnet::cv.glmnet}~\citep{friedman2010regularization}. Elasticnet mixing parameter \texttt{alpha=1} corresponds to the lasso and \texttt{alpha=0.5} corresponds to the value we used in our simulations for elasticnet. The tuning parameter \texttt{alpha}  is selected by minimizing 10 fold cross-validated mean squared error (MSE).} \\
+				&{\small ii) For non-linear effects, run MARS on the design matrix from step 1b) using \texttt{earth::earth}~\citep{earthpackage} with pruning method \texttt{pmethod = "backward"} and maximum number of model terms \texttt{nk = 1000}. The \texttt{degree=1,2} is chosen using 10 fold cross validation (CV), and within each fold the number of terms in the model is the one that minimizes the generalized cross validated (GCV) error.}\\ \bottomrule
+			\end{tabulary}
+			\begin{tablenotes}[para,flushleft]
+				{\footnotesize
+					%\textit{Note.} sfs
+					\tabfnt{a}All functions are implemented in \texttt{R}~\citep{cran}. The naming convention is as follows: \texttt{package\_name::package\_function}. Default settings used for all functions unless indicated otherwise.
+					
+				}
+			\end{tablenotes} 		
+		\end{threeparttable}
+	\end{table}	

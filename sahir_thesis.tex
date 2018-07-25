@@ -34,14 +34,14 @@
 
 % Conditional expression for faster build during "development cycle"
 \newif\ifthesis
-%\thesistrue       % Final thesis version: Uncomment this line and comment the next one
-\thesisfalse    % Development cycle: Uncomment this line and comment the previous one (faster LaTeX compile)
+\thesistrue       % Final thesis version: Uncomment this line and comment the next one
+%\thesisfalse    % Development cycle: Uncomment this line and comment the previous one (faster LaTeX compile)
 
 % Final version? 
 % This is used to add items only for final submission
 \newif\iffinal
-%\finaltrue
-\finalfalse
+\finaltrue
+%\finalfalse
 
 \ifthesis
 	% Only show these sections when we are building the 'thesis' version
@@ -119,7 +119,7 @@ Il est aujourd'hui possible
 	\tableofcontents 
 
 	\LOFHeading{List of Figures and Tables}
-	%\listoftables 
+	\listoftables 
 	\listoffigures
 	
 	\end{romanPagenumber}
@@ -139,10 +139,12 @@ Il est aujourd'hui possible
 	% Show all chapters on 'thesis' mode
 	\include{chapters/introduction}
 	\include{chapters/litreview}
+	\include{chapters/eclust}
 \else
 	% Only show the chapter we are currently working on (faster LaTex build)
 	\include{chapters/introduction}
 	\include{chapters/litreview}
+	\include{chapters/eclust}
 \fi
 
 %-----------------------------------------------------------------------------
@@ -163,6 +165,6 @@ Il est aujourd'hui possible
 \bibHeading{References}
 \bibliographystyle{apacite}
 %\bibliographystyle{acm}
-\bibliography{chapters/litreview}		% File: mcgilletd.bib
+\bibliography{chapters/litreview,chapters/eclust}		% File: mcgilletd.bib
 
 \end{document}

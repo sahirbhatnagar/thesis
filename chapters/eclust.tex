@@ -1,0 +1,314 @@
+%-----------------------------------------------------------------------------
+\chapter{An analytic approach for interpretable predictive models in high dimensional data, in the presence of interactions with exposures\label{ch:eclust}}
+%-----------------------------------------------------------------------------
+
+Sahir Rai Bhatnagar$^{1,2}$, Yi Yang$^{3}$, Budhachandra Khundrakpam$^{4}$, Alan C Evans$^{4}$, Mathieu Blanchette$^{5}$, Luigi Bouchard$^{6}$, Celia MT Greenwood$^{1,2}$
+%\affil[1]{Department of Epidemiology, Biostatistics and Occupational Health, McGill University}
+%\affil[2]{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC}
+%\affil[3]{Departments of Oncology and Human Genetics, McGill University}
+%\affil[4]{Department of Mathematics and Statistics, McGill University}
+%\affil[5]{Montreal Neurological Institute, McGill University}
+%\affil[6]{Department of Computer Science, McGill University}
+%\affil[7]{Department of Biochemistry, Universit\'{e} de Sherbrooke}
+
+%\author{Brian D. Beitzel}
+$^{1}$Department of Epidemiology, Biostatistics and Occupational Health, McGill University\\
+$^{2}$Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC \\
+$^{3}$Department of Mathematics and Statistics, McGill University\\
+$^{4}$Montreal Neurological Institute, McGill University\\
+$^{5}$Department of Computer Science, McGill University\\
+$^{6}$Department of Biochemistry, Universit\'{e} de Sherbrooke\\
+
+Paper published in \textit{Genetic Epidemiology} (2018). Apr 1;42(3):233-49.  \href{https://doi.org/10.1101/102475}{DOI 10.1101/102475}.
+
+\newpage
+
+\section*{Abstract}
+
+Predicting a phenotype and understanding which variables improve that prediction are two very challenging	and overlapping problems in analysis of high-dimensional data such as those arising from genomic and brain imaging studies. It is often believed that the number of truly important predictors is small relative to the total number of variables, making computational approaches to variable selection and dimension reduction extremely important. To reduce dimensionality, commonly-used two-step methods first cluster the data in some way, and build models using cluster summaries to predict the phenotype.\\
+
+It is known that important exposure variables can alter correlation patterns between clusters of high-dimensional variables, i.e., alter network properties of the variables. However, it is not well understood whether such altered clustering is informative in prediction. Here, assuming there is a binary exposure with such network-altering effects, we explore whether use of exposure-dependent clustering relationships in dimension reduction can improve predictive modelling in a two-step framework. Hence, we propose a modelling framework called ECLUST to test this hypothesis, and evaluate its performance through extensive simulations.\\
+
+With ECLUST, we found improved prediction and variable selection performance compared to methods that do not consider the environment in the clustering step, or to methods that use the original data as features.  We further illustrate this modelling framework through the analysis of three data sets from very different fields, each with high dimensional data, a binary exposure, and a phenotype of interest. Our method is available in the \emph{eclust} CRAN package.
+
+\newpage
+
+\section{Introduction}
+In this article, we consider the prediction of an outcome variable $y$ observed on $n$ individuals from $p$ variables, where $p$ is much larger than $n$. Challenges in this high-dimensional context include not only building a good predictor which will perform well in an independent dataset, but also being able to interpret the factors that contribute to the predictions. This latter issue can be very challenging in ultra-high dimensional predictor sets. For example, multiple different sets of covariates may provide equivalent measures of goodness of fit~\citep{fan2014challenges}, and therefore how does one decide which are important? If many variables are highly correlated, interpretation may be improved by acknowledging the existence of an underlying or latent factor generating these patterns. In consequence, many authors have suggested a two-step procedure where the first step is to cluster or group variables in the design matrix in an interpretable way, and then to perform  model fitting in the second step using a summary measure of each group of variables.
+
+There are several advantages to these two-step methods.  Through the reduction of the dimension of the model, the results are often more stable with smaller prediction variance, and through identification of sets of correlated variables, the resulting clusters can provide an easier route to interpretation. From a practical point of view, two-step approaches are both flexible and easy to implement because efficient algorithms exist for both clustering (e.g.~\citep{fastclust}) and model fitting (e.g.~\citep{friedman2010regularization,gglasso,kuhn2008caret}), particularly in the case when the outcome variable is continuous. 
+
+This two-step idea dates back to 1957 when Kendall first proposed using principal components in regression~\citep{kendall1975multivariate}. Hierarchical clustering based on the correlation of the design matrix has also been used to create groups of genes in microarray studies. For example, at each level of a hierarchy, cluster averages have been used as new sets of potential predictors in both forward-backward selection~\citep{hastie2001supervised} or the lasso~\citep{park2007averaged}. B{\"u}hlmann \textit{et al.} proposed a bottom-up agglomerative clustering algorithm based on canonical correlations and used the group lasso on the derived clusters~\citep{buhlmann2013correlated}. A more recent proposal performs sparse regression on cluster prototypes~\citep{reid2016sparse}, i.e., extracting the most representative gene in a cluster instead of averaging them. 
+
+These two-step approaches usually group variables based on a matrix of correlations or some transformation of the correlations. However, when there are external factors, such as exposures, that can alter correlation patterns, a dimension reduction step that ignores this information may be suboptimal. Many of the high-dimensional genomic data sets currently being generated  capture a possibly dynamic view of how a tissue is functioning, and demonstrate differential patterns of coregulation or correlation under different conditions. We illustrate this critical point with an example of a microarray gene expression dataset available in the \emph{COPDSexualDimorphism.data} package~\citep{copd} from Bioconductor. This study measured gene expression in Chronic Obstructive Pulmonary Disease (COPD) patients and controls in addition to their age, gender and smoking status. To see if there was any effect of smoking status on gene expression, we plotted the expression profiles separately for current and never smokers. To balance the covariate profiles, we matched subjects from each group on age, gender and COPD case status, resulting in a sample size of 7 in each group. Heatmaps in Figure~\ref{fig:COPD} show gene expression levels and the corresponding gene-gene correlation matrices as a function of dichotomized smoking status for 2,900 genes with large variability. Evidently, there are substantial differences in correlation patterns between the smoking groups (Figures~1a and~1b). However, it is difficult to discern any patterns or major differences between the groups when examining the gene expression levels directly (Figures 1c and 1d). This example highlights two key points; 1) environmental exposures can have a widespread effect on regulatory networks and 2) this effect may be more easily discerned by looking at a measure for gene similarity, relative to analyzing raw expression data.  
+
+
+\fig{figure1}{COPD}{16cm}{Heatmaps of correlations between genes (top) and gene expression data (bottom - rows are genes and columns are subjects), stratified by smoking status from a microarray study of COPD~\citep{copd}. The 20\% most variable genes are displayed (2,900 genes). There are 7 subjects in each group, matched on COPD case status, gender and age. Data available on Bioconductor in the \texttt{COPDSexualDimorphism.data} package.}{Heatmaps of correlations between genes and gene expression data stratified by smoking status from a microarray study of COPD.}
+
+
+Many other examples of altered co-regulation and phenotype associations can be found.   For instance, in a pediatric brain development study, very different correlation patterns of cortical thickness within brain regions were observed across age groups, consistent with a process of fine-tuning an immature brain system into a mature one~\citep{khundrakpam2013developmental}.  A comparison of gene expression levels in bone marrow from 327 children with acute leukemia found several differentially \emph{coexpressed} genes in philadelphia positive leukemias compared to the cytogenetically normal group~\citep{kostka2004finding}.   To give a third example, an analysis of RNA-sequencing data from The Cancer Genome Atlas (TCGA) revealed very different correlation patterns among sets of genes in tumors grouped according to their missense or null mutations in the TP53 tumor suppressor gene~\citep{klein2016gene}. 
+
+Therefore, in this paper, we pose the question whether clustering or dimension reduction that incorporates known covariate or exposure information can improve prediction models in high dimensional genomic data settings. Substantial evidence of dysregulation of genomic coregulation has been observed in a variety of contexts, however we are not aware of any work that carefully examines how this might impact the performance of prediction models. We propose a conceptual analytic strategy called ECLUST, for prediction of a continuous or binary outcome in high dimensional contexts while exploiting exposure-sensitive data clusters. We restrict our attention to two-step algorithms in order to implement a covariate-driven clustering. 
+
+Specifically, we hypothesize that within two-step methods, variable grouping that considers exposure information can lead to improved predictive accuracy and interpretability. We use simulations to compare our proposed method to comparable  approaches that combine data reduction with predictive modelling. We are focusing our attention primarily on the performance of alternative dimension reduction strategies within the first step of a two-step method.  Therefore, performance of each strategy is compared for several appropriate step 2 predictive models. We then illustrate these concepts more concretely  by analyzing three data sets. Our method and the functions used to conduct the simulation studies have been implemented in the R package \texttt{eclust}~\citep{eclust}, available on CRAN. Extensive documentation of the package is available at \texttt{\url{http://sahirbhatnagar.com/eclust/}}.
+
+
+\section{Methods}
+
+Assume there is a single binary environmental factor $E$ of importance, and an $n \times p$ high dimensional (HD) data set $\textbf{X}$ ($n$ observations, $p$ features) of relevance.  This could be genome-wide epigenetic data, gene expression  data, or brain imaging data, for example. Assume there is a continuous or binary phenotype of interest $Y$ and that the environment has a widespread effect on the HD data, i.e., affects many elements of the HD data. The primary goal is to improve prediction of $Y$ by identifying interactions between $E$ and $\textbf{X}$ through a carefully constructed data reduction strategy that exploits $E$ dependent correlation patterns. The secondary goal is to improve identification of the elements of $\textbf{X}$ that are involved; we denote this subset by $S_0$. We hypothesize that a systems-based perspective will be informative when exploring the factors that are associated with a phenotype of interest, and in particular we hypothesize that incorporation of environmental factors into predictive models in a way that retains a high dimensional perspective will improve results and interpretation.
+
+\subsection{Potential impacts of covariate-dependent coregulation}
+
+Motivated by real world examples of differential coexpression, we first demonstrate that environment-dependent correlations in $\bx$ can induce an interaction model. Without loss of generality, let $p=2$ and the relationship between $X_1$ and $X_2$ depend on the environment such that 
+\begin{equation}
+X_{i2} = \psi X_{i1} E_{i} + \varepsilon_i   \label{eq:xi1xi2}
+\end{equation} 
+where $\varepsilon_i$ is an error term and $\psi$ is a slope parameter, that is:
+$$
+X_{i2} = 
+\begin{cases}
+\psi X_{i1} + \varepsilon_{i} & \tm{ when } E_i = 1   \\
+\varepsilon_{i} & \tm{ when } E_i = 0
+\end{cases}
+$$
+Consider the 3-predictor regression model 
+\begin{equation}
+Y_i = \beta_0 +  \beta_1 X_{i1} + \beta_2 X_{i2} + \beta_3 E_i +  \varepsilon_{i}^* \label{eq:2predmodel}
+\end{equation}
+where $\varepsilon_{i}^*$ is another error term which is independent of $\varepsilon_{i}$. At first glance~\eqref{eq:2predmodel} does not contain any interaction terms. However, substituting~\eqref{eq:xi1xi2} for $X_{i2}$ in~\eqref{eq:2predmodel} we get
+\begin{align}
+Y_i & = \beta_0 +  \beta_1 X_{i1} + \beta_2 \psi \left( X_{i1} E_i  \right) +  \beta_3 E_i +  \varepsilon_i \beta_2 + \varepsilon_i^*  \label{eq:2pred}
+\end{align}
+The third term in~\eqref{eq:2pred} resembles an interaction model, with $\beta_2 \psi$ being the interaction parameter. We present a second illustration showing how non-linearity can induce interactions. Suppose
+\begin{align}
+Y_i & = \beta_0 + \beta_1 X_{i1} + \beta_2 X_{i2} + \beta_3 E_i + \beta_3  \max_{\mathclap{\substack{\textcolor{white}{text} \\ j\in \left\lbrace 1, 2 \right\rbrace}}}   \left(  X_{ij} - \bar{X}_i   \right)^2 + \varepsilon_i^* \label{eq:nonlinear}
+\end{align} Substituting~\eqref{eq:xi1xi2} for $X_{i2}$ in~\eqref{eq:nonlinear} we obtain a non-linear interaction term. Equation~\eqref{eq:nonlinear} provided partial motivation for the model used in our third simulation scenario. Some motivation for this model and a graphical representation are presented below in the Simulation Studies section.
+
+
+\subsection{Proposed framework and algorithm}
+
+We restrict attention to methods containing two phases as illustrated in Figure~\ref{fig:overview}: 1a) a clustering stage where variables are clustered based on some measure of similarity, 1b) a dimension reduction stage where a summary measure is created for each of the  clusters, and 2) a simultaneous variable selection and regression stage on the summarized cluster measures.
+Although this framework appears very similar to any two-step approach,  
+our hypothesis is that allowing the clustering in Step 1a to depend on the environment variable can lead to improvements in prediction after Step 2.  Hence, methods in Step 1a are adapted to this end, as decribed in the following sections. Our focus in this manuscript is on the clustering and cluster representation steps. Therefore,  we compare several well known methods for variable selection and regression that are best adapted to our simulation designs and data sets.
+
+\fig{figure2}{overview}{16cm}{Overview of our proposed method. 1a) A measure of similarity is calculated separately for both groups and clustering is performed on a linear combination of these two matrices. 1b) We reduce the dimension of each cluster by taking a summary measure. 2) Variable selection and regression is performed on the cluster representatives, E and their interaction with E.}{Overview of our proposed method}
+
+
+\subsubsection{Step 1a: Clustering using co-expression networks that are influenced by the environment}
+In agglomerative clustering, a measure of similarity between sets of observations is required in order to decide which clusters should be combined. Common choices include Euclidean, maximum and absolute distance. A more natural choice in genomic or brain imaging data is to use Pearson correlation (or its absolute value) because the derived clusters are biologically interpretable. Indeed, genes that cluster together are correlated and thus likely to be involved in the same cellular process. Similarly, cortical thickness measures of the brain tend to be correlated within pre-defined regions such as the left and right hemisphere, or frontal and temporal regions~\citep{sato2013inter}. However, the information on the connection between two variables, as measured by the Pearson correlation for example, may be noisy or incomplete. Thus it is of interest to consider alternative measures of pairwise interconnectedness. Gene co-expression networks are being used to explore the system-level function of genes, where nodes represent genes and are connected if they are significantly co-expressed~\citep{zhang2005general}, and here we use their overlap measure~\citep{ravasz2002hierarchical} to capture connectnedness between two $X$ variables within each environmental condition. As was discussed earlier, genes can exhibit very different patterns of correlation in one environment versus the other (e.g. Figure~\ref{fig:COPD}). Furthermore, measures of similarity that go beyond pairwise correlations and consider the shared connectedness between nodes can be useful in elucidating networks that are biologically meaningful. Therefore, we propose to first look at the topological overlap matrix (TOM) separately for exposed ($E=1$) and unexposed ($E=0$) individuals (see Supplemental Section A for details on the TOM). We then seek to identify nodes that are very different between environments. We determine differential coexpression using the absolute difference $TOM(X_{\tm{diff}}) = |TOM_{E=1} - TOM_{E=0}|$ \citep{klein2016gene}. We then use hierarchical clustering with average linkage on the derived difference matrix to identify these differentially co-expressed variables. Clusters are automatically chosen using the \texttt{dynamicTreeCut}~\citep{langfelder2008defining} algorithm. Of course, there could be other clusters which are not sensitive to the environment. For this reason we also create a set of clusters based on the TOM for all subjects denoted $TOM(X_{\tm{all}})$. This will lead to each covariate appearing in two clusters. In the sequel we denote the clusters derived from $TOM(X_{\tm{all}})$ as the set \mbox{$C_{\tm{all}} = \left\lbrace C_1, \ldots, C_k\right\rbrace$}, and those derived from $TOM(X_{\tm{diff}})$ as the set $C_{\tm{diff}} = \left\lbrace C_{k+1}, \ldots, C_{\ell}\right\rbrace$ where $k < \ell < p$.  
+
+\subsubsection{Step 1b: Dimension reduction via cluster representative}
+Once the clusters have been identified in phase 1, we proceed to reduce the dimensionality of the overall problem by creating a summary measure for each cluster. A low-dimensional structure, i.e. grouping when captured in a regression model, improves predictive performance and facilitates a model's interpretability. 
+We propose to summarize a cluster by a single representative number. Specifically, we chose the average values across all measures~\citep{park2007averaged,buhlmann2013correlated}, and the first principal component~\citep{langfelder2007eigengene}.  These representative measures are indexed by their cluster, i.e., the variables
+to be used in our predictive models are \mbox{$\widetilde{\mb{X}}_{\tm{all}} = \left\lbrace \widetilde{X}_{C_1}, \ldots, \widetilde{X}_{C_k}\right\rbrace$} for clusters that do not consider $E$, as well as  \mbox{$\widetilde{\mb{X}}_{\tm{diff}} = \left\lbrace \widetilde{X}_{C_{k+1}}, \ldots, \widetilde{X}_{C_\ell}\right\rbrace$} for $E$-derived clusters. 
+The tilde notation on the $X$ is to emphasize that these variables are different from the separate variables in the original data. 
+
+
+\subsubsection{Step 2: Variable Selection and Regression} \label{sec:varselect}
+
+Because the clustering in phase 1 is unsupervised, it is possible that the derived latent representations from phase 2 will not be associated with the response. We therefore use penalized methods for supervised variable selection, including the lasso~\citep{tibshirani1996regression} and elasticnet~\citep{zou2005regularization} for linear models, and multivariate adaptive regression splines (MARS)~\citep{friedman1991multivariate} for nonlinear models. We argue that the selected non-zero predictors in this model will represent clusters of genes that interact with the environment and are associated with the phenotype. Such an additive model might be insufficient for predicting the outcome. In this case we may directly include the environment variable, the summary measures and their interaction. In the light of our goals to improve prediction and interpretability, we consider the following model
+\begin{equation}  
+g(\bs{\mu}) = \beta_0 + \sum_{j=1}^{\ell} \beta_j \widetilde{X}_{C_j} + \beta_E E + 
+\sum_{j=1}^{\ell} \alpha_j \left(\widetilde{X}_{C_j} E \right) + \varepsilon
+\label{eq:linpred1.1}
+\end{equation}
+where $g(\cdot)$ is a known link function, $\bs{\mu} = \mathsf{E}[Y|\mb{X},E,\bs{\beta}, \bs{\alpha}]$ and   $\widetilde{X}_{C_j}$ are linear combinations of $\mb{X}$ (from Step 1b). The primary comparison is models with $\widetilde{\mb{X}}_{\tm{all}}$ only versus models with $\widetilde{\mb{X}}_{\tm{all}}$ and $\widetilde{\mb{X}}_{\tm{diff}}$. Given the context of either the simulation or the data set, we use either linear models or non linear models. Our general approach, ECLUST, can therefore be summarized by the algorithm in Table~\ref{tab:eclust}. 
+
+\input{tables/table1}
+
+
+\section{Simulation Studies}
+
+We have evaluated the performance of our ECLUST method in a variety of simulated scenarios. For each simulation scenario we compared ECLUST to the following analytic approaches 1) regression and variable selection is performed on the model which consists of the original variables, $E$ and their interaction with $E$ (SEPARATE), and 2) clustering is performed without considering the environmental exposure followed by regression and variable selection on the cluster representations, $E$, and their interaction with $E$ (CLUST). A detailed description of the methods being compared is summarized in Table~\ref{tab:methodssim}. We have designed 6 simulation scenarios that illustrate different kinds of relationships between the variables and the response. For all scenarios, we have created high dimensional data sets with $p$ predictors ($p=5000$), and sample sizes of $n=200$.  We also assume that we have two data sets for each simulation - a training data set where the parameters are estimated, and a testing data set where prediction performance is evaluated, each of size $n_{train} = n_{test} = 200$. The number of subjects who were exposed ($n_{E=1}=100$) and unexposed ($n_{E=0}=100$) and the number of truly associated parameters ($\lvert  S_0 \rvert = 500 $) remain fixed across the 6 simulation scenarios. Let
+\begin{equation}
+Y = Y^* + k \cdot \varepsilon \label{eq:response}
+\end{equation} 
+where $Y^*$ is the linear predictor, the error term $\varepsilon$ is generated from a standard normal distribution, and $k$ is chosen such that the signal-to-noise ratio $SNR = \left(Var(Y^*)/Var(\varepsilon)\right)$ is 0.2, 1 and 2  (e.g. the variance of the response variable $Y$ due to $\varepsilon$ is $1/SNR$ of the variance of $Y$ due to $Y^*$).
+
+\input{tables/table2}
+
+
+\subsection{The Design Matrix}
+We generated covariate data in blocks using the \texttt{simulateDatExpr} function from the \texttt{WGCNA} package in \texttt{R} (version 1.51). This generates data from a latent vector:  first a seed vector is simulated, then covariates are generated with varying degree of correlation with the seed vector in a given block. We simulated five clusters (blocks), each of size 750 variables, and labeled them by colour (turquoise, blue, red, green and yellow), while the remaining 1250 variables were simulated as independent standard normal vectors (grey) (Figure~\ref{fig:simTOM}). For the unexposed observations ($E=0$), only the predictors in the yellow block were simulated with correlation, while all other covariates were independent within and between blocks. The TOM values are very small for the yellow cluster because it is not correlated with any of its neighbors. For the exposed observations ($E=1$), all 5 blocks contained predictors that are correlated. The blue and turquoise blocks are set to have an average correlation of 0.6. The average correlation was varied for both green and red clusters $\rho = \left\lbrace 0.2, 0.9 \right\rbrace$ and the active set $S_0$, that are directly associated with $y$, was distributed evenly between these two blocks. Heatmaps of the TOM for this environment dependent correlation structure are shown in Figure~\ref{fig:simTOM} with annotations for the true clusters and active variables. This design matrix shows widespread changes in gene networks in the exposed environment, and this subsequently affects the phenotype through the two associated clusters. There are also pathways that respond to changes in the environment but are not associated with the response (blue and turquoise), while others that are neither active in the disease nor affected by the environment (yellow).
+
+
+\begin{comment}
+\begin{figure}[h]
+	\includegraphics[scale=0.4, keepaspectratio]{figure3.eps}
+	\caption{Topological overlap matrices (TOM) of simulated predictors based on subjects with (a) $E=0$, (b) $E=1$, (c) their absolute difference and (d) all subjects. Dendrograms are from hierarchical clustering (average linkage) of one minus the TOM for a, b, and d and the euclidean distance for c.   Some variables in the red and green clusters are associated with the outcome variable. The \textit{module} annotation represents the true cluster membership for each predictor, and the \textit{active} annotation represents the truly associated predictors with the response.}
+	\label{fig:simTOM}
+\end{figure}
+\end{comment}
+
+\fig{figure3}{simTOM}{16cm}{Topological overlap matrices (TOM) of simulated predictors based on subjects with (a) $E=0$, (b) $E=1$, (c) their absolute difference and (d) all subjects. Dendrograms are from hierarchical clustering (average linkage) of one minus the TOM for a, b, and d and the euclidean distance for c.   Some variables in the red and green clusters are associated with the outcome variable. The \textit{module} annotation represents the true cluster membership for each predictor, and the \textit{active} annotation represents the truly associated predictors with the response.}{Topological overlap matrices (TOM) of simulated predictors}
+
+
+
+\subsection{The response}
+The first three simulation scenarios differ in how the linear predictor $Y^*$ in~\eqref{eq:response} is defined, and also in the choice of regression model used to fit the data. In simulations 1 and 2 we use lasso~\citep{tibshirani1996regression} and elasticnet~\citep{zou2005regularization} to fit linear models; then we use MARS~\citep{friedman1991multivariate} in simulation 3 to estimate non-linear effects. Simulations 4, 5 and 6 use the GLM version of these models, respectively, since the responses are binary.
+
+\subsection*{Simulation 1}
+Simulation 1 was designed to evaluate performance when there are no explicit interactions between X and E (see Equation~\eqref{eq:2pred}). We generated the linear predictor from
+\begin{equation}
+Y^* = \sum_{\mathclap{\substack{j\in \left\lbrace 1, \ldots, 250 \right\rbrace\\ j \in \tm{ red, green block}}}}  \beta_j X_j + \beta_E E 
+\end{equation}
+where $\beta_j \sim \tm{Unif}\left[ 0.9,1.1\right]$ and \mbox{$\beta_E = 2$}. That is, only the first 250 predictors of both the red and green blocks are active. In this setting, only the main effects model is being fit to the simulated data. 
+
+
+\subsection*{Simulation 2}
+In the second scenario we explicitly simulated interactions. All non-zero main effects also had a corresponding non-zero interaction effect with $E$. We generated the linear predictor from
+\begin{equation}
+Y^* = \sum_{\mathclap{\substack{j\in \left\lbrace 1, \ldots, 125 \right\rbrace\\ j \in \tm{ red, green block}}}} \left(\beta_j X_j + \alpha_{j} X_j E\right) + \beta_E E 
+\end{equation}
+where $\beta_j \sim \tm{Unif}\left[ 0.9,1.1\right]$, $\alpha_{j} \sim \tm{Unif}\left[ 0.4,0.6\right]$ or $\alpha_{j} \sim \tm{Unif}\left[ 1.9,2.1\right]$, and \mbox{$\beta_E = 2$}. In this setting, both the main effects and their interactions with E are being fit to the simulated data. 
+
+\subsection*{Simulation 3}
+In the third simulation we investigated the performance of the ECLUST approach in the presence of non-linear effects of the predictors on the phenotype:
+\begin{equation}
+Y_i^* = \sum_{\mathclap{\substack{j\in \left\lbrace 1, \ldots, 250 \right\rbrace\\ j \in \tm{ red, green block}}}}  \beta_j X_{ij}  + \beta_E E_i + \alpha_Q E_i \cdot f(Q_i) \label{eq:sim3}
+\end{equation} where 
+\begin{align}
+Q_i &= - \max_{\mathclap{\substack{\textcolor{white}{text} \\ j\in \left\lbrace 1, \ldots, 250 \right\rbrace\\ j \in \tm{ red, green block}}}}   \left(  X_{ij} - \bar{X}_i   \right)^2   \label{eq:qiterm}\\
+f(u_i) &= \frac{u_i - \displaystyle \min_{i \in \left\lbrace 1, \ldots, n \right \rbrace  } u_i}{-\displaystyle \min_{i \in \left\lbrace 1, \ldots, n \right \rbrace  } u_i} \label{eq:fterm}\\
+\bar{X}_i &= \frac{1}{500} \sum_{\mathclap{\substack{j\in \left\lbrace 1, \ldots, 250 \right\rbrace\\ j \in \tm{ red, green block}}}} X_{ij} \nonumber
+\end{align}
+The design of this simulation was partially motivated by considering the idea of canalization, where systems operate within appropriate parameters until sufficient perturbations accumulate (e.g.~\cite{gibson2009decanalization}). In this third simulation, we set $\beta_j \sim \tm{Unif}\left[ 0.9,1.1\right]$, \mbox{$\beta_E = 2$} and \mbox{$\alpha_Q = 1$}. We assume the data has been appropriately normalized, and that the correlation between any two features is greater than or equal to 0. In simulation 3, we tried to capture the idea that an exposure could lead to coregulation or disregulation of a cluster of $X$'s, which in itself directly impacts Y.  Hence, we defined coregulation as the $X$'s being similar in magnitude and disregulation as the $X$'s being very different. The $Q_i$ term in~\eqref{eq:qiterm} is defined such that higher values would correspond to strong coregulation whereas lower values correspond to disregulation. For example, suppose $Q_i$ ranges from -5 to 0. It will be -5 when there is lots of variability (disregulation) and 0 when there is none (strong coregulation). The function $f(\cdot)$ in~\eqref{eq:fterm} simply maps $Q_i$ to the [0,1] range. In order to get an idea of the relationship in~\eqref{eq:sim3}, Figure~\ref{fig:sim3-perp} displays the response $Y$ as a function of the first principal component of $\sum_j \beta_j X_{ij}$ (denoted by \texttt{1st PC}) and $f(Q_i)$.   We see that lower values of $f(Q_i)$ (which implies disregulation of the features) leads to a lower $Y$. In this setting, although the clusters do not explicitly include interactions between the $X$ variables,  the MARS algorithm allows for the possibility of two way interactions between any of the variables. 
+\begin{comment}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=1, keepaspectratio]{figure4.eps}
+	\caption{Visualization of the relationship between the response, the first principal component of the main effects and $f(Q_i)$ in~\eqref{eq:sim3} for $E=0$ (left) and $E=1$ (right) in simulation scenario 3. This graphic also depicts the intuition behind model~\eqref{eq:nonlinear}.}
+	\label{fig:sim3-perp}
+\end{figure}
+\end{comment}
+
+
+\fig{figure4}{sim3-perp}{16cm}{Visualization of the relationship between the response, the first principal component of the main effects and $f(Q_i)$ in~\eqref{eq:sim3} for $E=0$ (left) and $E=1$ (right) in simulation scenario 3. This graphic also depicts the intuition behind model~\eqref{eq:nonlinear}.}{Visualization of the relationship between the response, the first principal component of the main effects and $f(Q_i)$ in simulation scenario 3.}
+
+\subsection*{Simulations 4, 5 and 6}
+We used the same simulation setup as above, except that we took the continuous outcome $Y$, defined $p = 1/(1+exp(-Y))$ and used this to generate a two-class outcome $z$ with $\tm{Pr}(z=1)=p$ and $\tm{Pr}(z=0)=1-p$. The true parameters were simulated as $\beta_j \sim \tm{Unif}[\log(0.9), \log(1.1)]$, $\beta_E = \log(2)$, $\alpha_j \sim \tm{Unif}[\log(0.4), \log(0.6)]$ or $\alpha_j \sim \tm{Unif}[\log(1.9), \log(2.1)]$. Simulations 4, 5 and 6 are the binary response versions of simulations 1, 2 and 3, respectively. The larger odds ratio for E compared to the odds ratio for X is motivated by certain environmental factors which are well known to have substantial impacts on disease risks and phenotypes. For example, body mass index has been estimated to explain a large proportion of variation in bone mineral density (BMD) in women (10-20\%)~\citep{felson1993effects}. This can be converted to a slope of 0.31-0.44 assuming variables are standardized, i.e., changes of 0.3-0.4 standard deviations in BMD per standard deviation change in weight. In contrast, the majority of SNPs and rare variants have effect sizes under 0.10 standard deviations on BMD~\citep{kemp2017identification}.
+
+\subsection{Measures of Performance}
+Simulation performance was assessed with measures of model fit, prediction accuracy and feature stability. Several measures for each of these categories, and the specific formulae used are provided in Table~\ref{tab:measures}. We simulated both a training data set and a test data set for each simulation: all tuning parameters for  model selection were selected using the training sets only.  Although most of the measures of model fit were calculated on the test data sets, true positive rate, false positive rate and correct sparsity were calculated on the training set only. The root mean squared error is determined by predicting the response for the test set using the fitted model on the training set. The area under the curve is determined using the trapezoidal rule~\citep{auc}. The stability of feature importance is defined as the variability of feature weights under perturbations of the training set, i.e., small modifications in the training set should not lead to considerable changes in the set of important covariates~\citep{tolocsi2011classification}. A feature selection algorithm produces a weight (e.g. $\boldsymbol{\beta}= (\beta_1, \ldots, \beta_p)$), a ranking (e.g. $rank(\boldsymbol{\beta}):\mb{r} = (r_1, \ldots, r_m)$) and a subset of features (e.g. $\mb{s}=(s_1,\ldots, s_p), s_j = \mathbb{I}\left\lbrace\beta_j\neq 0 \right\rbrace$ where $\mathbb{I}\left\lbrace \cdot\right\rbrace$ is the indicator function). 
+In the CLUST and ECLUST methods, we defined a predictor to be non-zero if its corresponding cluster representative weight was non-zero. Using 10-fold cross validation (CV), we evaluated the similarity between two features and their rankings using Pearson and Spearman correlation, respectively. For each CV fold we re-ran the models and took the average Pearson/Spearman correlations of the $\binom{10}{2}$ combinations of estimated coefficients vectors. To measure the similarity between two subsets of features we took the average of the Jaccard distance in each fold. A Jaccard distance of 1 indicates perfect agreement between two sets while no agreement will result in a distance of 0. For MARS models we do not report the Pearson/Spearman stability rankings due to the adaptive and functional nature of the model (there are many possible combinations of predictors, each of which are linear basis functions). 
+\input{tables/table3}
+
+\subsection{Results}
+All reported results are based on 200 simulation runs. We graphically summarized the results across simulations 1-3 for model fit (Figure~\ref{fig:sim-modelfit}) and feature stability (Figure~\ref{fig:sim-stability}). The results for simulations 4-6 are shown in the Supplemental Section B, Figures S1-S6. We restrict our attention to $SNR=1$, $\rho = 0.9$, and $\alpha_{j} \sim \tm{Unif}\left[1.9, 2.1\right]$. The model names are labeled as \texttt{summary measure\_model} (e.g. \texttt{avg\_lasso} corresponds using the average of the features in a cluster as inputs into a lasso regression model). When there is no summary measure appearing in the model name, that indicates that the original variables were used (e.g. \texttt{enet} means all separate features were used in the elasticnet model). In panel A of Figure~\ref{fig:sim-modelfit}, we plot the true positive rate against the false positive rate for each of the 200 simulations. We see that across all simulation scenarios, the SEPARATE method has extremely poor sensitivity compared to both CLUST and ECLUST, which do much better at identifying the active variables, though the resulting models are not always sparse. The relatively few number of green points in panel A is due to the small number of estimated clusters (Supplemental Section C, Figure S7) leading to very little variability in performance across simulations. The better performance of ECLUST over CLUST is noticeable as more points lie in the top left part of the plot. The horizontal banding in panel A reflects the stability of the TOM-based clustering approach.
+%The discrete nature of the plots demonstrates the stability of the clustering algorithm. 
+ECLUST also does better than CLUST in correctly determining whether a feature is zero or nonzero (Figure~\ref{fig:sim-modelfit}, panel B). Importantly, across all three simulation scenarios, ECLUST outperforms the competing methods in terms of RMSE (Figure~\ref{fig:sim-modelfit}, panel C), regardless of the summary measure and modeling procedure. We present the distribution for the effective number of variables selected in the supplemental material (Figures S8 and S9). We see that the median number of variables selected from ECLUST is less than the median number of variables selected from CLUST, though ECLUST has more variability.
+
+\begin{comment}
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.40, keepaspectratio]{figure5.eps}
+	\caption{Model fit results from simulations 1, 2 and 3 with $SNR=1$, $\rho = 0.9$, and $\alpha_{j} \sim \tm{Unif}\left[1.9, 2.1\right]$. SEPARATE results are in pink, CLUST in green and ECLUST in blue.}
+	\label{fig:sim-modelfit}
+\end{figure}
+\end{comment}
+
+
+\fig{figure5}{sim-modelfit}{16cm}{Model fit results from simulations 1, 2 and 3 with $SNR=1$, $\rho = 0.9$, and $\alpha_{j} \sim \tm{Unif}\left[1.9, 2.1\right]$. SEPARATE results are in pink, CLUST in green and ECLUST in blue.}{Model fit results from simulations 1, 2 and 3.}
+
+
+While the approach using all separate original variables (SEPARATE) produce sparse models, they are sensitive to small perturbations of the data across all stability measures (Figure~\ref{fig:sim-stability}), i.e, similar datasets produce very different models. 
+Although the median for the CLUST approach is always slightly better than the median for ECLUST across all stability measures, CLUST results can be much more variable, particularly when stability is measured by the agreement between the value and the ranking of the estimated coefficients across CV folds (Figure~\ref{fig:sim-stability}, panels B and C). The number of estimated clusters, and therefore the number of features in the regression model, tends to be much smaller in CLUST compared to ECLUST, and this explains its poorer performance using the stability measures in Figure~\ref{fig:sim-stability}, since there are more coefficients to estimate. Overall, we observe that the relative performance of ECLUST versus CLUST in terms of stability is consistent across the two summary measures (average or principal component) and across the penalization procedures. The complete results for different values of $\rho$, $SNR$ and $\alpha_{j}$ (when applicable) are available in the Supplemental Section D, Figures S10-S15 for Simulation 1, Figures S16 - S21 for Simulation 2, and Figures S22 - S25 for Simulation 3. They show that these conclusions are not sensitive to the $SNR$, $\rho$ or $\alpha_j$. Similar conclusions are made for a binary outcome using logistic regression versions of the lasso, elasticnet and MARS. ECLUST and CLUST also have better calibration than the SEPARATE method for both linear and non-linear models (Supplemental Section B, Figures S3-S6). The distributions of Hosmer-Lemeshow (HL) $p$-values do not follow uniformity. This is in part due to the fact that the HL test has low power in the presence of continuous-dichotomous variable interactions~\citep{hosmer1997comparison}. Upon inspection of the Q-Q plots, we see that the models have difficulty predicting risks at the boundaries which is a known issue in most models. We also have a small sample size of 200, which means there are on average only 20 subjects in each of the 10 bins. Furthermore, the HL test is sensitive to the choice of bins and method of computing quantiles. Nevertheless, the improved fit relative to the SEPARATE analysis is quite clear.
+
+We also ran all our simulations using the Pearson correlation matrix as a measure of similarity in order to compare its performance against the TOM. The complete results are in the Supplemental Section E, Figures S26-S31 for Simulation 1, Figures S32 - S37 for Simulation 2, and Figures S38 - S41 for Simulation 3. In general, we see slightly better performance of CLUST over ECLUST when using Pearson correlations.  This result is probably due to the imprecision in the estimated correlations.  The exposure dependent similarity matrices are quite noisy, and the variability is even larger when we examine the differences between two correlation matrices.  Such large levels of variability have a negative impact on the clustering algorithm's ability to detecting the true clusters.
+
+\begin{comment}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.40, keepaspectratio]{figure6.eps}
+	\caption{Stability results from simulations 1, 2 and 3 for $SNR=1$, $\rho = 0.9$, and $\alpha_{j} \sim \tm{Unif}\left[1.9, 2.1\right]$. SEPARATE results are in pink, CLUST in green and ECLUST in blue.}
+	\label{fig:sim-stability}
+\end{figure}
+\end{comment}
+
+
+\fig{figure6}{sim-stability}{16cm}{Stability results from simulations 1, 2 and 3 for $SNR=1$, $\rho = 0.9$, and $\alpha_{j} \sim \tm{Unif}\left[1.9, 2.1\right]$. SEPARATE results are in pink, CLUST in green and ECLUST in blue.}{Stability results from simulations 1, 2 and 3.}
+
+\section{Analysis of three data sets}
+
+In this section we demonstrate the performance of ECLUST on three high dimensional datasets with contrasting motivations and features. In the first data set, normal brain development is examined in conjunction with intelligence scores. In the second data set we aim to identify molecular subtypes of ovarian cancer using gene expression data. The investigators' goal in the third data set is to examine the impact of gestational diabetes mellitus (GDM) on childhood obesity in a sample of mother-child pairs from a prospective birth cohort. The datasets comprise a range of sample sizes, and both the amount of clustering in the HD data and the strength of the effects of the designated exposure variables vary substantially.  Due to the complex nature of these datasets, we decided to use MARS models for step 2 of our algorithm for all 3 datasets, as outlined in Table~\ref{tab:eclust}. In order to assess performance in these data sets, we have computed the 0.632 estimator~\citep{efron1983estimating} and the 95\% confidence interval of the $R^2$ and RMSE from 100 bootstrap samples. The $R^2$ reported here is defined as the squared Pearson correlation coefficient between the observed and predicted response~\citep{kvaalseth1985cautionary}, and the RMSE is defined as in Table~\ref{tab:measures}. Because MARS models can result in unstable predictors~\citep{kuhn2008caret}, we also report the results of bagged MARS from $B=50$ bootstrap samples, where bagging~\citep{breiman1996bagging} refers to averaging the predictions from each of the MARS models fit on the $B$ bootstrap samples. 
+%Results are summarized in Figure~\ref{fig:rda}.
+
+
+\subsection{NIH MRI Study of Normal Brain Development} \label{sec:nih}
+
+The NIH MRI Study of Normal Brain Development, started in 2001, was a 7 year longitudinal multi-site project that used magnetic resonance technologies to characterize brain maturation in 433 medically healthy, psychiatrically normal children aged 4.5-18 years~\citep{evans2006nih}. The goal of this study was to provide researchers with a representative and reliable source of healthy control subject data as a basis for understanding atypical brain development associated with a variety of developmental, neurological, and neuropsychiatric disorders affecting children and adults. Brain imaging data (e.g. cortical surface thickness, intra-cranial volume), behavioural measures (e.g. IQ scores, psychiatric interviews, behavioral ratings) and demographics (e.g. socioeconomic status) were collected at two year intervals for three time points and are publicly available upon request. Previous research using these data found that level of intelligence and age correlate with cortical thickness~\citep{shaw2006intellectual, khundrakpam2013developmental}, but to our knowledge no such relation between income and cortical thickness has been observed. We therefore used this data to see the performance of ECLUST in the presence (age) and absence (income) of an effect on the correlations in the HD data. We analyzed the 10,000 most variable regions on the cortical surface from brain scans corresponding to the first sampled time point only. We used binary age (166 age~$\leq 11.3$ and 172~$>11.3$) and binary income (142 high and 133 low income) indicator as the environment variables and standardized IQ scores as the response. We identified 22 clusters from $TOM(X_{\tm{all}})$ and 57 clusters from $TOM(X_{\tm{diff}})$ when using age as the environment, and 86 clusters from $TOM(X_{\tm{all}})$ and 49 clusters from $TOM(X_{\tm{diff}})$ when using income as the environment. Results are shown in Figure~\ref{fig:rda}, panels C and D. The method which uses all individual variables as predictors (pink), has better $R^2$ but also worse RMSE compared to CLUST and ECLUST, likely due to over-fitting. There is a slight benefit in performance for ECLUST over CLUST when using age as the environment (panel D). Importantly, we observe very similar performance between CLUST and ECLUST across all models (panel C), suggesting very little impact on the prediction performance when including features derived both with and without the $E$ variable, in a situation where they are unlikely to be relevant. 
+
+
+\subsection{Gene Expression Study of Ovarian Cancer}
+
+Differences in gene expression profiles have led to the identification of robust molecular subtypes of ovarian cancer; these are of biological and clinical importance because they have been shown to correlate with overall survival~\citep{tothill2008novel}. Improving prediction of survival time based on gene expression signatures can lead to targeted therapeutic interventions~\citep{helland2011deregulation}. The proposed ECLUST algorithm was applied to gene expression data from 511 ovarian cancer patients profiled by the Affymetrix Human Genome U133A 2.0 Array. The data were obtained from the TCGA Research Network: http://cancergenome.nih.gov/ and downloaded via the TCGA2STAT R library~\citep{tcga2stat}. Using the 881 signature genes from~\cite{helland2011deregulation} we grouped subjects into two groups based on the results in this paper, to create a ``positive control'' environmental variable expected to have a strong effect. Specifically, we defined an environment variable in our framework as: $E=0$ for subtypes C1 and C2 ($n = 253$), and $E=1$ for subtypes C4 and C5 ($n = 258$). Overall survival time (log transformed) was used as the response variable. Since these genes were ascertained on survival time, we expected the method using all genes without clustering to have the best performance, and hence one goal of this analysis was to see if ECLUST performed significantly worse as a result of summarizing the data into a lower dimension. We found 3 clusters from $TOM(X_{\tm{all}})$ and 3 clusters from $TOM(X_{\tm{diff}})$;  results are shown in Figure~\ref{fig:rda}, panel C. Across all models, ECLUST performs slightly better than CLUST. Furthermore it performs almost as well as the separate variable method, with the added advantage of dealing with a much smaller number of predictors (881 with SEPARATE compared to 6 with ECLUST).  
+
+\subsection{Gestational diabetes, epigenetics and metabolic disease}
+Events during pregnancy are suspected to play a role in childhood obesity development but only little is known about the mechanisms involved. Indeed, children born to women who had GDM in pregnancy are more likely to be overweight and obese~\citep{wendland2012gestational}, and evidence suggests epigenetic factors are important piece of the puzzle~\citep{bouchard2010leptin,bouchard2012placental}. Recently, methylation changes in placenta and cord blood were associated with GDM~\citep{ruchat2013gestational}, and here we explore how these changes are associated with obesity in the children at the age of about 5 years old.   DNA methylation in placenta was measured with the Infinium HumanMethylation450 BeadChip (Illumina, Inc~\citep{bibikova2011high}) microarray, in a sample of 28 women, 20 of whom had a GDM-affected pregnancy, and here, we used GDM status as our $E$ variable, assuming that this has widespread effects on DNA methylation and on its correlation patterns.  Our response, $Y$, is the standardized body mass index (BMI) in the offspring at the age of 5. In contrast to the previous two examples, here we had no particular expectation of how ECLUST would perform. Using the 10,000 most variable probes, we found 2 clusters from $TOM(X_{\tm{all}})$, and 75 clusters from $TOM(X_{\tm{diff}})$. The predictive model results from a MARS analysis are shown in Figure~\ref{fig:rda}, panel A. When using $R^2$ as the measure of performance, ECLUST outperforms both SEPARATE and CLUST methods. When using RMSE as the measure of model performance, performance tended to be better with CLUST rather than ECLUST perhaps in part due to the small number of clusters derived from $TOM(X_{\tm{all}})$ relative to $TOM(X_{\tm{diff}})$. Overall, the ECLUST algorithm with bagged MARS and the 1st PC of each cluster performed best, i.e., it had a better $R^2$ than CLUST with comparable RMSE.   The sample size here is very small, and therefore the stability of the model fits is limited stability. 
+
+\begin{comment}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.50, keepaspectratio]{figure7.eps}
+	%\includegraphics[]{figure7.eps}
+	\caption{Model fit measures from analysis of three data sets: (A) Gestational diabetes birth-cohort (B) TCGA Ovarian Cancer study (C) NIH MRI Study with income as the environment variable (D) NIH MRI Study with age as the environment variable}
+	\label{fig:rda}
+\end{figure}
+\end{comment}
+
+\fig{figure7}{rda}{16cm}{Model fit measures from analysis of three data sets: (A) Gestational diabetes birth-cohort (B) TCGA Ovarian Cancer study (C) NIH MRI Study with income as the environment variable (D) NIH MRI Study with age as the environment variable.}{Model fit measures from analysis of three real data sets.}
+
+The probes in these clusters mapped to 164 genes and these genes were selected to conduct pathway analyses using the Ingenuity Pathway Analysis (IPA) software (Ingenuity System). IPA compares the selected genes to a reference list of genes included in many biological pathways using a hypergeometric test. Smaller $p$ values are evidence for over-represented gene ontology categories in the input gene list. The results are summarized in Table~\ref{tab:ipa} and provide some biological validation of our ECLUST method. For example, the Hepatic system is involved with the metabolism of glucose and lipids~\citep{saltiel2001insulin}, and behavior and neurodevelopment are associated with obesity~\citep{epstein2004effect}. Furthermore, it is interesting that embryonic and organ development pathways are involved since GDM is associated with macrosomia~\citep{ehrenberg2004influence}. 
+
+\input{tables/table4}
+
+\section{Discussion}
+
+The challenge of precision medicine is to appropriately fit treatments or recommendations to each individual.  Data such as gene expression, DNA methylation levels, or magnetic resonance imaging (MRI) signals are examples of HD measurements that capture multiple aspects of how a tissue is functioning. These data often show patterns associated with disease, and major investments are being made in the genomics research community to generate such HD data. Analytic tools increasing prediction accuracy are needed to maximize the productivity of these investments. However, the effects of exposures have usually been overlooked, but these are crucial since they can lead to ways to intervene. %{\color{red}.  To leave this sentence here, it would need to be cited.  But it may not belong here.  For example, gestational diabetes has been associated with altered methylation levels in placenta and cord blood, and GD is also known to lead to increased risks of overweight in offspring leading to life-long risks of morbidity}. 
+Hence, it is essential to have a clear understanding of how exposures modify HD measures, and how the combination leads to disease. Existing methods for prediction (of disease), that are based on HD data and interactions with exposures, fall far short of being able to obtain this clear understanding. Most methods have low power and poor interpretability, and furthermore, modelling and interpretation problems are exacerbated when there is interest in interactions. In general, power to estimate interactions is low, and the number of possible interactions could be enormous. Therefore, here we have proposed a strategy to leverage situations where a covariate (e.g. an exposure) has a wide-spread effect on one or more HD measures, e.g. GDM on methylation levels. We have shown that this expected pattern can be used to construct dimension-reduced predictor variables that inherently capture the systemic covariate effects. These dimension-reduced variables, constructed without using the phenotype, can then be used in predictive models of any type.   In contrast to some common analysis strategies that model the effects of individual predictors on outcome, our approach makes a step towards a systems-based perspective that we believe will be more informative when exploring the factors that are associated with disease or a phenotype of interest. We have shown, through simulations and real data analysis, that incorporation of environmental factors into predictive models in a way that retains a high dimensional perspective can improve results and interpretation for both linear and non linear effects.
+
+We proposed two key methodological steps necessary to maximize predictive model interpretability when using HD data and a binary exposure: (1) dimension reduction of HD data built on exposure sensitivity, and (2) implementation of penalized prediction models. In the first step, we proposed to identify exposure-sensitive HD pairs by contrasting the TOM between exposed and unexposed individuals; then we cluster the elements in these HD pairs to find exposure-sensitive co-regulated sets. New dimension-reduced variables that capture exposure-sensitive features (e.g. the first principal component of each cluster) were then defined. In the second step we implemented linear and non-linear variable selection methods using the dimension-reduced variables to ensure stability of the predictive model. The ECLUST method has been implemented in the \texttt{eclust}~\citep{eclust} R package publicly available on CRAN. Our method along with computationally efficient algorithms, allows for the analysis of up to 10,000 variables at a time on a laptop computer.
+
+%{\color{red} Need a bit of discussion on correlations versus TOM - the performance of ECLUST being worse with correlations.  I think this speaks to the potential of developing a better measure than the difference of two matrices.  Also perhaps some discussion of first PC/average/ other choices.}
+
+
+The methods that we have proposed here are currently only applicable when three data elements are available. Specifically a binary environmental exposure, a high dimensional dataset that can be affected by the exposure, and a single phenotype. When comparing the TOM and Pearson correlations as a measure of similarity, our simulations showed that the performance of ECLUST was worse with correlations. This speaks to the potential of developing a better measure than the difference of two matrices. For example, we are currently exploring ways in which to handle continuous exposures or multiple exposures. The best way to construct an exposure-sensitive distance matrix that can be used for clustering is not obvious in these situations. One possible solution relies on a non-parametric smoothing based approach where weighted correlations are calculated. These weights can be derived from a kernel-based summary of the exposure covariates (e.g.~\citep{qiu2016joint}). Then, contrasting unweighted and weighted matrices will allow construction of covariate-sensitive clusters. The choice of summary measure for each cluster also warrants further study. While principal components and averages are well understood and easy to implement, the main shortcoming is that they involve all original variables in the group. As the size of the groups increase, the interpretability of these measures decreases. Non-negative matrix factorization~\citep{lee2001algorithms} and sparse principal component analysis (SPCA)~\citep{witten2009penalized} are alternatives which find sparse and potentially interpretable factors. Furthermore, structured SPCA~\citep{jenatton2009structured} goes beyond restricting the cardinality of the contributing factors by imposing some a priori structural constraints deemed relevant to model the data at hand.
+
+
+
+
+
+We are all aware that our exposures and environments impact our health and risks of disease, however detecting how the environment acts is extremely difficult.   Furthermore, it is very challenging to develop reliable and understandable ways of predicting the risk of disease in individuals, based on high dimensional data such as genomic or imaging measures, and this challenge is exacerbated when there are environmental exposures that lead to many subtle alterations in the genomic measurements.  Hence, we have developed an algorithm and an easy-to use software package to transform analysis of how environmental exposures impact human health, through an innovative signal-extracting approach for high dimensional measurements.  Evidently, the model fitting here is performed using existing methods; our goal is to illustrate the potential of improved dimension reduction in two-stage methods, in order to generate discussion and new perspectives.   
+If such an approach can lead to more interpretable results that identify gene-environment interactions and their effects on diseases and traits,  the resulting understanding of how exposures influence the high-volume measurements now available in precision medicine will have important implications for health management and drug discovery.  
+%(fine for a grant but over the top here, I think) Indeed, since exposures may be modifiable - this avenue provides the most plausible approach to developing helpful interventions, whether through drug treatments or lifestyle modifications. 
+
+\section*{Availability of data and material}
+%The data sets supporting the results of this article are available in the repositories:
+\begin{enumerate}
+	\item NIH MRI Study of Normal Brain Development data are available in the Pediatric MRI Data Repository, https://pediatricmri.nih.gov/
+	\item Gene Expression Study of Ovarian Cancer data are available in the Genomic Data Commons repository, https://gdc.cancer.gov/, and were downloaded via the TCGA2STAT R library~\citep{tcga2stat}
+	\item Gestational diabetes, epigenetics and metabolic disease: the clinical data, similarity matrices and cluster summaries are available at Zenodo [10.5281/zenodo.259222]. The raw analysed during the current study are not publicly available due to reasons of confidentiality, although specific collaborations with LB can be requested.
+\end{enumerate}
+
+\section*{Competing interests}
+The authors declare that they have no competing interests.
+
+\section*{Author's contributions}
+SRB, CMTG, YY, MB: conceptualization; SRB, LB, BK: data curation; SRB: formal analysis, software, visualization; SRB, CMTG: methodology; SRB, CMTG: writing-original draft; SRB, CMTG, YY, BK, ACE, MB, LB: writing-review \& editing. 
+
+\section*{Acknowledgements}
+SRB was supported by the Ludmer Centre for Neuroinformatics and Mental Health.
+
+\section*{Additional Files}
+\subsection*{Additional file 1 -- Supplemental Methods and Simulation Results}
+Contains the following sections:
+\begin{itemize}
+	\item[A] \textbf{Description of Topological Overlap Matrix} -  detailed description of the TOM
+	\item[B] \textbf{Binary Outcome Simulation Results} - results of simulations 4, 5 and 6
+	\item[C] \textbf{Analysis of Clusters} - number of estimated clusters by different measures of similarity	
+	\item[D] \textbf{Simulation Results Using TOM as a Measure of Similarity} - detailed simulation results using TOM as a measure of similarity
+	\item[E] \textbf{Simulation Results Using Pearson Correlations as a Measure of
+		Similarity} - detailed simulation results using Pearson Correlations as a measure of similarity	
+	\item[F] \textbf{Visual Representation of Similarity Matrices} - similarity matrices based on Pearson's correlation coefficient
+	
+\end{itemize}

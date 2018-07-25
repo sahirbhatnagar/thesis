@@ -1,0 +1,45 @@
+\begin{table}[h]	
+	\begin{threeparttable}
+		\caption{Measures of Performance}
+		\label{tab:measures}
+		\begin{tabulary}{\linewidth}{lc}
+			\toprule
+Measure                   & Formula	 \\ \midrule
+\textit{\underline{Model Fit}} \\
+\,\,\,\, True Positive Rate (TPR) & $\sfrac{|\widehat{S} \in  S_0|}{|S_0|}$ \\ 
+\addlinespace[5pt] 
+\,\,\,\, False Positive Rate (TPR) & $\sfrac{|\widehat{S} \notin S_0|}{|j \notin S_0|} $ \\ 
+\addlinespace[5pt] \\
+\,\,\,\, Correct Sparsity~\citep{witten2014cluster} & $\frac{1}{p} \sum_{j=1}^{p} A_j $ \\
+\addlinespace[4pt]
+& $A_j = \begin{cases}
+1 & \tm{if } \hat{\beta_j}= \beta_j = 0\\
+1 & \tm{if } \hat{\beta_j}\neq 0, \beta_j \neq 0\\
+0 & \tm{if } \tm{else}
+\end{cases}$\\
+\addlinespace[5pt] 
+\textit{\underline{Prediction Accuracy}} \\
+\,\,\,\, Root Mean Squared Error (RMSE) & $\norm{\mb{Y}_{test}- \widehat{\bs{\mu}}(\mb{X}_{test})}_2$ \\
+%\addlinespace[10pt] \\
+\,\,\,\, Area Under the Curve (AUC) & Trapezoidal rule \\
+\,\,\,\, Hosmer-Lemeshow Test ($G=10$) & $\chi^2$ test statistic \\
+\addlinespace[5pt] \\
+\multicolumn{2}{l}{\textit{\underline{Feature Stability using $K$-fold Cross-Validation on training set~\citep{kalousis2007stability}}}} \\
+\addlinespace[4pt]
+\,\,\,\, Pearson Correlation $(\rho)$~\citep{pearson1895note} & $ \binom{K}{2}^{-1}\sum\limits_{i,j \in \left\lbrace 1, \ldots, K \right\rbrace, i \neq j} \frac{cov\left(\widehat{\mb{\beta}}_{(i)},\widehat{\mb{\beta}}_{(j)}\right)}{\sigma_{\widehat{\mb{\beta}}_{(i)}} \sigma_{\widehat{\mb{\beta}}_{(j)}} }$ \\ 
+\addlinespace[10pt]
+\,\,\,\, Spearman Correlation ($r$)~\citep{spearman1904proof} & $\binom{K}{2}^{-1}\sum\limits_{i,j \in \left\lbrace 1, \ldots, K \right\rbrace, i \neq j} \left[ 1 - 6 \sum\limits_{m} \frac{\left( r_{m_{(i)}} - r_{m_{(j)}}\right) ^2}{p(p^2-1)}\right] $\\
+\addlinespace[10pt] 
+\,\,\,\, Jaccard Distance~\citep{jaccard1912distribution} & $\frac{|\widehat{S}_{(i)} \cap \widehat{S}_{(j)} |}{ |\widehat{S}_{(i)} \cup \widehat{S}_{(j)} |}$  \\ \bottomrule
+		\end{tabulary}
+		\begin{tablenotes}[para,flushleft]
+			{\footnotesize
+				%\textit{Note.} sfs
+			\tabfnt{a}$\widehat{\bs{\mu}}$: fitting procedure on the training set
+			\tabfnt{b}$S_0$: index of active set $ = \left\lbrace j; \beta_j^0 \neq 0 \right\rbrace$
+			\tabfnt{c}$\widehat{S}$: index of the set of non-zero estimated coefficients $ = \left\lbrace j; \widehat{\beta}_j \neq 0 \right\rbrace$
+		    \tabfnt{d}$|A|$: is the cardinality of set $A$				
+			}
+		\end{tablenotes} 		
+	\end{threeparttable}
+\end{table}	
