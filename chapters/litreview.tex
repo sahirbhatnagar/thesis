@@ -22,7 +22,7 @@ For each method we detail the algorithms used to fit these models and their conv
 
 \section{High-dimensional regression methods}
 
-We briefly introduce three of the main analytic strategies used to analyze HD data below.
+We briefly introduce three of the main analytic strategies used to analyze HD data using the following notation. For $n$ observations and $p$ covariates, consider the multiple linear regression model \mbox{$\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}$}, where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors.
 
 
 \subsection{Univariate regression} \label{sec:single}
@@ -36,31 +36,35 @@ Most statistical methods for performing multiple testing adjustments assume weak
 Dependence among multiple tests can lead to incorrect Type 1 error rates~\citep{lin2013test} and highly variable significance measures~\citep{leek2008general}. 
 Even in the presence of weakly dependent variables, adjusting for multiple tests in whole genome studies can result in low power. 
 Furthermore, the univariate regression approach does not allow for modeling the joint effect of many variants which may be biologically more plausible~\citep{schadt2009molecular}. 
+
+Univariate regression results may serve as a filtering step for subsequent multivariable models using the reduced set of predictors. 
+Polygenic risk scores, which combine multiple genetic markers (based on a univariate filter) into a single score, have increased the explanatory power of a set of variables for predicting disease risk~\citep{dudbridge2013power}.   
+However, the final model may not be very good because filtering, i.e., assessing whether to keep a variable in the final model, is performed separately for each predictor.
 In the next section, we introduce multivariable penalized regression approaches which have been proposed to address some of these limitations. 
 
 
 
 \subsection{Multivariable penalized regression} \label{sec:pen}
 %\subsubsection{Variable selection and variable screening}
-For $n$ observations and $p$ covariates, consider the multiple linear regression model \mbox{$\by = \bX \bbeta + \bs{\varepsilon}$}, where $\by$ is a $n$-length response vector, $\bX$ is an $n \times p$ design matrix, $\bbeta$ is a $p$-length coefficient vector and $\bs{\varepsilon}$ is a $n$-length error vector. 
 The least squares estimate is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
 For example DNA microarrays measure the expression of approximately 20,000 genes. 
 However, due to funding constraints, the sample size is often less than a few hundred. 
-A common solution to this problem is through penalized regression, i.e., apply a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
+A common solution to this problem is through penalized regression, i.e., applying a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
 \begin{equation}
 \underbrace{\sum\limits_{i=1}^{n} \left( y_i - \beta_0 - \sum\limits_{j=1}^{p}X_{ij}\beta_j \right)^2}_{\textrm{goodness of fit}} +  \underbrace{\sum\limits_{j=1}^{p} p(\beta_j;\lambda, \gamma)}_{\textrm{penalty}} \label{eq:penalisedlikelihood}
 \end{equation}
-The first term of~\eqref{eq:penalisedlikelihood} is the squared loss of the data and can be generalized to any loss function while the second term is a penalty which depends on non-negative tuning parameters $\lambda$ and $\gamma$ that control the amount of shrinkage to be applied to $\bbeta$ and the degree of concavity of the penalty function, respectively. 
+The first term of~\eqref{eq:penalisedlikelihood} is the squared loss of the data and can be generalized to any loss function, while the second term is a penalty which depends on non-negative tuning parameters $\lambda$ and $\gamma$ that control the amount of shrinkage to be applied to $\bbeta$ and the degree of concavity of the penalty function, respectively. 
 Several penalty terms have been developed in the literature. Ridge regression places a bound on the square of the coefficients ($\ell_2$ penalty)~\citep{hoerl1970ridge} which has the effect of shrinking the magnitude of the coefficients. 
-This however does not produce parsimonious models as none of the coefficients can be shrunk to exactly 0. The Lasso~\citep{tibshirani1996regression} overcomes this problem by placing a bound on the sum of the absolute values of the coefficients ($\ell_1$ penalty) which sets some of them to 0, thereby simultaneously performing model selection. The Lasso, along with other forms of penalization (e.g. SCAD~\cite{fan2001variable}, Fused Lasso~\citep{tibshirani2005sparsity}, Adaptive Lasso~\citep{zou2006adaptive}, Relaxed Lasso~\citep{meinshausen2007relaxed}, MCP~\citep{zhang2010nearly}) have proven successful in many practical problems.
-Despite these encouraging results, such methods have low sensitivity in the presence of high empirical correlations between covariates because only one variable tends to be selected from the group of correlated or nearly linearly dependent variables~\citep{buhlmann2013correlated}. 
-As a consequence, there is rarely consistency on which variable is chosen from one dataset to another (e.g. in cross-validation folds). This behavior may not be well suited to certain genomic datasets in which large sets of predictors are highly correlated (e.g. a regulatory module) and are also associated with the response. 
-The elastic net was proposed to benefit from the strengths of ridge regression's treatment of correlated variables and lasso's sparsity~\citep{zou2005regularization}. By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables. 
-These methods however do not take advantage of the grouping structure of the data. For example, cortical thickness measurements from magnetic resonance imaging (MRI) scans are often grouped into cortical regions of the Automated Anatomical Labelling (AAL) atlas~\citep{tzourio2002automated}. 
+This however does not produce parsimonious models as none of the coefficients can be shrunk to exactly 0. The Lasso~\citep{tibshirani1996regression} overcomes this problem by placing a bound on the sum of the absolute values of the coefficients ($\ell_1$ penalty) which effectively shrinks some of them to 0, thereby simultaneously performing variable selection. The Lasso, along with other forms of penalization (e.g. SCAD~\cite{fan2001variable}, Fused Lasso~\citep{tibshirani2005sparsity}, Adaptive Lasso~\citep{zou2006adaptive}, Relaxed Lasso~\citep{meinshausen2007relaxed}, MCP~\citep{zhang2010nearly}) have proven successful in many practical problems.
+Despite these encouraging results, such methods have low sensitivity for identifying associated variables in the presence of high empirical correlations between covariates, because only one variable tends to be selected from the group of correlated or nearly linearly dependent variables~\citep{buhlmann2013correlated}. 
+As a consequence, there is rarely consistency on which variables are chosen from one dataset to another (e.g. in cross-validation folds). This behavior may not be desirable in high-dimensional datasets in which large sets of predictors are highly correlated and are also associated with the response since it may limit interpretability of results. 
+The elastic net was proposed to benefit from the strengths of ridge regression's treatment of correlated variables and lasso's sparsity~\citep{zou2005regularization}. 
+By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables. 
+These methods however do not take advantage of any (possibly known) grouping structure in the data. For example, cortical thickness measurements from magnetic resonance imaging (MRI) scans are often grouped into cortical regions of the Automated Anatomical Labelling (AAL) atlas~\citep{tzourio2002automated}. 
 Genes involved in the same cellular process (e.g. KEGG pathway~\citep{kanehisa2008kegg}) can also be placed into biologically meaningful groups. When regularizing with the $\ell_1$ penalty, each variable is selected individually regardless of its position in the design matrix. 
 Existing structures between the variables (e.g. spatial, networks, pathways) are ignored even though in many real-life applications the estimation can benefit from this prior knowledge in terms of both prediction accuracy and interpretability~\citep{bach2012structured}. 
 The group lasso~\citep{yuan2006model} (and generalizations thereof) overcomes this problem by producing a structured sparsity~\citep{bach2012structured}, i.e., given a predetermined grouping of non-overlapping variables, all members of the group are either zero or non-zero. 
-The main drawback when applying these methods to genomic data is that these groups may not be known \textit{a priori}. Known pathways may not be relevant to the response of interest and the study of inferring gene networks is still in its infancy. 
+The main drawback when applying these methods is that these groups may not be known \textit{a priori}. Even in genomics, known pathways may not be relevant to the response of interest, and the accuracy of inferring gene networks is still in its infancy. 
 
 
 
@@ -101,6 +105,7 @@ This has the effect of assigning similar coefficient values to correlated featur
 \cite{witten2014cluster} proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
 This is useful in situations where only a fraction of the features in a cluster are associated with the response. 
 
+Now that these three general strategies for predictive modelling with $p>>n$ have been described, the next section describes several penalized methods in detail.
 
 \begin{comment}
 \ctable[caption={Summary of methods used in simulation study},label=tab:methods,pos=h!,doinside=\footnotesize]{LLLLL}{
@@ -133,7 +138,6 @@ Environment Cluster (Eclust) & principal component, average, sparse principal co
 %%%%%%%%%%% Lasso gradient descent
 
 \section{Lasso}\label{sec:lasso}
-Consider the multiple linear regression model \mbox{$\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}$}, where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors. 
 For least-squares loss, the lasso estimator~\citep{tibshirani1996regression,zou2006adaptive} is defined as
 \begin{equation}
 \widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:lasso_estimator}
