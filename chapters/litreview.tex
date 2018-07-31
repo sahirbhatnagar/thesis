@@ -24,8 +24,8 @@ For each method we detail the algorithms used to fit these models and their conv
 
 We briefly introduce three of the main analytic strategies used to analyze HD data using the following notation. For $n$ observations and $p$ covariates, consider the multiple linear regression model 
 \begin{equation}
-\by = \beta_0 + \bX \bbeta + \bs{\varepsilon} \label{eq:mult_linear}
-\end{equation}, 
+\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}, \label{eq:mult_linear}
+\end{equation}
 where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors.
 
 
@@ -102,7 +102,7 @@ Second, by using genes which cluster well, we bias the inputs towards correlated
 Third, taking a summary measure of the resulting clusters can reduce the variance in prediction (overfitting) due to the compressed dimension of the feature space. 
 Lastly, from a practical point of view this approach is flexible and easy to implement because efficient algorithms exist for both clustering~\citep{fastclust} and model fitting~\citep{friedman2010regularization,gglasso}. 
 
-In this context, we introduce a new two-step procedure called \texttt{eclust}~\citep{bhatnagar2018analytic} in Chapter 5 of the thesis. Our method is motivated by the fact that exposure variables (e.g. smoking) can alter correlation patterns between clusters of high-dimensional variables, i.e., alter network properties of the variables. However, it is not well understood whether such altered clustering is informative in prediction. In this paper, we explore whether use of exposure-dependent clustering relationships in dimension reduction can improve predictive modelling in a two-step framework. 
+In this context, we introduce a new two-step procedure called \texttt{eclust}~\citep{bhatnagar2018analytic} in Chapter~\ref{ch:eclust} of the thesis. Our method is motivated by the fact that exposure variables (e.g. smoking) can alter correlation patterns between clusters of high-dimensional variables, i.e., alter network properties of the variables. However, it is not well understood whether such altered clustering is informative in prediction. In this paper, we explore whether use of exposure-dependent clustering relationships in dimension reduction can improve predictive modelling in a two-step framework. 
 
 %A limitation of two-step methods is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. 
 %This has the effect of assigning similar coefficient values to correlated features. 
