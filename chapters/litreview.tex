@@ -22,7 +22,11 @@ For each method we detail the algorithms used to fit these models and their conv
 
 \section{High-dimensional regression methods}
 
-We briefly introduce three of the main analytic strategies used to analyze HD data using the following notation. For $n$ observations and $p$ covariates, consider the multiple linear regression model \mbox{$\by = \beta_0 + \bX \bbeta + \bs{\varepsilon}$}, where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors.
+We briefly introduce three of the main analytic strategies used to analyze HD data using the following notation. For $n$ observations and $p$ covariates, consider the multiple linear regression model 
+\begin{equation}
+\by = \beta_0 + \bX \bbeta + \bs{\varepsilon} \label{eq:mult_linear}
+\end{equation}, 
+where $\by \in \mathbb{R}^n$ is the response, $\bX \in \mathbb{R}^{n \times p}$ is the design matrix, $\beta_0 \in \mathbb{R}$ is the intercept, $\bbeta \in \mathbb{R}^p$ is the coefficient vector corresponding to $\bX$ and $\bs{\varepsilon} \in \mathbb{R}^n$ is a vector of iid random errors.
 
 
 \subsection{Univariate regression} \label{sec:single}
@@ -46,7 +50,7 @@ In the next section, we introduce multivariable penalized regression approaches 
 
 \subsection{Multivariable penalized regression} \label{sec:pen}
 %\subsubsection{Variable selection and variable screening}
-The least squares estimate is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
+The least squares estimate for $\bbeta$ in the linear model is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
 For example DNA microarrays measure the expression of approximately 20,000 genes. 
 However, due to funding constraints, the sample size is often less than a few hundred. 
 A common solution to this problem is through penalized regression, i.e., applying a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
@@ -100,10 +104,10 @@ Lastly, from a practical point of view this approach is flexible and easy to imp
 
 In this context, we introduce a new two-step procedure called \texttt{eclust}~\citep{bhatnagar2018analytic} in Chapter 5 of the thesis. Our method is motivated by the fact that exposure variables (e.g. smoking) can alter correlation patterns between clusters of high-dimensional variables, i.e., alter network properties of the variables. However, it is not well understood whether such altered clustering is informative in prediction. In this paper, we explore whether use of exposure-dependent clustering relationships in dimension reduction can improve predictive modelling in a two-step framework. 
 
-A limitation of two-step methods is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. 
-This has the effect of assigning similar coefficient values to correlated features. 
-\cite{witten2014cluster} proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
-This is useful in situations where only a fraction of the features in a cluster are associated with the response. 
+%A limitation of two-step methods is that the clustering is done in an unsupervised manner, i.e., the clusters do not use the response information. 
+%This has the effect of assigning similar coefficient values to correlated features. 
+%\cite{witten2014cluster} proposed a method which encourages features that share an association with the response to take on similar coefficient values. 
+%This is useful in situations where only a fraction of the features in a cluster are associated with the response. 
 
 Now that these three general strategies for predictive modelling with $p>>n$ have been described, the next section describes several penalized methods in detail.
 
@@ -143,20 +147,24 @@ For least-squares loss, the lasso estimator~\citep{tibshirani1996regression,zou2
 \widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda \sum_{j=1}^{p} v_j \abs{\beta_j} \label{eq:lasso_estimator}
 \end{equation}
 where $(\bX \bbeta)_i$ is the $i$th element of the $n$-length vector $\bX\bbeta$, $\;\lambda > 0$ is a tuning parameter which controls the amount of regularization, $w_i$ is a known weight for the $i$th observation, and $v_j$ is the penalty factor for the $j$th covariate. 
-These penalty factors are known and allow parameters to be penalized differently. 
+These penalty factors are assumed to be known and allow parameters to be penalized differently. 
 In particular, when $v_j = 1$ for $j = 1, \ldots,p$ then all parameters are regularized equally by $\lambda$, and when $v_j=0$ the $j$th covariate is not penalized, i.e., it will always be included in the model. 
 Note also that the intercept is not penalized. 
 The estimator~\eqref{eq:lasso_estimator} simultaneously does variable selection and shrinks the regression coefficients towards 0. 
 Depending on the choice of $\lambda$, $\widehat{\beta}_j(\lambda)=0$ for some $j$'s, and $\widehat{\beta}_j(\lambda)$ can be thought of as a shrunken least squares estimator~\citep{buhlmann2011statistics}. 
-It is worth noting that~\eqref{eq:lasso_estimator} is a convex optimization problem and thus can be solved very efficiently using a block coordinate descent algorithm~\citep{tseng2009coordinate,friedman2007pathwise} for which we provide further details below. Other algorithms for solving this problem exist including LARS~\citep{efron2004least} and the homotopy algorithm~\citep{osborne2000new}, but these have been largely preceded by the coordinate descent algorithm due to its speed and computational efficiency.
+There are two potential benefits brought on by imposing a penalty term to the loss function. First, the least-squares estimate has low bias but a large prediction variance. Prediction accuracy can sometimes be improved by shrinking or biasing the regression coefficients towards 0. This is known as the bias-variance trade-off. Second, interpretation of the model becomes easier when only a small subset of predictors have been identified in being relevant to the response.  
 
-\subsection{Block coordinate descent algorithm} \label{ap:cgd}
+The lasso estimator can produce biased estimates for large coefficients~\citep{zou2006adaptive}. In Section~\ref{subsec:adaptive_lasso} we present the adaptive lasso which is a method that can mitigate this bias. 
+It is also worth noting that~\eqref{eq:lasso_estimator} is a convex optimization problem and thus can be solved very efficiently using a block coordinate descent algorithm~\citep{tseng2009coordinate,friedman2007pathwise} for which we provide further details in Section~\ref{subsec:cgd}. 
+Other algorithms for solving this problem exist, including LARS~\citep{efron2004least} and the homotopy algorithm~\citep{osborne2000new}, but these have been largely succeeded by the coordinate descent algorithm due to its speed and computational efficiency. 
 
-In a series of seminal papers, Tseng lays the groundwork for a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate,tseng1988coordinate,tseng2001convergence} to minimize the sum of a smooth function $f$ (i.e. continuously differentiable) and a separable convex function $P$ of the form
+\subsection{Block coordinate descent algorithm} \label{subsec:cgd}
+
+In a series of seminal papers, Tseng laid the groundwork for a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate,tseng1988coordinate,tseng2001convergence} to minimize the sum of a smooth function $f$ (i.e. continuously differentiable) and a separable convex function $P$ of the form
 \begin{equation}
 Q_{\lambda}(\bTheta) = \argmin_{\bTheta}\; f(\bTheta) + \lambda P(\bTheta) \label{eq:tseng}
 \end{equation}
-At each iteration, the algorithm approximates $f(\bTheta)$ in~\eqref{eq:tseng} by a strictly convex quadratic function and then applies block coordinate decent to generate a decent direction followed by an inexact line search along this direction~\citep{tseng2009coordinate}. 
+At each iteration, the algorithm approximates $f(\bTheta)$ in~\eqref{eq:tseng} by a strictly convex quadratic function and then applies block coordinate descent to generate a descent direction followed by an inexact line search along this direction~\citep{tseng2009coordinate}. 
 For continuously differentiable $f(\cdot)$ and convex and block-separable $P(\cdot)$ \mbox{(e.g. $P(\bbeta) = \sum_i P_i (\beta_i)$)},~\cite{tseng2009coordinate} show that the solution generated by the CGD method is a stationary point of~\eqref{eq:tseng} if the coordinates are updated in a Gauss-Seidel manner, i.e., $Q_{\lambda}(\bTheta)$ is minimized with respect to one parameter while holding all others fixed. 
 The separability of the penalty function into a sum of functions of each individual parameter is the key to applying this algorithm to lasso type problems. 
 %The CGD algorithm can thus be run in parallel and therefore suited for large $p$ settings. 
@@ -207,7 +215,7 @@ The Armijo rule is defined as follows~\citep{tseng2009coordinate}:
 	\end{equation}
 \end{tcolorbox}
 Common choices for the constants are $\delta=0.1$, $\varrho=0.001$, $\gamma = 0$, $\alpha_{init}^{(k)} = 1$ for all $k$~\citep{bertsekas1999nonlinear}.
-In what follows, we use Algorithm~\ref{alg:cgd} to solve the lasso estimator with least-squares loss given by~\eqref{eq:lasso_estimator}. Without loss of generality, we assume the penalty factors ($v_j$) are all equal to 1. 
+We use Algorithm~\ref{alg:cgd} to solve the lasso estimator with least-squares loss given by~\eqref{eq:lasso_estimator}. Without loss of generality, we assume the penalty factors ($v_j$) are all equal to 1. 
 
 
 \subsubsection{Descent Direction}
@@ -349,11 +357,11 @@ sequence of $K$ values decreasing from $\lambda_{max}$ to $\lambda_{min}$ on the
 
 
 \subsection{Warm starts} \label{subsec:lasso_warmstarts}
-The way in which we have derived the sequence of tuning parameters using the KKT conditions, allows us to exploit warm starts which has been shown to lead to computational speedups~\citep{friedman2010regularization}. 
+The way in which we have derived the sequence of tuning parameters using the KKT conditions (Section~\ref{subsec:lasso_lambda_seq}), allows us to exploit warm starts which has been shown to lead to computational speedups~\citep{friedman2010regularization}. 
 That is, the solution $\widehat{\bTheta}$ for $\lambda_k$ is used as the initial value $\bTheta^{(0)}$ for $\lambda_{k+1}$. 
 
 \subsection{Adaptive lasso} \label{subsec:adaptive_lasso}
-It has been shown that the lasso estimator can be produce biased estimates for large coefficients and give inconsistent variable selection results at the optimal $\lambda$ for prediction, i.e., many noise features are included in the prediction model~\citep{zou2006adaptive}.
+It has been shown that the lasso estimator can produce biased estimates for large coefficients and give inconsistent variable selection results at the optimal $\lambda$ for prediction, i.e., many noise features are included in the prediction model~\citep{zou2006adaptive}.
 To overcome the bias problems of the lasso,~\cite{zou2006adaptive} proposed the adaptive lasso which allows a different amount of shrinkage for each regression coefficient using adaptive weights. 
 Adaptive weighting has been shown to construct oracle procedures~\citep{fan2001variable}, i.e., asymptotically, it performs as well as if the true model were given in advance. 
 The adaptive lasso can be described as a two-stage procedure: 
@@ -377,7 +385,8 @@ We detail the adaptive lasso procedure in Algorithm~\ref{alg:adaptivelasso}.
 
 \section{Group Lasso}
 
-One main drawback of the lasso is that it ignores the grouping structure of the design matrix. When given a predetermined grouping of non-overlapping variables, we would want all members of the group to be either zero or non-zero. For example, when dealing with categorical predictors where each factor is expressed through a set of indicator variables, removing an irrelevant factor is equivalent to setting the coefficients of the indicator variables to 0. In an additive model, where each variable is projected on to a set of basis function, e.g. $f_j(X_j) = \sum_{\ell = 1}^{m_j} \psi_{j\ell}(X_j) \beta_{j\ell}$, we would want all $\left\lbrace \beta_{j\ell}\right\rbrace_{\ell=1}^{m_j}$ to be either zero or non-zero. This key difference between the lasso and group lasso penalty is shown in Figure~\ref{fig:lasso_grouplasso_comparison}. 
+One main drawback of the lasso is that it ignores the grouping structure of the design matrix. When given a predetermined grouping of non-overlapping variables, we might want the coefficients of all members of the group to be either zero or non-zero. 
+For example, when dealing with categorical predictors where each factor is expressed through a set of indicator variables, removing an irrelevant factor is equivalent to setting the coefficients of all the indicator variables to 0. In a generalized additive model~\citep{hastie1987generalized}, where each variable is projected on to a set of basis function, e.g. $f_j(X_j) = \sum_{\ell = 1}^{m_j} \psi_{j\ell}(X_j) \beta_{j\ell}$, we would want all $\left\lbrace \beta_{j\ell}\right\rbrace_{\ell=1}^{m_j}$ to be either zero or non-zero. This key difference between the lasso and group lasso penalty is illustrated in Figure~\ref{fig:lasso_grouplasso_comparison}. 
 Suppose we want to predict an individual's credit card balance from their age and height using the following additive model:
 \begin{equation}
 \tm{credit card balance} = \beta_0 + \beta_{11}\tm{age} + \beta_{12}\tm{age}^2 + \beta_{21}\tm{height} + \beta_{22}\tm{height}^2 + \varepsilon \label{eq:credit_card}
@@ -450,7 +459,7 @@ Algorithm~\ref{alg1} summarizes the details of GMD for the group lasso with leas
 In Figure~\ref{fig:gglasso_maj} we provide an illustration of the quadratic majorization technique for updating a parameter $\beta_j$. The solution lies at the minimum of the $F$ curve but we cannot solve for this directly since there is no closed form solution. Instead we majorize $F$ using $Q_1$ which is a function consisting of the quadratic approximation of $F$ plus the penalty term evaluated at $\beta_j^{(m)}$. The minimum of $Q_1$, for which there is a closed form solution, corresponds to the next iteration $\beta_j^{(m+1)}$. We then majorize again using $Q_2$ and solve for the minimum. This process is repeated until convergence.  
 
  
-\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique}{Illustration of the quadratic majorization technique}
+\fig{maj-crop}{gglasso_maj}{16cm}{Illustration of the quadratic majorization technique for updating the coefficient $\beta_j$ from the $m$ step to the $(m+1)$ step. $F$ is the objective function for which there is no closed form solution. $Q_1$ and $Q_2$ are the surrogate functions for which we can find the minimum.}{Illustration of the quadratic majorization technique}
 
 
 \begin{algorithm}
