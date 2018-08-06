@@ -34,14 +34,14 @@
 
 % Conditional expression for faster build during "development cycle"
 \newif\ifthesis
-%\thesistrue       % Final thesis version: Uncomment this line and comment the next one
-\thesisfalse    % Development cycle: Uncomment this line and comment the previous one (faster LaTeX compile)
+\thesistrue       % Final thesis version: Uncomment this line and comment the next one
+%\thesisfalse    % Development cycle: Uncomment this line and comment the previous one (faster LaTeX compile)
 
 % Final version? 
 % This is used to add items only for final submission
 \newif\iffinal
-%\finaltrue
-\finalfalse
+\finaltrue
+%\finalfalse
 
 \ifthesis
 	% Only show these sections when we are building the 'thesis' version
@@ -145,11 +145,11 @@ Il est aujourd'hui possible
 	\include{chapters/appendix}
 \else
 	% Only show the chapter we are currently working on (faster LaTex build)
-	%\include{chapters/introduction}
-	%\include{chapters/litreview}
-	%\include{chapters/sail}
+	\include{chapters/introduction}
+	\include{chapters/litreview}
+	\include{chapters/sail}
 	\include{chapters/ggmix}
-	%\include{chapters/eclust}
+	\include{chapters/eclust}
 	\include{chapters/appendix}
 \fi
 

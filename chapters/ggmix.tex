@@ -196,21 +196,20 @@ From a practical point of view, there is currently no implementation that provid
 To our knowledge, we are the first to develop a CGD algorithm in the specific context of fitting a penalized LMM for population structure correction with theoretical guarantees of convergence. Furthermore, we develop a principled method for automatic tuning parameter selection and provide an easy-to-use software implementation in order to promote wider uptake of these more complex methods by applied practitioners.   
 
 \begin{algorithm}[h]
-	\SetAlgoLined
-	%	\KwResult{Write here the result }
-	Set the iteration counter $k \leftarrow 0$, initial values for the parameter vector $\bTheta^{(0)}$ and convergence threshold $\epsilon$\;
-	\For{$\lambda \in \left\lbrace \lambda_{max}, \ldots, \lambda_{min} \right\rbrace$}{
-		\Repeat{convergence criterion is satisfied: $\norm{\bTheta^{(k+1)} - \bTheta^{(k)}}_2 < \epsilon$}{
-			\begin{align*}
-			\bbeta^{(k+1)} &\leftarrow \argmin_{\bbeta} Q_{\lambda}\left( \bbeta, \eta^{(k)}, {\sigma^2}^{\,\,(k)}\right) \\
-			\eta^{(k+1)} &\leftarrow \argmin_{\eta} Q_{\lambda}\left( \bbeta^{(k+1)}, \eta, {\sigma^2}^{\,\,(k)}\right) \\
-			{\sigma^2}^{\,\,(k+1)} &\leftarrow \argmin_{\sigma^2} Q_{\lambda}\left( \bbeta^{(k+1)}, \eta^{(k+1)}, \sigma^2\right)
-			\end{align*}
-			
-			$k \leftarrow k +1$
-		}
-	}
-	\caption{Block Coordinate Gradient Descent} \label{alg:cgd2}
+\caption{Block Coordinate Gradient Descent} \label{alg:cgd2}
+
+\begin{algorithmic}
+\State	Set the iteration counter $k \leftarrow 0$, initial values for the parameter vector $\bTheta^{(0)}$ and convergence threshold $\epsilon$
+	\For{$\lambda \in \left\lbrace \lambda_{max}, \ldots, \lambda_{min} \right\rbrace$}
+	\Repeat
+	\State  $\bbeta^{(k+1)} \leftarrow \argmin_{\bbeta} Q_{\lambda}\left( \bbeta, \eta^{(k)}, {\sigma^2}^{\,\,(k)}\right)$
+	\State  $\eta^{(k+1)} \leftarrow \argmin_{\eta} Q_{\lambda}\left( \bbeta^{(k+1)}, \eta, {\sigma^2}^{\,\,(k)}\right) $
+\State  ${\sigma^2}^{\,\,(k+1)} \leftarrow \argmin_{\sigma^2} Q_{\lambda}\left( \bbeta^{(k+1)}, \eta^{(k+1)}, \sigma^2\right)$
+	\State	$k \leftarrow k +1$
+\State \Until{convergence criterion is satisfied: $\norm{\bTheta^{(k+1)} - \bTheta^{(k)}}_2 < \epsilon$}
+\EndFor
+\end{algorithmic}
+	
 \end{algorithm}
 
 
@@ -437,33 +436,13 @@ We used a block diagonal kinship structure with 5 subpopulations.
 In Figure~\ref{fig:plot-kinship-sim}, we plot an estimated kinship matrix  ($\bPhi$), based on a single simulated dataset, in the form of a heatmap. 
 Each block represents a subpopulation, and a darker color indicates a closer genetic relationship. 
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-kinship-sim-1} 
-			
-		}
-		
-		\caption[Empirical kinship matrix with block diagnoal structure used in simulation studies]{Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation. }\label{fig:plot-kinship-sim}
-	\end{figure}
-	
-	
-\end{knitrout}
+\fig{plot-kinship-sim-1}{plot-kinship-sim}{16cm}{Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation.}{Empirical kinship matrix with block diagnoal structure used in simulation studies. Each block represents a subpopulation.}
+
 
 In Figure~\ref{fig:plot-pc-sim} we plot the first two principal component scores calculated from the block diagonal kinship matrix in Figure~\ref{fig:plot-kinship-sim}, and color each point by subpopulation membership. We can see that the PCs can identify the subpopulations which is why including them as additional covariates in a regression model has been considered a reasonable approach to control for confounding. 
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-pc-sim-1} 
-			
-		}
-		
-		\caption[First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations]{First two principal component scores of the kinship matrix where each color represents one of the 5 simulated subpopulations. The first panel corresponds to 5 independent subpopulations, the second corresponds to a 1 dimensional geographical structure and the thrid panel corresponds to a circular geography.}\label{fig:plot-pc-sim}
-	\end{figure}
-	
-	
-\end{knitrout}
+\fig{plot-pc-sim-1}{plot-pc-sim}{16cm}{First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.}{First two principal component scores of the block diagonal kinship matrix where each color represents one of the 5 simulated subpopulations.}
+
 
 
 For other parameters in our simulation study, we define the following quantities:
@@ -515,96 +494,41 @@ We also compare the model error $(\norm*{\mb{X}\bbeta - \mb{X}\widehat{\bbeta}_{
 
 We first plot the correct sparsity results for the null model ($c=0$) and the model with 1\% causal SNPs ($c=0.01$) in Figures~\ref{fig:plot-correct-sparsity-sim-null-model} and~\ref{fig:plot-correct-sparsity-sim-1p-causal}, respectively. When the true model has no causal SNPs, we see that \ggmix ~has perfect Type 1 error control across all 200 replications while both the twostep and lasso methods sometimes estimate a model with a large number of false positives. When the true model contains some causal SNPs, \ggmix ~again outperforms the other two methods in terms of correct sparsity. The distribution of $\widehat{S}_{\hat{\lambda}}$ for each of the three methods is shown in Figure~\ref{fig:plot-nactive-sim-null-model} for $c=0$ and Figure~\ref{fig:plot-nactive-sim-1p-causal} for $c=0.01$ of Supplemental Section~\ref{ap:ggmix_sim_results}. 
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[h]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-correct-sparsity-sim-null-model-1} 
-			
-		}
-		
-		\caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$).}\label{fig:plot-correct-sparsity-sim-null-model}
-	\end{figure}
-	
-	
-\end{knitrout}
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[h]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-correct-sparsity-sim-1p-causal-1} 
-			
-		}
-		
-		\caption[Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$)]{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-correct-sparsity-sim-1p-causal}
-	\end{figure}
-	
-	
-\end{knitrout}
+\fig{plot-correct-sparsity-sim-null-model-1}{plot-correct-sparsity-sim-null-model}{16cm}{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$).}{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ for the null model ($c=0$).}
+
+
+\fig{plot-correct-sparsity-sim-1p-causal-1}{plot-correct-sparsity-sim-1p-causal}{16cm}{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}{Boxplots of the correct sparsity from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}
 
 
 The true positive vs. false positive rate for the model with 1\% causal SNPs ($c=0.01$) is shown in Figure~\ref{fig:plot-tpr-fpr-sim-1p-causal}. Both the lasso and twostep outperform \ggmix ~in terms of identifying the true model. This accuracy however, comes at the cost of a very high false positive rate compared to \ggmix.
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-tpr-fpr-sim-1p-causal-1} 
-			
-		}
-		
-		\caption[Means $\pm 1$ standard deviation of true positive rate vs]{Means $\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-tpr-fpr-sim-1p-causal}
-	\end{figure}
-	
-	
-\end{knitrout}
+
+
+
+\fig{plot-tpr-fpr-sim-1p-causal-1}{plot-tpr-fpr-sim-1p-causal}{16cm}{Means $\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}{Means $\pm 1$ standard deviation of true positive rate vs. false positive rate from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}
+
+
 
 We plot the twostep and \ggmix ~heritability estimates for $c=0$ (Figure~\ref{fig:plot-eta-sim-null-model}, Supplemental Section~\ref{ap:ggmix_sim_results}) and $c=0.01$ (Figure~\ref{fig:plot-eta-sim-1p-causal}). We see that both methods correctly estimate the heritability in the null model. When all of the causal SNPs are in the kinship matrix, both methods overestimate $\eta$ though \ggmix ~is closer to the true value. When none of the causal SNPs are in the kinship, both methods tend to overestimate the truth when $\eta=10\%$ and underestimate when $\eta=50\%$. 
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-eta-sim-1p-causal-1} 
-			
-		}
-		
-		\caption[Boxplots of the heritability estimate $\hat{\eta}$ from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$)]{Boxplots of the heritability estimate $\hat{\eta}$ from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-eta-sim-1p-causal}
-	\end{figure}
-	
-	
-\end{knitrout}
+
+\fig{plot-eta-sim-1p-causal-1}{plot-eta-sim-1p-causal}{16cm}{Boxplots of the heritability estimate $\hat{\eta}$ from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}{Boxplots of the heritability estimate $\hat{\eta}$ from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}
 
 
 In Figures~\ref{fig:plot-errorvar-sim-null-model} (Supplemental Section~\ref{ap:ggmix_sim_results}) and~\ref{fig:plot-errorvar-sim-1p-causal}, we plot the error variance for $c=0$ and $c=0.01$, respectively.
 The twostep and \ggmix ~methods correctly estimate the error variance while the lasso overestimates it for the null model and for when 1\% of the causal SNPs are in the kinship matrix. We see an inflated estimated error variance across all three methods when $c=0.01$ and none of the causal SNPs are in the kinship matrix with the lasso and \ggmix ~performing similarly. 
 
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-errorvar-sim-1p-causal-1} 
-			
-		}
-		
-		\caption[Boxplots of the estimated error variance from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$)]{Boxplots of the estimated error variance from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-errorvar-sim-1p-causal}
-	\end{figure}
-	
-	
-\end{knitrout}
+\fig{plot-errorvar-sim-1p-causal-1}{plot-errorvar-sim-1p-causal}{16cm}{Boxplots of the estimated error variance from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}{Boxplots of the estimated error variance from 200 simulations by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}
+
 
 
 We compare the model error as a function of $\widehat{S}_{\hat{\lambda}}$ in Figures~\ref{fig:plot-me-nactive-sim-null} (Supplemental Section~\ref{ap:ggmix_sim_results}) and~\ref{fig:plot-me-nactive-sim-1p-causal} for $c=0$ and $c=0.01$, respectively. Lasso achieves the smallest model error across all scenarios (for $c=0.01$), albeit with a large number of active variables. \ggmix ~has a smaller model error compared to twostep when all causal SNPs are in the kinship matrix and similar performance when none of the causal SNPs are in the kinship matrix. 
 
-\begin{knitrout}\scriptsize
-	\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-		
-		{\centering \includegraphics[width=1\linewidth]{figure/plot-me-nactive-sim-1p-causal-1} 
-			
-		}
-		
-		\caption[Means $\pm 1$ standard deviation of the model error vs]{Means $\pm 1$ standard deviation of the model error vs. the number of active variables by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}\label{fig:plot-me-nactive-sim-1p-causal}
-	\end{figure}
-	
-	
-\end{knitrout}
+
+\fig{plot-me-nactive-sim-1p-causal-1}{plot-me-nactive-sim-1p-causal}{16cm}{Means $\pm 1$ standard deviation of the model error vs. the number of active variables by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}{Means $\pm 1$ standard deviation of the model error vs. the number of active variables by the true heritability $\eta = \lbrace 10\%, 50\% \rbrace$ and number of causal SNPs that were included in the calculation of the kinship matrix for the model with 1\% causal SNPs ($c=0.01$).}
+
 
 Overall, we observe that variable selection results for \ggmix ~are similar regardless of whether the causal SNPs are in the kinship matrix or not. 
 This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal. 

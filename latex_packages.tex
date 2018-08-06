@@ -5,7 +5,30 @@
 \usepackage{apacite} % this has to go before natbib package
 %\usepackage[numbers,sort]{natbib}   % omit 'round' option if you prefer square brackets
 \usepackage[sort]{natbib}   % omit 'round' option if you prefer square brackets
-\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+
+
+
+%\usepackage{algorithm}
+
+
+%\usepackage{algorithmic}
+%\usepackage[ruled,vlined,noresetcount]{algorithm2e}
+
+% THIS (algorithm AND algpseudocode) ARE NEEDED FOR SAIL MANUSCRIPT TO WORK
+\usepackage{algorithm,algorithmicx}
+\usepackage[noend]{algpseudocode}
+\algrenewcommand\textproc{}% Used to be \textsc
+\algdef{SE}[SUBALG]{Indent}{EndIndent}{}{\algorithmicend\ }%
+\algtext*{Indent}
+\algtext*{EndIndent}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% THIS (algorithm2e) IS NEEDED FOR ggmix
+%\usepackage[algo2e,ruled,vlined,noresetcount]{algorithm2e}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \usepackage[toc]{appendix}
 %\usepackage{appendix}
 \usepackage{caption}
@@ -24,6 +47,7 @@
 \usepackage{booktabs}
 \usepackage{threeparttable}
 \usepackage{tabulary}
+
 
 
 % used for tables
