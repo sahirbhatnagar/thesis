@@ -43,14 +43,14 @@ Furthermore, the univariate regression approach does not allow for modeling the 
 
 Univariate regression results may serve as a filtering step for subsequent multivariable models using the reduced set of predictors. 
 Polygenic risk scores, which combine multiple genetic markers (based on a univariate filter) into a single score, have increased the explanatory power of a set of variables for predicting disease risk~\citep{dudbridge2013power}.   
-However, the final model may not be very good because filtering, i.e., assessing whether to keep a variable in the final model, is performed separately for each predictor.
+However, the final model may not perform as well as it could because filtering, i.e., assessing whether to keep a variable in the final model, is performed separately for each predictor.
 In the next section, we introduce multivariable penalized regression approaches which have been proposed to address some of these limitations. 
 
 
 
 \subsection{Multivariable penalized regression} \label{sec:pen}
 %\subsubsection{Variable selection and variable screening}
-The least squares estimate for $\bbeta$ in the linear model is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
+The least squares estimate for $\bbeta$ in the standard linear model is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
 For example DNA microarrays measure the expression of approximately 20,000 genes. 
 However, due to funding constraints, the sample size is often less than a few hundred. 
 A common solution to this problem is through penalized regression, i.e., applying a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
@@ -58,17 +58,17 @@ A common solution to this problem is through penalized regression, i.e., applyin
 \underbrace{\sum\limits_{i=1}^{n} \left( y_i - \beta_0 - \sum\limits_{j=1}^{p}X_{ij}\beta_j \right)^2}_{\textrm{goodness of fit}} +  \underbrace{\sum\limits_{j=1}^{p} p(\beta_j;\lambda, \gamma)}_{\textrm{penalty}} \label{eq:penalisedlikelihood}
 \end{equation}
 The first term of~\eqref{eq:penalisedlikelihood} is the squared loss of the data and can be generalized to any loss function, while the second term is a penalty which depends on non-negative tuning parameters $\lambda$ and $\gamma$ that control the amount of shrinkage to be applied to $\bbeta$ and the degree of concavity of the penalty function, respectively. 
-Several penalty terms have been developed in the literature. Ridge regression places a bound on the square of the coefficients ($\ell_2$ penalty)~\citep{hoerl1970ridge} which has the effect of shrinking the magnitude of the coefficients. 
+Several penalty, $p(\cdot)$, terms have been developed in the literature. Ridge regression places a bound on the square of the coefficients ($\ell_2$ penalty)~\citep{hoerl1970ridge} which has the effect of shrinking the magnitude of the coefficients. 
 This however does not produce parsimonious models as none of the coefficients can be shrunk to exactly 0. The Lasso~\citep{tibshirani1996regression} overcomes this problem by placing a bound on the sum of the absolute values of the coefficients ($\ell_1$ penalty) which effectively shrinks some of them to 0, thereby simultaneously performing variable selection. The Lasso, along with other forms of penalization (e.g. SCAD~\cite{fan2001variable}, Fused Lasso~\citep{tibshirani2005sparsity}, Adaptive Lasso~\citep{zou2006adaptive}, Relaxed Lasso~\citep{meinshausen2007relaxed}, MCP~\citep{zhang2010nearly}) have proven successful in many practical problems.
 Despite these encouraging results, such methods have low sensitivity for identifying associated variables in the presence of high empirical correlations between covariates, because only one variable tends to be selected from the group of correlated or nearly linearly dependent variables~\citep{buhlmann2013correlated}. 
 As a consequence, there is rarely consistency on which variables are chosen from one dataset to another (e.g. in cross-validation folds). This behavior may not be desirable in high-dimensional datasets in which large sets of predictors are highly correlated and are also associated with the response since it may limit interpretability of results. 
 The elastic net was proposed to benefit from the strengths of ridge regression's treatment of correlated variables and lasso's sparsity~\citep{zou2005regularization}. 
-By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables. 
+By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables~\citep{zou2005regularization}. 
 These methods however do not take advantage of any (possibly known) grouping structure in the data. For example, cortical thickness measurements from magnetic resonance imaging (MRI) scans are often grouped into cortical regions of the Automated Anatomical Labelling (AAL) atlas~\citep{tzourio2002automated}. 
 Genes involved in the same cellular process (e.g. KEGG pathway~\citep{kanehisa2008kegg}) can also be placed into biologically meaningful groups. When regularizing with the $\ell_1$ penalty, each variable is selected individually regardless of its position in the design matrix. 
-Existing structures between the variables (e.g. spatial, networks, pathways) are ignored even though in many real-life applications the estimation can benefit from this prior knowledge in terms of both prediction accuracy and interpretability~\citep{bach2012structured}. 
-The group lasso~\citep{yuan2006model} (and generalizations thereof) overcomes this problem by producing a structured sparsity~\citep{bach2012structured}, i.e., given a predetermined grouping of non-overlapping variables, all members of the group are either zero or non-zero. 
-The main drawback when applying these methods is that these groups may not be known \textit{a priori}. Even in genomics, known pathways may not be relevant to the response of interest, and the accuracy of inferring gene networks is still in its infancy. 
+Existing structures among the variables (e.g. spatial, networks, pathways) are ignored even though in many real-life applications the estimation can benefit from this prior knowledge in terms of both prediction accuracy and interpretability~\citep{bach2012structured}. 
+The group lasso~\citep{yuan2006model} (and generalizations thereof) overcomes this problem by producing a structured sparsity~\citep{bach2012structured}, i.e., given a predetermined grouping of variables, all members of the group are either zero or non-zero. 
+The main drawback when applying these methods is that these groups may not be known \textit{a priori}. Even in genomics, known pathways may not be relevant to the response of interest, and the understanding of gene networks is still in its infancy. 
 
 
 
@@ -214,7 +214,7 @@ The Armijo rule is defined as follows~\citep{tseng2009coordinate}:
 	\end{equation}
 \end{tcolorbox}
 Common choices for the constants are $\delta=0.1$, $\varrho=0.001$, $\gamma = 0$, $\alpha_{init}^{(k)} = 1$ for all $k$~\citep{bertsekas1999nonlinear}.
-We use Algorithm~\ref{alg:cgd} to solve the lasso estimator with least-squares loss given by~\eqref{eq:lasso_estimator}. Without loss of generality, we assume the penalty factors ($v_j$) are all equal to 1. 
+We use Algorithm~\ref{alg:litreviewcgd} to solve the lasso estimator with least-squares loss given by~\eqref{eq:lasso_estimator}. Without loss of generality, we assume the penalty factors ($v_j$) are all equal to 1. 
 
 
 \subsubsection{Descent Direction}
@@ -597,7 +597,7 @@ A grouping structure that would satisfy the strong heredity property is:
 \end{table}
 A limitation of this approach is that its impossible to select one variable without selecting all the groups containing it~\citep{jacob2009group}. This implies that if a main effect has been selected, all the interaction terms with that main effect will necessarily be selected as well which can be an issue when the truth contains no interactions. 
 
-In Chapter 3 of the thesis, we introduce a new structured sparsity called \texttt{sail} which satisfies the strong heredity property while overcoming this issue, i.e., a selected main effect does not automatically imply that the corresponding interactions will also be selected. Furthermore, our method can accommodate non-linear interaction effects on the response. The context of Chapter 3 is summarized in Table~\ref{tab:sailcomparison}.
+In Chapter~\ref{ch:sail} of the thesis, we introduce a new structured sparsity called \texttt{sail} which satisfies the strong heredity property while overcoming this issue, i.e., a selected main effect does not automatically imply that the corresponding interactions will also be selected. Furthermore, our method can accommodate non-linear interaction effects on the response. The context of Chapter~\ref{ch:sail} is summarized in Table~\ref{tab:sailcomparison}.
 
 \ctable[caption={Overview of methods with structured sparsity for penalized regression models},label=tab:sailcomparison,pos=H,doinside=\footnotesize]{llc}{
 }{
@@ -612,7 +612,7 @@ Type      & Method   & Software \ML
 & \multicolumn{1}{m{6cm}}{\texttt{RAMP}~\citep{hao2018model}}        & \texttt{RAMP(x, y)}  \\ 
 & \multicolumn{1}{m{6cm}}{\texttt{LassoBacktracking}~\citep{shah2016modelling}   }        & \texttt{LassoBT(x, y)}  \ML
 \multicolumn{1}{m{2cm}}{Non-linear} 	& \multicolumn{1}{m{8cm}}{\texttt{VANISH}~\citep{radchenko2010variable} }        & \xmark  \\
-& \multicolumn{1}{m{6cm}}{\texttt{sail} (\textcolor{red}{Chapter 3 of the thesis})}        & \texttt{\textcolor{blue}{sail(x, y, e)}}  \LL
+& \multicolumn{1}{m{6cm}}{\texttt{sail} (\textcolor{red}{Chapter~\ref{ch:sail} of the thesis})}        & \texttt{\textcolor{blue}{sail(x, y, e)}}  \LL
 }
 
 
