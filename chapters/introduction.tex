@@ -5,11 +5,11 @@
 %Taken verbatim from Stephen Reid Tibs, Friedman~\cite{reid2016study} Consider the linear model $Y = X\beta + \varepsilon$,where Y is an n-vector of independently distributed responses, $X$ an $n \times p$ matrix with individual specific covariate vectors as its rows and $\varepsilon$ an $n$-vector of i.i.d. random variables (usually assumed Gaussian) each with mean 0 and variance $\sigma^2$ When $p > n$, one cannot estimate the unknown coefficient vector $\beta$ uniquely via standard least squares methodology. In fact, it is probably ill-advised to use least squares to estimate the vector even when $p \leq n$ with p close to n, since standard errors are likely to be high and parameter estimates unstable. In this instance, if one can assume that $\beta$ is reasonably sparse with many zero entries,
 
 In this thesis, we consider the prediction of an outcome variable $y$ observed on $n$ individuals from $p$ variables, where $p$ is much larger than $n$. 
-Challenges in this high-dimensional (HD) context include not only building a good predictor which will perform well in an independent dataset, but also being able to interpret the factors that contribute to the predictions. 
+Challenges in this \ac{hd} context include not only building a good predictor which will perform well in an independent dataset, but also being able to interpret the factors that contribute to the predictions. 
 This latter issue can be very challenging in ultra-high dimensional predictor sets. 
 For example, multiple different sets of covariates may provide equivalent measures of goodness of fit~\citep{fan2014challenges}, and therefore how does one decide which are important? 
 
-When $p >>n$, standard generalized linear models (GLMs) methodology cannot uniquely estimate the unknown coefficient vector $\beta$. 
+When $p >>n$, standard \ac{glm} methodology cannot uniquely estimate the unknown coefficient vector $\beta$. 
 Moreover, even when $p \leq n$ with $p$ close to $n$, standard errors of GLMs are likely to be inflated and parameter estimates unstable~\citep{reid2016study}. In these instances it may be useful to assume the \textit{Bet on Sparsity Principle} which says:
 \begin{quote}
 Use a procedure that does well in sparse problems,
