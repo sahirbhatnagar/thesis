@@ -2,7 +2,24 @@
 \chapter{An analytic approach for interpretable predictive models in high dimensional data, in the presence of interactions with exposures\label{ch:eclust}}
 %-----------------------------------------------------------------------------
 
-Sahir Rai Bhatnagar$^{1,2}$, Yi Yang$^{3}$, Budhachandra Khundrakpam$^{4}$, Alan C Evans$^{4}$, Mathieu Blanchette$^{5}$, Luigi Bouchard$^{6}$, Celia MT Greenwood$^{1,2}$
+\indent \textbf{Preamble to Manuscript 3.} This paper was in fact the first project of my thesis, intended to explore the benefits of dimension reduction when prediction is the goal and interactions are expected. The \texttt{eclust} algorithm proposed in the following manuscript, published in \textit{Genetic Epidemiology}, leverages correlations induced by an exposure factor to reduce the dimensionality of the data and improve prediction performance. 
+This manuscript provides an extensive simulation study as well as three real data applications to demonstrate its utility. 
+
+%Hence you developed sail to provide a penalized solution that respected the hierarchy principle.
+\newpage
+
+\vspace*{2cm}
+
+\begin{center}
+	\Large{An analytic approach for interpretable predictive models in high dimensional data, in the presence of interactions with exposures}
+\end{center}
+
+\vspace*{3cm}
+
+
+\begin{center}
+	Sahir Rai Bhatnagar$^{1,2}$, Yi Yang$^{3}$, Budhachandra Khundrakpam$^{4}$, Alan C Evans$^{4}$, Mathieu Blanchette$^{5}$, Luigi Bouchard$^{6}$, Celia MT Greenwood$^{1,2}$
+\end{center}
 %\affil[1]{Department of Epidemiology, Biostatistics and Occupational Health, McGill University}
 %\affil[2]{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC}
 %\affil[3]{Departments of Oncology and Human Genetics, McGill University}
@@ -11,15 +28,22 @@ Sahir Rai Bhatnagar$^{1,2}$, Yi Yang$^{3}$, Budhachandra Khundrakpam$^{4}$, Alan
 %\affil[6]{Department of Computer Science, McGill University}
 %\affil[7]{Department of Biochemistry, Universit\'{e} de Sherbrooke}
 
-%\author{Brian D. Beitzel}
-$^{1}$Department of Epidemiology, Biostatistics and Occupational Health, McGill University\\
-$^{2}$Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC \\
-$^{3}$Department of Mathematics and Statistics, McGill University\\
-$^{4}$Montreal Neurological Institute, McGill University\\
-$^{5}$Department of Computer Science, McGill University\\
-$^{6}$Department of Biochemistry, Universit\'{e} de Sherbrooke\\
+\vspace*{1cm}
 
+\begin{center}
+$^{1}$\textit{Department of Epidemiology, Biostatistics and Occupational Health, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{2}$\textit{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, Qu\'{e}bec, Canada} \\
+$^{3}$\textit{Department of Mathematics and Statistics, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{4}$\textit{Montreal Neurological Institute, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{5}$\textit{Department of Computer Science, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{6}$\textit{Department of Biochemistry, Universit\'{e} de Sherbrooke, Sherbrooke, Qu\'{e}bec, Canada}\\
+\end{center}
+
+\vspace*{1cm}
+
+\begin{center}
 Paper published in \textit{Genetic Epidemiology} (2018). Apr 1;42(3):233-49.  \href{https://doi.org/10.1101/102475}{DOI 10.1101/102475}.
+\end{center}
 
 \newpage
 

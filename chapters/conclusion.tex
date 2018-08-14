@@ -19,7 +19,7 @@ The methods in Chapters~\ref{ch:sail} and~\ref{ch:ggmix} have only been develope
 
 A limitation of \ggmix ~is that it first requires computing the covariance matrix with a computation time of $\mathcal{O}(n^2k)$ followed by a spectral decomposition of this matrix in $\mathcal{O}(n^3)$ time where $k$ is the number of SNP genotypes used to construct the covariance matrix. This computation becomes prohibitive for large cohorts such as the UK Biobank~\citep{allen2012uk} which have collected genetic information on half a million individuals. As a methodological improvement, it would be extremely useful to reduce this computational burden so that multivariable LMMs can be applied to the larger and more heterogeneous cohorts being assembled today.  
 
-There are also methodological advancements that can be made to the \texttt{eclust} approach. For example, extending \texttt{eclust} to handle continuous exposures or multiple exposures. The best way to construct an exposure-sensitive distance matrix that can be used for clustering is not obvious in these situations. 
+There are also methodological advancements that can be made to the \texttt{eclust} approach. For example, extending \texttt{eclust} to handle continuous exposures or multiple exposures. The best way to construct an exposure-sensitive distance matrix that can be used for clustering is not obvious in these situations. In the modeling step, one might also consider alternative nonconvex penalties such as SCAD~\citep{fan2001variable} or MCP~\citep{zhang2010nearly}.
 
 \section{Concluding remarks}
 

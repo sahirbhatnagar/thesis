@@ -2,7 +2,19 @@
 \chapter{A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations\label{ch:ggmix}}
 %-----------------------------------------------------------------------------
 
-Sahir Rai Bhatnagar$^{1,2}$, Karim Oualkacha$^{3}$, Yi Yang$^{4}$, Marie Forest$^{2}$, Celia MT Greenwood$^{1,2}$
+\indent \textbf{Preamble to Manuscript 2.} At the most recent Genetic Analysis Workshop (GAW 20), there was a need for methods that selected variables strongly associated with an exposure. However, since GAW 20 data consisted of families, standard variable selection techniques were not applicable. Several groups calculated residuals to remove the family structure and then followed up with their primary analyses, which could have resulted in a large number of false positives. Hence we developed \ggmix ~as an alternative approach that could be used for selecting variables while accounting for the familial structure of the data in a penalized mixed model. \newpage
+
+\vspace*{2cm}
+
+\begin{center}
+	\Large{A General Framework for Variable Selection in Linear Mixed Models with Applications to Genetic Studies with Structured Populations}
+\end{center}
+
+\vspace*{4cm}
+
+\begin{center}
+	Sahir Rai Bhatnagar$^{1,2}$, Karim Oualkacha$^{3}$, Yi Yang$^{4}$, Marie Forest$^{2}$, Celia MT Greenwood$^{1,2}$
+\end{center}
 %\affil[1]{Department of Epidemiology, Biostatistics and Occupational Health, McGill University}
 %\affil[2]{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC}
 %\affil[3]{Departments of Oncology and Human Genetics, McGill University}
@@ -11,11 +23,14 @@ Sahir Rai Bhatnagar$^{1,2}$, Karim Oualkacha$^{3}$, Yi Yang$^{4}$, Marie Forest$
 %\affil[6]{Department of Computer Science, McGill University}
 %\affil[7]{Department of Biochemistry, Universit\'{e} de Sherbrooke}
 
-%\author{Brian D. Beitzel}
-$^{1}$Department of Epidemiology, Biostatistics and Occupational Health, McGill University\\
-$^{2}$Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC \\
-$^{3}$Département de Mathématiques, Université de Québec À Montréal\\
-$^{4}$Department of Mathematics and Statistics, McGill University\\
+\vspace*{1cm}
+
+\begin{center}
+$^{1}$\textit{Department of Epidemiology, Biostatistics and Occupational Health, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{2}$\textit{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{3}$\textit{Département de Mathématiques, Université de Québec À Montréal, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{4}$\textit{Department of Mathematics and Statistics, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+\end{center}
 
 
 
@@ -533,11 +548,11 @@ We compare the model error as a function of $\widehat{S}_{\hat{\lambda}}$ in Fig
 Overall, we observe that variable selection results for \ggmix ~are similar regardless of whether the causal SNPs are in the kinship matrix or not. 
 This result is encouraging since in practice the kinship matrix is constructed from a random sample of SNPs across the genome, some of which are likely to be causal. 
 \ggmix ~has very good Type 1 error control, while both the lasso and twostep have a very high false positive rate. 
-Inclusion of the causal SNPs in the kinship calculation has a strong impact on the variance component estimation with the heritabilty and error variance estimates working in opposite directions. 
+Inclusion of the causal SNPs in the kinship calculation has a strong impact on the variance component estimation with the heritability and error variance estimates working in opposite directions. 
 That is, when all causal SNPs are in the kinship matrix, the heritability estimates are biased towards 1 while the error variance is correctly estimated. 
 Conversely, when none of the causal SNPs are included in the kinship matrix, the estimated heritability is closer to the true value, while the error variance is inflated. 
-Both the lasso and twostep methods have better signal recovery as compared to \ggmix. 
-However, this signal is being spread across many variables leading to many Type 1 errors. 
+Both the lasso and twostep methods have better signal recovery, i.e., a smaller model error, as compared to \ggmix. 
+However, this signal is being spread across many variables leading to many falsely selected variables, or Type 1 errors. 
 
 \section{Discussion}
 
@@ -564,4 +579,4 @@ relationships between DNA methylation (exposure) within some genes
 and the change in high-density lipoproteins $\Delta$HDL (outcome) using Mendelian randomization (MR)~\citep{davey2003mendelian}. 
 Penalized regression methods could be used to select SNPs strongly associated with the exposure in order to be used as an instrumental variable (IV). 
 However, since GAW20 data consisted of families, two step methods were used which could have resulted in a large number of false positives. \ggmix~is an alternative approach that could be used for selecting the IV while accounting for the familial structure of the data. 
-Our method is also suitable for fine mapping SNP association signals in genomic regions, where the goal is to pinpoint individual variants most likely to impact the undelying biological mechanisms of disease~\citep{spain2015strategies}.
+Our method is also suitable for fine mapping SNP association signals in genomic regions, where the goal is to pinpoint individual variants most likely to impact the underlying biological mechanisms of disease~\citep{spain2015strategies}.

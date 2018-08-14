@@ -2,7 +2,19 @@
 \chapter{Sparse Additive Interaction Learning\label{ch:sail}}
 %-----------------------------------------------------------------------------
 
-Sahir Rai Bhatnagar$^{1,2}$, Amanda Lovato$^{2}$, Yi Yang$^{3}$, Celia MT Greenwood$^{1,2}$
+\indent \textbf{Preamble to Manuscript 1.} Through interactions with some colleagues we became aware that there was a need for interaction models where one key factor possibly interacted with a high dimensional set. After a literature review, we found that the majority of methods being developed for interactions lacked two key features for our real data applications: 1) non-linear interaction effects and 2) interaction with a single exposure variable. Hence we developed \sail ~to provide a solution for detecting non-linear interactions with a key environmental or exposure variable in high-dimensional settings, which respected the heredity principle.\newpage
+
+\vspace*{2cm}
+
+\begin{center}
+	\Large{Sparse Additive Interaction Learning}
+\end{center}
+
+\vspace*{4cm}
+
+\begin{center}
+	Sahir Rai Bhatnagar$^{1,2}$, Amanda Lovato$^{2}$, Yi Yang$^{3}$, Celia MT Greenwood$^{1,2}$
+\end{center}
 %\affil[1]{Department of Epidemiology, Biostatistics and Occupational Health, McGill University}
 %\affil[2]{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC}
 %\affil[3]{Departments of Oncology and Human Genetics, McGill University}
@@ -11,10 +23,13 @@ Sahir Rai Bhatnagar$^{1,2}$, Amanda Lovato$^{2}$, Yi Yang$^{3}$, Celia MT Greenw
 %\affil[6]{Department of Computer Science, McGill University}
 %\affil[7]{Department of Biochemistry, Universit\'{e} de Sherbrooke}
 
+\vspace*{1cm}
 %\author{Brian D. Beitzel}
-$^{1}$Department of Epidemiology, Biostatistics and Occupational Health, McGill University\\
-$^{2}$Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, QC \\
-$^{3}$Department of Mathematics and Statistics, McGill University\\
+\begin{center}
+$^{1}$\textit{Department of Epidemiology, Biostatistics and Occupational Health, McGill University, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+$^{2}$\textit{Lady Davis Institute, Jewish General Hospital, Montr\'{e}al, Qu\'{e}bec, Canada} \\
+$^{3}$\textit{Department of Mathematics and Statistics, Montr\'{e}al, Qu\'{e}bec, Canada}\\
+\end{center}
 
 
 
@@ -37,7 +52,7 @@ However, there is a general deficit of such replicated interactions in the liter
 Indeed, power to detect interactions is always lower than for  main effects, and in high-dimensional settings ($p >> n$), this lack of power to detect interactions is exacerbated, since the number of possible interactions could be enormous and their effects may be non-linear. Hence, analytic methods that may improve power are essential.  
 
 %{\color{green} You need a non-genetic example - i.e. gene expression or proteomic or ...}
-Interactions may occur in numerous types and of varying complexities. In this paper, we consider one specific type of interaction models, where one (exposure) variable is involved in possibly non-linear interactions with a high-dimensional set of measures $\mb{X}$ leading to effects on a response variable, $Y$. We propose a multivariable penalization procedure for detecting non-linear interactions $\mb{X}$ and $E$. 
+Interactions may occur in numerous types and of varying complexities. In this paper, we consider one specific type of interaction models, where one (exposure) variable is involved in possibly non-linear interactions with a high-dimensional set of measures $\mb{X}$ leading to effects on a response variable, $Y$. We propose a multivariable penalization procedure for detecting non-linear interactions $\mb{X}$ and $E$. The proposed approach uses a simple change of variable to implement the heredity property. This allows us to combine both the $\ell_1$ and $\ell_2$ penalties to achieve sparse solutions while modeling both non-linear main effects and non-linear interaction effects.  
 
 
 %Our approach improves on existing procedures for detecting such interactions in three ways; 1) it automatically enforces the strong heredity property, i.e., an interaction term can only be included in the model if the corresponding main effects are in the model 2) it reduces the dimensionality of the problem and leverages the high correlations by transforming the input feature space using network connectivity measures and 3) it leads to interpretable models which are biologically meaningful.
@@ -63,11 +78,10 @@ where $g(\cdot)$ is a known link function, $\bmu = \e\left[Y|\bPsi, X_E \right]$
 \begin{equation}
 \mathcal{L}(\bTheta| \bD) = \frac{1}{2n}\norm{Y - \beta_0 \cdot \boldsymbol{1} - \sum_{j=1}^p \bPsi_j \btheta_j - \beta_E X_E - \sum_{j=1}^p (X_E \circ \bPsi_j) \btau_j }_2^2
 \end{equation}
-and for binary response $Y_i \in \left\lbrace -1, +1 \right\rbrace$ we use the logistic loss:
-\begin{equation}
-\mathcal{L}(\bTheta| \bD) = \frac{1}{n} \sum_i \log \left(1 + \exp \left\lbrace - Y_i \left( \beta_0 \cdot \boldsymbol{1} - \sum_{j=1}^p \bPsi_j \btheta_j - \beta_E X_E - \sum_{j=1}^p (X_E \circ \bPsi_j) \btau_j \right) \right\rbrace   \right)
-\end{equation}
-
+%and for binary response $Y_i \in \left\lbrace -1, +1 \right\rbrace$ we use the logistic loss:
+%\begin{equation}
+%\mathcal{L}(\bTheta| \bD) = \frac{1}{n} \sum_i \log \left(1 + \exp \left\lbrace - Y_i \left( \beta_0 \cdot \boldsymbol{1} - \sum_{j=1}^p \bPsi_j \btheta_j - \beta_E X_E - \sum_{j=1}^p (X_E \circ \bPsi_j) \btau_j \right) \right\rbrace   \right)
+%\end{equation}
 where $\bTheta \coloneqq (\beta_0, \beta_E,\btheta_1, \ldots, \btheta_p, \btau_1, \ldots, \btau_p)$ and $\bD \coloneqq (Y,\bPsi,X_E)$ is the working data. Here we assume that $p$ is large relative to $n$, and particularly that $\sum_{j=1}^{p}m_j / n$ is large.
 Due to the large number of parameters to estimate with respect to the number of observations, one commonly-used approach is to shrink the regression coefficients by placing a constraint on the values
 of $(\beta_E, \btheta_j, \btau_j)$. Certain constraints have the added benefit of producing a sparse model in the sense that many of the coefficients will be set exactly to 0~\citep{buhlmann2011statistics}. Such a reduced predictor set can lead to a more interpretable model with smaller prediction variance, albeit at the cost of having biased parameter estimates~\citep{fan2014challenges}. In light of these goals, we consider the following objective function:
@@ -85,7 +99,7 @@ An issue with~\eqref{eq:lassolikelihood3} is that since no constraint is placed 
 
 \subsection{Strong and weak heredity}
 
-The strong heredity principle states that an interaction term can only have a non-zero estimate if its corresponding main effects are estimated to be non-zero. The weak heredity principle allows for a non-zero interaction estimate as long as one of the corresponding main effects is estimated to be non-zero~\citep{chipman1996bayesian}. In the context of penalized regression methods, these principles can be formulated as structured sparsity \citep{bach2012structured} problems. Several authors have proposed to modify the type of penalty in order to achieve the heredity principle~\citep{radchenko2010variable,bien2013lasso,haris2014convex,lim2014learning}. We take an alternative approach. Following Choi et al.~\citep{choi2010variable}, we introduce a new set of parameters $\bgamma = (\gamma_1, \ldots, \gamma_p)\in \mathbb{R}^p$ and reparametrize the coefficients for the interaction terms $\btau_j$ in~\eqref{eq:linpred} as a function of $\gamma_j$ and the main effect parameters $\btheta_j$ and $\beta_E$. This reparametrization for both strong and weak heredity is summarized in Table~\ref{tab:reparam}.
+The strong heredity principle states that an interaction term can only have a non-zero estimate if its corresponding main effects are estimated to be non-zero. The weak heredity principle allows for a non-zero interaction estimate as long as one of the corresponding main effects is estimated to be non-zero~\citep{chipman1996bayesian}. In the context of penalized regression methods, these principles can be formulated as structured sparsity \citep{bach2012structured} problems. Several authors have proposed to modify the type of penalty in order to achieve the heredity principle~\citep{radchenko2010variable,bien2013lasso,haris2014convex,lim2014learning}. We take an alternative approach and highlight it's novelties in Section~\ref{subsec:related_work_sail}. Following~\cite{choi2010variable}, we introduce a new set of parameters $\bgamma = (\gamma_1, \ldots, \gamma_p)\in \mathbb{R}^p$ and reparametrize the coefficients for the interaction terms $\btau_j$ in~\eqref{eq:linpred} as a function of $\gamma_j$ and the main effect parameters $\btheta_j$ and $\beta_E$. This reparametrization for both strong and weak heredity is summarized in Table~\ref{tab:reparam}.
 
 \ctable[caption={Reparametrization for strong and weak heredity principle for \texttt{sail} model},label=tab:reparam,pos=h!,doinside=\footnotesize, ]{lll}{
 }{
@@ -131,7 +145,7 @@ In Figure~\ref{fig:toy-effects}, we plot the true and estimated component functi
 
 
 
-\subsection{Related Work}
+\subsection{Related Work}\label{subsec:related_work_sail}
 Methods for variable selection of interactions can be broken down into two categories: linear and non-linear interaction effects. 
 Many of the linear effect methods consider all pairwise interactions in $\bX$~\citep{zhao2009composite,choi2010variable,bien2013lasso, she2014group} which can be computationally prohibitive when $p$ is large. The computational limitation can be perceived through the relatively small number of variables used in simulations and real data analysis in~\citep{zhao2009composite,choi2010variable,bien2013lasso, she2014group}. 
 More recent proposals for selection of interactions allow the user to restrict the search space to interaction candidates~\citep{lim2015learning,haris2016convex}. This is useful when the researcher wants to impose prior information on the model. 
@@ -148,11 +162,11 @@ where $\alpha_j$ is a $K$-dimensional vector.
 Our proposal is most closely related to this method with $\mathbf{Z}$ being a single column matrix; the key difference being the non-linearity effects of our predictor variables. 
 As pointed out by the authors of the pliable lasso, either their or ours can be seen as a varying coefficient model, i.e., the effect of $X$ varies as a function of the exposure variable $E$ or $\mb{Z}$ in equation~\ref{eq:pliable}. 
 
-The main contributions of this paper are fourfold. 
+The main contributions of this paper are threefold. 
 First, we develop a model for non-linear interactions with a key exposure variable, following either the weak or strong heredity principle, that is computationally efficient and scales to the high-dimensional setting ($n << p$). 
 Second, through simulation studies, we show improved performance over existing methods that only consider linear interactions or additive main effects. 
-Third, we show that our method possesses the oracle property~\citep{fan2001variable}, i.e., it performs as well as if the true model were known in advance. 
-Fourth, all of our algorithms are implemented in the \texttt{sail} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/sail/}). In particular, our implementation also allows for linear interaction models, user-defined basis expansions, a cross-validation procedure for selecting the optimal tuning parameter, and differential shrinkage parameters to apply the adaptive lasso~\citep{zou2006adaptive} idea. 
+%Third, we show that our method possesses the oracle property~\citep{fan2001variable}, i.e., it performs as well as if the true model were known in advance. 
+Third, all of our algorithms are implemented in the \texttt{sail} R package hosted on GitHub with extensive documentation (\url{http://sahirbhatnagar.com/sail/}). In particular, our implementation also allows for linear interaction models, user-defined basis expansions, a cross-validation procedure for selecting the optimal tuning parameter, and differential shrinkage parameters to apply the adaptive lasso~\citep{zou2006adaptive} idea. 
 
 The rest of the paper is organized as follows. Section~\ref{sec:sail_algorithm} describes our optimization procedure and some details about the algorithm used to fit the \texttt{sail} model for the least squares case. In Section~\ref{sec:sail_simulation}, through simulation studies we compare the performance of our proposed approach and demonstrate the scenarios where it can be advantageous to use \sail ~over existing methods. Section~\ref{sec:sail_rda} contains some real data examples and Section~\ref{sec:sail_discussion} discusses some limitations and future directions. 
 
@@ -473,7 +487,8 @@ The true component functions are the same as in~\citep{lin2006component,huang201
 
 The test set MSE results for each of the five simulation scenarios are shown in Figure~\ref{fig:plot-mse-sim}, while Figure~\ref{fig:plot-tpr-fpr-sim} shows the mean true positive rate (TPR) vs. the mean false positive rate (FPR) $\pm 1$ standard deviation (SD). 
 
-\fig{plot-mse-sim-1}{plot-mse-sim}{16cm}{Boxplots of the test set mean squared error from 200 simulations for each of the five simulation scenarios.}{Boxplots of the test set mean squared error from 200 simulations for each of the five simulation scenarios.}
+\fig{plot-mse-sim-1}{plot-mse-sim}{16cm}{Boxplots of the test set mean squared error from 200 simulations for each of the five simulation scenarios. Linear main effects: \texttt{lasso}~\citep{tibshirani1996regression}, \texttt{adaptive lasso}~\citep{zou2006adaptive}. Linear interactions: \texttt{lassoBT}~\citep{shah2016modelling}, \texttt{GLinternet}~\citep{lim2015learning}, \texttt{linear sail}.
+Non-linear main effects: \texttt{HierBasis}~\citep{haris2016nonparametric}, \texttt{SPAM}~\citep{ravikumar2009sparse}, \texttt{gamsel}~\citep{chouldechova2015generalized}. Non-linear interaction effects: \texttt{sail}, \texttt{adaptive sail}, \texttt{sail weak}.}{Boxplots of the test set mean squared error from 200 simulations for each of the five simulation scenarios.}
 
 
 
@@ -524,11 +539,11 @@ To visualize the estimated interaction effects, we ordered the 200 simulation ru
 %\end{comment}
 
 
-\section{Real Data Application} \label{sec:sail_rda}
-In this section we illustrate \sail ~on several real data examples.
+\section{Real Data Application with Alzheimer's Disease Neuroimaging Initiative} \label{sec:sail_rda}
+%In this section we illustrate \sail ~on several real data examples.
 
 
-\subsection{Alzheimer's Disease Neuroimaging Initiative}
+%\subsection{Alzheimer's Disease Neuroimaging Initiative}
 
 Alzheimer's is an irreversible neurodegenerative disease that results in a loss of mental function due to the deterioration of brain tissue. The overall goal of the Alzheimer's Disease Neuroimaging Initiative (ADNI) is to validate biomarkers for use in
 Alzheimer's disease clinical treatment trials~\citep{petersen2010alzheimer}. The patients were selected into the study based on their clinical diagnosis: controls, mild cognitive impairment (MCI) or Alzheimer's disease (AD). PET amyloid imaging was used to asses amyloid beta (A$\beta$) protein load in 96 brain regions. The response we use here is general cognitive decline, as measured by a continuous mini-mental state examination score. We applied \sail ~to this data to see if there were any non-linear interactions between clinical diagnosis and A$\beta$ protein in the 96 brain regions on mini-mental state examination. 
@@ -558,6 +573,9 @@ All our algorithms are implemented in a computationally efficient, well-document
 Furthermore, our method is flexible enough to handle any type of basis expansion including the identity map, which allows for linear interactions. Our implementation allows the user to selectively apply the basis expansions to the predictors, allowing for example, a combination of continuous and categorical predictors. 
 An extensive simulation study shows that \sail, \texttt{adaptive sail} and \texttt{sail weak} outperform existing penalized regression methods in terms of prediction error, sensitivity and specificity when there are non-linear main effects only, as well as interactions with an exposure variable. 
 
-Our method however does have its limitations. \sail can currently only handle $X_E \cdot f(X)$ or $f(X_E) \cdot X$ and does not allow for $f(X, X_E)$, i.e., only one of the variables in the interaction can have a non-linear effect and we do not consider the tensor product. The reparametrization leads to a non-convex optimization problem which makes convergence rates difficult to assess, though we did not experience any major convergence issues in our simulations and real data analysis. The memory footprint can also be an issue depending on the degree of the basis expansion and the number of variables. 
+Our method however does have its limitations. \sail ~can currently only handle $X_E \cdot f(X)$ or $f(X_E) \cdot X$ and does not allow for $f(X, X_E)$, i.e., only one of the variables in the interaction can have a non-linear effect and we do not consider the tensor product. The reparametrization leads to a non-convex optimization problem which makes convergence rates difficult to assess, though we did not experience any major convergence issues in our simulations and real data analysis. The memory footprint can also be an issue depending on the degree of the basis expansion and the number of variables. 
 
 To our knowledge, our proposal is the first to allow for non-linear interactions with a key exposure variable following the weak or strong heredity property in high-dimensional settings. We also provide a first software implementation for these models. 
+
+\section*{Acknowledgements}
+We thank Dr. Pedro Rosa-Neto for providing the ADNI data. 
