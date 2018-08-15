@@ -64,7 +64,7 @@ Despite these encouraging results, such methods have low sensitivity for identif
 As a consequence, there is rarely consistency on which variables are chosen from one dataset to another (e.g. in cross-validation folds). This behavior may not be desirable in high-dimensional datasets in which large sets of predictors are highly correlated and are also associated with the response since it may limit interpretability of results. 
 The elastic net was proposed to benefit from the strengths of ridge regression's treatment of correlated variables and lasso's sparsity~\citep{zou2005regularization}. 
 By placing both an $\ell_1$ and $\ell_2$ penalty on $\bbeta$, the elastic net achieves model parsimony while yielding similar regression coefficients for correlated variables~\citep{zou2005regularization}. 
-These methods however do not take advantage of any (possibly known) grouping structure in the data. For example, cortical thickness measurements from \ac{mri} scans are often grouped into cortical regions of the Automated Anatomical Labelling (AAL) atlas~\citep{tzourio2002automated}. 
+These methods however do not take advantage of any (possibly known) grouping structure in the data. For example, cortical thickness measurements from \ac{mri} scans are often grouped into cortical regions of the \ac{aal} atlas~\citep{tzourio2002automated}. 
 Genes involved in the same cellular process (e.g. KEGG pathway~\citep{kanehisa2008kegg}) can also be placed into biologically meaningful groups. When regularizing with the $\ell_1$ penalty, each variable is selected individually regardless of its position in the design matrix. 
 Existing structures among the variables (e.g. spatial, networks, pathways) are ignored even though in many real-life applications the estimation can benefit from this prior knowledge in terms of both prediction accuracy and interpretability~\citep{bach2012structured}. 
 The group lasso~\citep{yuan2006model} (and generalizations thereof) overcomes this problem by producing a structured sparsity~\citep{bach2012structured}, i.e., given a predetermined grouping of variables, all members of the group are either zero or non-zero. 
@@ -160,7 +160,7 @@ Other algorithms for solving this problem exist, including LARS~\citep{efron2004
 
 \subsection{Block coordinate descent algorithm} \label{subsec:cgd}
 
-In a series of seminal papers, Tseng laid the groundwork for a general purpose block coordinate descent algorithm (CGD)~\citep{tseng2009coordinate,tseng1988coordinate,tseng2001convergence} to minimize the sum of a smooth function $f$ (i.e. continuously differentiable) and a separable convex function $P$ of the form
+In a series of seminal papers, Tseng laid the groundwork for a general purpose block \ac{cgd}~\citep{tseng2009coordinate,tseng1988coordinate,tseng2001convergence} to minimize the sum of a smooth function $f$ (i.e. continuously differentiable) and a separable convex function $P$ of the form
 \begin{equation}
 Q_{\lambda}(\bTheta) = \argmin_{\bTheta}\; f(\bTheta) + \lambda P(\bTheta) \label{eq:tseng}
 \end{equation}
@@ -337,7 +337,7 @@ and $(x)_+ = \max(x, 0)$. Since there is a closed form solution, which can be co
 
 
 \subsection{Lambda sequence} \label{subsec:lasso_lambda_seq}
-In general, the solution to~\eqref{eq:lasso_estimator} is computed over a decreasing sequence of values for the tuning parameter $\lambda$, beginning with the smallest value $\lambda_{max}$ for which the entire coefficient vector $\widehat{\bbeta}=\mb{0}_p$ ~\citep{friedman2010regularization}. To determine $\lambda_{max}$, we turn to the Karush-Kuhn-Tucker (KKT) optimality conditions for~\eqref{eq:lasso_estimator}. These conditions can be written as
+In general, the solution to~\eqref{eq:lasso_estimator} is computed over a decreasing sequence of values for the tuning parameter $\lambda$, beginning with the smallest value $\lambda_{max}$ for which the entire coefficient vector $\widehat{\bbeta}=\mb{0}_p$ ~\citep{friedman2010regularization}. To determine $\lambda_{max}$, we turn to the \ac{kkt} optimality conditions for~\eqref{eq:lasso_estimator}. These conditions can be written as
 \begin{equation}
 \begin{aligned}
 \frac{1}{v_j} \sum_{i=1}^{n}w_i X_{ij}\left(  y_i - \sum_{j=1}^{p}X_{ij}\hat\beta_j \right) =  \lambda \gamma_j, \\
@@ -400,18 +400,18 @@ For least-squares loss, the group lasso estimator~\citep{yuan2006model} is given
 \begin{equation}
 \widehat{\bbeta}(\lambda) = \argmin_{(\beta_0,\bbeta)} \frac{1}{2}  \sum_{i=1}^{n}w_i (y_i -\beta_0- (\bX \bbeta)_i)^2 + \lambda\sum_{k=1}^{K}v_k\Vert\boldsymbol{\beta}^{(k)}\Vert_{2} \label{eq:glasso_estimator}
 \end{equation}
-where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$, and penalty factors $v_k \geq 0$ which control the relative strength of the terms within the group lasso penalty. These penalty factors are often set to $\sqrt{p_k}$~\citep{yuan2006model}. Note that the same penalty factor is applied to all the coefficients in a group. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a majorization-minimization (MM) type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
+where $\norm{\bbeta^{(k)}}_2 = \sqrt{\sum_{j \in I_k} \beta^{2}_j }\;$ and $\lambda > 0$ is the tuning parameter. As in the lasso estimator~\eqref{eq:lasso_estimator}, there are both observation weights $w_i$, and penalty factors $v_k \geq 0$ which control the relative strength of the terms within the group lasso penalty. These penalty factors are often set to $\sqrt{p_k}$~\citep{yuan2006model}. Note that the same penalty factor is applied to all the coefficients in a group. Solving the group lasso estimator is more challenging than the lasso since there is no closed form solution for~\eqref{eq:glasso_estimator}. In the next section, we detail a \ac{mm} type algorithm~\citep{yang2015fast,MM1} used to solve~\eqref{eq:glasso_estimator}. 
 
 
 \subsection{Groupwise majorization descent algorithm}
 
-This description of the groupwise majorization descent (GMD) algorithm used to solve~\eqref{eq:glasso_estimator} follows mainly from~\cite{yang2015fast}. The main difference here is that we consider a more general loss function of the form
+This description of the \ac{gmd} algorithm used to solve~\eqref{eq:glasso_estimator} follows mainly from~\cite{yang2015fast}. The main difference here is that we consider a more general loss function of the form
 
 \begin{equation}
 L(\bbeta\mid\bD)=\frac{1}{2}\left[\by-\widehat{\by}\right]^{\top}\mathbf{W}\left[\by-\widehat{\by}\right] \label{eq:general_form}
 \end{equation}
 
-where $\widehat{\by}=\hat{\beta_0}+\bX\widehat\bbeta$, $\bD$ is the working data $\lbrace \by, \bX \rbrace$, and $\bW$ is an $n \times n$ nonsingular and known weight matrix. This weight matrix can be used when the elements of $\by$ are correlated as is done in generalized least squares. The original proposal in~\cite{yang2015fast} is a special case of~\eqref{eq:general_form} where $\bW$ is a diagonal matrix with entries equal to $w_i$. The loss function~\eqref{eq:general_form} satisfies the quadratic majorization (QM) condition, since $L(\bbeta\mid\bD)$ is differentiable as a function of $\bbeta$, i.e., $\nabla L(\bbeta|\bD)=-\left(\by-\hat{\by}\right)^{\top}\mathbf{W}\bX$, and there exists
+where $\widehat{\by}=\hat{\beta_0}+\bX\widehat\bbeta$, $\bD$ is the working data $\lbrace \by, \bX \rbrace$, and $\bW$ is an $n \times n$ nonsingular and known weight matrix. This weight matrix can be used when the elements of $\by$ are correlated as is done in generalized least squares. The original proposal in~\cite{yang2015fast} is a special case of~\eqref{eq:general_form} where $\bW$ is a diagonal matrix with entries equal to $w_i$. The loss function~\eqref{eq:general_form} satisfies the \ac{qm} condition, since $L(\bbeta\mid\bD)$ is differentiable as a function of $\bbeta$, i.e., $\nabla L(\bbeta|\bD)=-\left(\by-\hat{\by}\right)^{\top}\mathbf{W}\bX$, and there exists
 a $p\times p$ matrix $\bH=\bX^{\trans}\mathbf{W}\bX$ which only depends on the data $\bD$, such that for all $\bbeta,\bbeta^{*}$,
 \begin{equation}
 L(\bbeta\mid\bD)\le L(\bbeta^{*}\mid\bD)+(\bbeta-\bbeta^{*})^{\trans}\nabla L(\bbeta^{*}|\bD)+\frac{1}{2}(\bbeta-\bbeta^{*})^{\trans}\bH(\bbeta-\bbeta^{*}).\label{QM1}
@@ -647,7 +647,7 @@ To our knowledge, strong hierarchies have never previously been used in HD inter
 \section{Linear mixed-effects models}
 %(5) A brief intro to linear mixed models followed by why naive penalization violates the normality of residuals to motivate your ggmix chapter.
 
-Linear mixed-effects models (LMMs)~\citep{laird1982random} are a class of statistical models used to account for correlations induced by a natural grouping of the observations such as students in schools or repeated measurements on the same individual. By introducing a subject specific random effect, LMMs can simultaneously model the mean and covariance structure to produce valid standard errors. In this section we briefly introduce LMMs as a preface to Chapter 4 of the thesis which is about penalized LMMs.
+\ac{lmm}~\citep{laird1982random} are a class of statistical models used to account for correlations induced by a natural grouping of the observations such as students in schools or repeated measurements on the same individual. By introducing a subject specific random effect, LMMs can simultaneously model the mean and covariance structure to produce valid standard errors. In this section we briefly introduce LMMs as a preface to Chapter 4 of the thesis which is about penalized LMMs.
 
 Let $i = 1, \ldots, N$ be the grouping index, $j = 1, \ldots, n_i$ the observation index within a group and $N_T = \sum_{i=1}^{N} n_i$ the total number of observations. For each group let \mbox{$\by_i = (y_1, \ldots, y_{n_i})$} be the observed vector of responses, $\bX_i$ an $n_i \times (p + 1)$ design matrix (with the column of 1s for the intercept), $\bb_i$ a group-specific random effect vector of length $n_i$ and \mbox{$\be_i = (\varepsilon_{i1}, \ldots, \varepsilon_{in_i})$} the individual error terms. Denote the stacked vectors \mbox{$\bY = (\by_i, \ldots, \by_N)^T \in \mathbb{R}^{N_T \times 1}$}, $\bb = (\bb_i, \ldots, \bb_N)^T \in \mathbb{R}^{N_T \times 1}$, \mbox{$\be = (\be_i, \ldots, \be_N)^T \in \mathbb{R}^{N_T \times 1}$}, and the stacked matrix \\\mbox{$\bX = (\bX_1, \ldots, \bX_N)^T \in \mathbb{R}^{N_T \times (p + 1)}$}. Furthermore, let $\bbeta = (\beta_0,\beta_1, \ldots, \beta_p)^T \in \mathbb{R}^{(p+1) \times 1}$ be a vector of fixed effects regression coefficients corresponding to $\bX$. We consider the following LMM with a single random effect:
 \begin{equation}

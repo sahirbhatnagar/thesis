@@ -48,7 +48,7 @@ $^{4}$\textit{Department of Mathematics and Statistics, McGill University, Montr
 Genome-wide association studies (GWAS) have become the standard method for analyzing genetic datasets owing to their success in identifying thousands of genetic variants associated with complex diseases (\url{https://www.genome.gov/gwastudies/}).
 Despite these impressive findings, the discovered markers have only been able to explain a small proportion of the phenotypic variance; this is known as the missing heritability problem~\citep{manolio2009finding}.
 One plausible explanation is that there are many causal variants that each explain a small amount of variation with small effect sizes~\citep{yang2010common}.
-Methods such GWAS, which test each variant or single nucleotide polymorphism (SNP) independently, may miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
+Methods such GWAS, which test each variant or \ac{snp} independently, may miss these true associations due to the stringent significance thresholds required to reduce the number of false positives~\citep{manolio2009finding}. 
 Another major issue to overcome is that of confounding due to geographic population structure, family and/or cryptic relatedness which can lead to spurious associations~\citep{astle2009population}.
 For example, there may be subpopulations within a study that differ with respect to their genotype frequencies at a particular locus due to geographical location or their ancestry.
 This heterogeneity in genotype frequency can cause correlations with other loci and consequently mimic the signal of association even though there is no biological association~\citep{song2015testing,marchini2004effects}. 
@@ -59,7 +59,7 @@ Studies that separate their sample by ethnicity to address this confounding suff
 To address the first problem, multivariable regression methods have been proposed which simultaneously fit many SNPs in a single model~\citep{hoggart2008simultaneous,li2010bayesian}. Indeed, the power to detect an association for a given SNP may be increased when other causal SNPs have been accounted for. Conversely, a stronger signal from a causal SNP may weaken false signals when modeled jointly~\citep{hoggart2008simultaneous}. 
 
 Solutions for confounding by population structure have also received significant attention in the literature~\citep{lippert2011fast,kang2010variance,yu2006unified,eu2014comparison}. 
-There are two main approaches to account for the relatedness between subjects: 1) the principal component (PC) adjustment method and 2) the linear mixed model (LMM).
+There are two main approaches to account for the relatedness between subjects: 1) the \ac{pc} adjustment method and 2) the linear mixed model (LMM).
 The PC adjustment method includes the top PCs of genome-wide SNP genotypes as additional covariates in the model~\citep{price2006principal}. 
 The LMM uses an estimated covariance matrix from the individuals' genotypes and includes this information in the form of a random effect~\cite{astle2009population}. 
 
@@ -438,11 +438,11 @@ where $\bV^{-1}$ is given by~\eqref{eq:Vinv}, and $(\widehat{\bbeta}, \widehat{\
 
 \subsection{Choice of the optimal tuning parameter}
 
-In order to choose the optimal value of the tuning parameter $\lambda$, we use the generalized information criterion~\citep{nishii1984asymptotic} (GIC):
+In order to choose the optimal value of the tuning parameter $\lambda$, we use the \ac{gic}~\citep{nishii1984asymptotic}:
 \begin{equation}
 GIC_{\lambda} = -2 \ell(\widehat{\bbeta}, \widehat{\sigma}^2, \widehat{\eta}) + a_n \cdot \widehat{df}_{\lambda}
 \end{equation}
-where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\bbeta}_{\lambda}$~\citep{zou2007degrees} plus two (representing the variance parameters $\eta$ and $\sigma^2$). Several authors have used this criterion for variable selection in mixed models with $a_n = \log N_T$~\citep{bondell2010joint,schelldorfer2011estimation}, which corresponds to the BIC. We instead choose the high-dimensional BIC~\citep{fan2013tuning} given by $a_n = \log(\log(N_T)) * \log(p)$. This is the default choice in our \texttt{ggmix} R package, though the interface is flexible to allow the user to select their choice of $a_n$. 
+where $\widehat{df}_{\lambda}$ is the number of non-zero elements in $\widehat{\bbeta}_{\lambda}$~\citep{zou2007degrees} plus two (representing the variance parameters $\eta$ and $\sigma^2$). Several authors have used this criterion for variable selection in mixed models with $a_n = \log N_T$~\citep{bondell2010joint,schelldorfer2011estimation}, which corresponds to the \ac{bic}. We instead choose the high-dimensional BIC~\citep{fan2013tuning} given by $a_n = \log(\log(N_T)) * \log(p)$. This is the default choice in our \texttt{ggmix} R package, though the interface is flexible to allow the user to select their choice of $a_n$. 
 
 \section{Simulation Study}
 
