@@ -6,7 +6,7 @@
 %\usepackage[numbers,sort]{natbib}   % omit 'round' option if you prefer square brackets
 \usepackage[sort]{natbib}   % omit 'round' option if you prefer square brackets
 
-
+\usepackage[a-1b]{pdfx}
 
 %\usepackage{algorithm}
 
@@ -64,8 +64,17 @@
 \let\tnote\relax% "Free up" \tnote for use in ctable
 %\usepackage{setspace}
 %\usepackage{subcaption}
-\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{inputenc}
+
 \usepackage[T1]{fontenc}
+
+\usepackage{inputenc}
+\usepackage{hyperref}
+\hypersetup{pdfencoding=unicode}
+\inputencoding{utf8}
+\makeatother
+
+
 \usepackage{pifont}% http://ctan.org/pkg/pifont
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
@@ -76,26 +85,27 @@
 
 \usepackage{array}
 %\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}} % used for text wrapping in ctable
-\usepackage[pagebackref=true,bookmarks]{hyperref}
-\hypersetup{
-	unicode=false,
-	pdftoolbar=true,
-	pdfmenubar=true,
-	pdffitwindow=false,     % window fit to page when opened
-	pdfstartview={FitH},    % fits the width of the page to the window
-	pdftitle={Penalized LMM in Families},    % title
-	pdfauthor={Sahir Rai Bhatnagar},     % author
-	pdfsubject={Subject},   % subject of the document
-	pdfcreator={Sahir Rai Bhatnagar},   % creator of the document
-	pdfproducer={Sahir Rai Bhatnagar}, % producer of the document
-	pdfkeywords={}, % list of keywords
-	pdfnewwindow=true,      % links in new window
-	colorlinks=true,       % false: boxed links; true: colored links
-	linkcolor=red,          % color of internal links (change box color with linkbordercolor)
-	citecolor=blue,        % color of links to bibliography
-	filecolor=black,      % color of file links
-	urlcolor=blue           % color of external links
-}
+%\usepackage[pagebackref=true,bookmarks]{hyperref}
+
+%\hypersetup{
+%	unicode=false,
+%	pdftoolbar=true,
+%	pdfmenubar=true,
+%	pdffitwindow=false,     % window fit to page when opened
+%	pdfstartview={FitH},    % fits the width of the page to the window
+%	pdftitle={Penalized LMM in Families},    % title
+%	pdfauthor={Sahir Rai Bhatnagar},     % author
+%	pdfsubject={Subject},   % subject of the document
+%	pdfcreator={Sahir Rai Bhatnagar},   % creator of the document
+%	pdfproducer={Sahir Rai Bhatnagar}, % producer of the document
+%	pdfkeywords={}, % list of keywords
+%	pdfnewwindow=true,      % links in new window
+%	colorlinks=true,       % false: boxed links; true: colored links
+%	linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+%	citecolor=blue,        % color of links to bibliography
+%	filecolor=black,      % color of file links
+%	urlcolor=blue           % color of external links
+%}
 
 %########################################################################################
 %            						SPACING

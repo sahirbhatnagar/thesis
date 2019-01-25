@@ -51,7 +51,7 @@ In the next section, we introduce multivariable penalized regression approaches 
 \subsection{Multivariable penalized regression} \label{sec:pen}
 %\subsubsection{Variable selection and variable screening}
 The least squares estimate for $\bbeta$ in the standard linear model is given by $ \widehat{\bbeta} = \left( \bX^T \bX  \right)^{-1} \bX^T \by $. In high-dimensional data, the problem is that $\bX^T \bX$ is singular because the number of covariates greatly exceeds the number of subjects. 
-For example DNA microarrays measure the expression of approximately 20,000 genes. 
+For example RNA microarrays measure the expression of approximately 20,000 genes. 
 However, due to funding constraints, the sample size is often less than a few hundred. 
 A common solution to this problem is through penalized regression, i.e., applying a constraint on the values of $\bbeta$. The problem can be formulated as finding the vector $\bbeta$ that minimizes the penalized sum of squares:
 \begin{equation}
@@ -214,11 +214,10 @@ The Armijo rule is defined as follows~\citep{tseng2009coordinate}:
 	\end{equation}
 \end{tcolorbox}
 Common choices for the constants are $\delta=0.1$, $\varrho=0.001$, $\gamma = 0$, $\alpha_{init}^{(k)} = 1$ for all $k$~\citep{bertsekas1999nonlinear}.
-We use Algorithm~\ref{alg:litreviewcgd} to solve the lasso estimator with least-squares loss given by~\eqref{eq:lasso_estimator}. Without loss of generality, we assume the penalty factors ($v_j$) are all equal to 1. 
-
+We use Algorithm~\ref{alg:litreviewcgd} to solve the lasso estimator with least-squares loss given by~\eqref{eq:lasso_estimator}. We provide a full derivation below as two of our methods, \texttt{sail} and \texttt{ggmix}, build on this algorithm to solve their respective objective functions. Without loss of generality, we assume the penalty factors ($v_j$) are all equal to 1. 
 
 \subsubsection{Descent Direction}
-For simplicity, we remove the iteration counter $(k)$ from the derivation below.\\ For \mbox{$\Theta_j^{(k)} \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$}, let
+For simplicity, we remove the iteration counter $(k)$ from the derivation below.\\ For \mbox{$\Theta_j \in \left\lbrace \beta_1, \ldots, \beta_p \right\rbrace$}, let
 \begin{equation}
 d_{H}(\Theta_{j}) = \argmin_{d} G(d)  \label{eq:argminGd-litreview}
 \end{equation}
@@ -233,7 +232,7 @@ where
 u = \begin{cases}
 1 & \tm{if\quad}d > -\Theta_j \\
 -1 & \tm{if\quad} d < -\Theta_j\\
-[-1,1] & \tm{if\quad} d = \Theta_j
+[-1,1] & \tm{if\quad} d = -\Theta_j
 \end{cases}
 \end{equation}
 We consider each of the three cases in~\eqref{eq:subdiff-litreview} below
